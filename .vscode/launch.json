@@ -1,0 +1,21 @@
+{
+	"version": "1.0.0",
+	"configurations": [
+		{
+			"name": "debug-nodejs",
+			"type": "node",
+			"request": "launch",
+			"cwd": "${workspaceRoot}/server",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "debug"]
+		},
+		{
+			"name": "debug-chrome",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}/client",
+            "sourceMaps": true,
+		}
+	]
+}

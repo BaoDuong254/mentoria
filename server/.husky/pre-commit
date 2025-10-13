@@ -1,0 +1,4 @@
+echo "🔍 Running lint-staged in server ..."
+cd server
+npx lint-staged
+echo "✅ lint-staged completed in server."
