@@ -1,4 +1,0 @@
-echo "🔍 Running lint-staged in client ..."
-cd client
-npx lint-staged
-echo "✅ lint-staged completed in client."
