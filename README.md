@@ -8,7 +8,6 @@ Mentoria is a full-stack application built with React + TypeScript (client) and 
 - [Project Installation](#-project-installation)
 - [Running the Project](#️-running-the-project)
 - [Git Workflow](#-git-workflow)
-- [Pull Request Guidelines](#-pull-request-guidelines)
 - [Available Scripts](#-available-scripts)
 
 ## 🛠 System Requirements
@@ -83,13 +82,6 @@ npm run start
 
 ## 🔄 Git Workflow
 
-### Branch Naming
-
-- `main`: Production branch
-- `feature/feature-name`: Feature branches
-- `bugfix/bug-description`: Bug fix branches
-- `hotfix/issue-description`: Hotfix branches
-
 ### Commit Message Convention
 
 The project uses [Conventional Commits](https://www.conventionalcommits.org/):
@@ -129,44 +121,59 @@ The project has built-in git hooks to ensure code quality:
 - **pre-commit**: Run lint and format code
 - **commit-msg**: Check commit message format
 
-## 🔧 Pull Request Guidelines
+### Branch Naming
 
-### Before Creating PR
+- `main`: Production branch
+- `feature/feature-name`: For new features
+- `bugfix/bug-description`: For bug fixes
+- `hotfix/issue-description`: For urgent production issues
 
-1. **Ensure code passes all checks:**
+### Standard Workflow
 
-   ```bash
-   # Client
-   cd client
-   npm run lint
-   npm run format
-   npm run build
-
-   # Server
-   cd server
-   npm run lint
-   npm run format
-   npm run build
-   ```
-
-2. **Update branch with latest changes:**
+1. **Create a new branch**
+   Always branch off from the latest version of `main`.
 
    ```bash
    git checkout main
    git pull origin main
-   git checkout your-feature-branch
-   git rebase main
+   git checkout -b feature/your-feature-name
    ```
 
-### Creating Pull Request
+2. **Work on your feature**
+   Make your code changes and commit them using the [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-1. **Push branch to remote:**
+   ```bash
+   git add .
+   git commit -m "feat(auth): add login functionality"
+   ```
+
+3. **Rebase with the latest main branch**
+   Before pushing, make sure your branch is up to date with `main`:
+
+   ```bash
+   git fetch origin
+   git rebase origin/main
+   ```
+
+4. **Push your branch to remote**
 
    ```bash
    git push origin feature/your-feature-name
    ```
 
-2. **Create PR with template**
+5. **Create a Pull Request (PR)**
+   Open a PR to merge your branch into `main` using the project’s PR template.
+   Wait for review and approval before merging.
+
+6. **After Merge — Sync and Clean Up**
+   Once your PR is merged:
+
+   ```bash
+   git checkout main
+   git pull origin main
+   git branch -d feature/your-feature-name     # delete local branch
+   git push origin --delete feature/your-feature-name   # delete remote branch
+   ```
 
 ## 📜 Available Scripts
 
