@@ -4,12 +4,16 @@ import morgan from "morgan";
 import cors from "cors";
 import poolPromise from "@/config/database";
 import authRoutes from "@/routes/auth.route";
+import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // parse request to body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// parse cookies
+app.use(cookieParser());
 
 // enable CORS
 app.use(
