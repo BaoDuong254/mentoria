@@ -23,7 +23,7 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
       .request()
       .input("userId", (decoded as jwt.JwtPayload).userId)
       .query(
-        "SELECT user_id, first_name, last_name, sex, created_at, updated_at, email, avatar_url, country, role, timezone, status FROM users WHERE user_id = @userId"
+        "SELECT user_id, first_name, last_name, sex, created_at, updated_at, email, avatar_url, country, role, timezone, status, google_id, provider FROM users WHERE user_id = @userId"
       );
     const user = result.recordset[0];
 
@@ -44,6 +44,8 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
       role: user.role,
       timezone: user.timezone,
       status: user.status,
+      google_id: user.google_id,
+      provider: user.provider,
     };
 
     next();

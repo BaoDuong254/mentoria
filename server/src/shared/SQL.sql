@@ -6,7 +6,7 @@ CREATE TABLE users (
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     email NVARCHAR(100) UNIQUE NOT NULL,
-    password NVARCHAR(255) NOT NULL,
+    password NVARCHAR(255) NULL,
     avatar_url NVARCHAR(255) NULL,
     country NVARCHAR(100) NULL,
     role NVARCHAR(50) CHECK (role IN (N'Mentee', N'Mentor', N'Admin')) DEFAULT N'Mentee',
@@ -16,5 +16,7 @@ CREATE TABLE users (
     otp NVARCHAR(6) NULL,
     otp_expiration DATETIME NULL,
     reset_password_token NVARCHAR(255) NULL,
-    reset_password_token_expiration DATETIME NULL
+    reset_password_token_expiration DATETIME NULL,
+    google_id NVARCHAR(255) NULL,
+    provider NVARCHAR(50) CHECK (provider IN (N'Local', N'Google')) DEFAULT N'Local'
 );

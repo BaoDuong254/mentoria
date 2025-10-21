@@ -1,4 +1,4 @@
-import { Role, Sex, Status } from "@/constants/type";
+import { Provider, Role, Sex, Status } from "@/constants/type";
 import z from "zod";
 
 export const AccountSchema = z.object({
@@ -9,7 +9,7 @@ export const AccountSchema = z.object({
   created_at: z.string(),
   updated_at: z.string().nullable(),
   email: z.email(),
-  password: z.string(),
+  password: z.string().nullable(), // Make nullable for Google users
   avatar_url: z.string().nullable(),
   country: z.string().nullable(),
   role: z.enum([Role.Mentee, Role.Mentor, Role.Admin]).default(Role.Mentee),
@@ -20,6 +20,8 @@ export const AccountSchema = z.object({
   otp_expiration: z.string().nullable(),
   reset_password_token: z.string().nullable(),
   reset_password_token_expiration: z.string().nullable(),
+  google_id: z.string().nullable(),
+  provider: z.enum([Provider.Local, Provider.Google]).default(Provider.Local),
 });
 
 export type TAccountSchema = z.TypeOf<typeof AccountSchema>;

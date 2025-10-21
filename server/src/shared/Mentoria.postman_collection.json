@@ -1,0 +1,180 @@
+{
+  "info": {
+    "_postman_id": "766cb574-ac29-4036-a0b7-d95cb1058ffe",
+    "name": "Mentoria",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "41961051"
+  },
+  "item": [
+    {
+      "name": "module auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "firstName",
+                  "value": "duong",
+                  "type": "text"
+                },
+                {
+                  "key": "lastName",
+                  "value": "bao",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "duonggiabao254@gmail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/register",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "otp",
+                  "value": "358756",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/verify-otp",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "verify-otp"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email",
+                  "value": "duonggiabao254@gmail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "1234567",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/login",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/logout",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email",
+                  "value": "duonggiabao254@gmail.com",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/forgot-password",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "forgot-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "newPassword",
+                  "value": "1234567",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/reset-password/a46ea905-195f-45d1-b93e-487a4606e026",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "reset-password", "a46ea905-195f-45d1-b93e-487a4606e026"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login with google",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/auth/google",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "google"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

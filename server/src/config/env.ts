@@ -28,6 +28,8 @@ const configSchema = z.object({
   MAIL_USER: z.string(),
   MAIL_PASS: z.string(),
   CLIENT_URL: z.string().default("http://localhost:5173"),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
 });
 
 const configServer = configSchema.safeParse(process.env);

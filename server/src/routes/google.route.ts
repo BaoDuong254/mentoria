@@ -1,0 +1,52 @@
+import express from "express";
+import passport from "passport";
+import { protectRoute } from "@/middlewares/auth.middleware";
+import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
+import envConfig from "@/config/env";
+
+const router = express.Router();
+
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback", passport.authenticate("google", { session: false }), (req, res) => {
+  try {
+    if (!req.user) {
+      console.error("No user found in Google OAuth callback");
+      return res.redirect(`${envConfig.CLIENT_URL}/login?error=google_failed`);
+    }
+
+    const user = req.user as {
+      user_id: string;
+      role: string;
+      status: string;
+      first_name: string;
+      last_name: string;
+      email: string;
+    };
+
+    console.log("Google OAuth successful for user:", user.email);
+
+    const payload = {
+      userId: user.user_id,
+      userRole: user.role,
+      userStatus: user.status,
+    };
+
+    generateTokenAndSetCookie(res, payload);
+    return res.redirect(`${envConfig.CLIENT_URL}?login=success`);
+  } catch (error) {
+    console.error("Google login error:", error);
+    return res.redirect(`${envConfig.CLIENT_URL}/login?error=google_failed`);
+  }
+});
+
+router.get("/me", protectRoute, (req, res) => {
+  try {
+    res.json({ success: true, user: req.user });
+  } catch (error) {
+    console.error("Error getting user info:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+export default router;

@@ -4,9 +4,15 @@ import morgan from "morgan";
 import cors from "cors";
 import poolPromise from "@/config/database";
 import authRoutes from "@/routes/auth.route";
+import googleRoutes from "@/routes/google.route";
 import cookieParser from "cookie-parser";
+import envConfig from "@/config/env";
+// Import passport configuration
+import "@/config/passport";
+import passport from "passport";
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = envConfig.PORT || 3000;
 
 // parse request to body
 app.use(express.json());
@@ -15,10 +21,13 @@ app.use(express.urlencoded({ extended: true }));
 // parse cookies
 app.use(cookieParser());
 
+// Initialize Passport (without session)
+app.use(passport.initialize());
+
 // enable CORS
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: envConfig.CLIENT_URL,
     credentials: true,
   })
 );
@@ -34,6 +43,12 @@ app.use(
 
 // routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", googleRoutes);
+
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running" });
+});
 
 app.listen(PORT, async () => {
   // Test database connection on server start

@@ -1,4 +1,5 @@
 import poolPromise from "@/config/database";
+import { Provider } from "@/constants/type";
 import { TAccountSchema } from "@/validation/account.schema";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -43,13 +44,14 @@ const registerUserService = async (
     .input("password", passwordHash)
     .input("otp", otp)
     .input("otp_expiration", otp_expiration)
+    .input("provider", "Local")
     .query(
-      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration)
+      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider)
        OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
               INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
               INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
-              INSERTED.otp, INSERTED.otp_expiration
-       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration)`
+              INSERTED.otp, INSERTED.otp_expiration, INSERTED.google_id, INSERTED.provider
+       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider)`
     );
 
   return result.recordset[0];
@@ -140,7 +142,9 @@ const loginUserService = async (
   const userResult = await pool
     .request()
     .input("email", email)
-    .query("SELECT user_id, email, password, role, status, is_email_verified FROM users WHERE email = @email");
+    .query(
+      "SELECT user_id, email, password, role, status, is_email_verified, provider FROM users WHERE email = @email"
+    );
 
   if (userResult.recordset.length === 0) {
     return { success: false, message: "Invalid email or password" };
@@ -148,7 +152,16 @@ const loginUserService = async (
 
   const user = userResult.recordset[0];
 
-  // Compare password
+  // Check if user is from Google provider
+  if (user.provider === Provider.Google) {
+    return { success: false, message: "Account already registered with Google. Please use Google login." };
+  }
+
+  // Compare password (only for local users)
+  if (!user.password) {
+    return { success: false, message: "Invalid email or password" };
+  }
+
   const isPasswordValid = await comparePassword(password, user.password);
 
   if (!isPasswordValid) {

@@ -14,3 +14,8 @@ export const Sex = {
   Male: "Male",
   Female: "Female",
 } as const;
+
+export const Provider = {
+  Local: "Local",
+  Google: "Google",
+} as const;
