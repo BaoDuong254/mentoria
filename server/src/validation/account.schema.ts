@@ -16,8 +16,8 @@ export const AccountSchema = z.object({
   timezone: z.string().nullable(),
   status: z.enum([Status.Active, Status.Banned, Status.Pending]).default(Status.Pending),
   is_email_verified: z.boolean().default(false),
-  otp: z.string(),
-  otp_expiration: z.string(),
+  otp: z.string().nullable(),
+  otp_expiration: z.string().nullable(),
 });
 
 export type TAccountSchema = z.TypeOf<typeof AccountSchema>;

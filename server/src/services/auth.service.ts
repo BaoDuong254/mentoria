@@ -31,7 +31,7 @@ const registerUserService = async (
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const otp_expiration = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes from now
+  const otp_expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
   // Insert user and get the inserted user data
   const result = await pool
@@ -54,4 +54,71 @@ const registerUserService = async (
   return result.recordset[0];
 };
 
-export { isEmailExist, registerUserService };
+const verifyOTPService = async (
+  otp: string
+): Promise<{
+  success: boolean;
+  message: string;
+  needResend?: boolean;
+  email?: string;
+  newOtp?: string;
+  user?: { user_id: number; role: string; status: string };
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // First check if OTP exists
+  const otpResult = await pool
+    .request()
+    .input("otp", otp)
+    .query("SELECT user_id, email, otp_expiration, role, status FROM users WHERE otp = @otp");
+
+  if (otpResult.recordset.length === 0) {
+    return { success: false, message: "OTP is invalid" };
+  }
+
+  const user = otpResult.recordset[0];
+  const currentTime = new Date();
+  const otpExpiration = new Date(user.otp_expiration);
+
+  // Check if OTP is expired
+  if (currentTime > otpExpiration) {
+    // Generate new OTP
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtpExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    // Update user with new OTP
+    await pool
+      .request()
+      .input("userId", user.user_id)
+      .input("newOtp", newOtp)
+      .input("newOtpExpiration", newOtpExpiration)
+      .query("UPDATE users SET otp = @newOtp, otp_expiration = @newOtpExpiration WHERE user_id = @userId");
+
+    return {
+      success: false,
+      message: "Your OTP has expired. We have sent a new OTP to your email address.",
+      needResend: true,
+      email: user.email,
+      newOtp: newOtp,
+    };
+  }
+
+  // OTP is valid, update user verification status
+  await pool
+    .request()
+    .input("userId", user.user_id)
+    .query("UPDATE users SET is_email_verified = 1, otp = NULL, otp_expiration = NULL WHERE user_id = @userId");
+
+  return {
+    success: true,
+    message: "Email verified successfully",
+    user: {
+      user_id: user.user_id,
+      role: user.role,
+      status: user.status,
+    },
+  };
+};
+
+export { isEmailExist, registerUserService, verifyOTPService };
