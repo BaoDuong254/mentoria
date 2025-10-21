@@ -9,10 +9,10 @@ const hashPassword = async (plainText: string) => {
   return hashedPassword;
 };
 
-// const comparePassword = async (plainText: string, hash: string) => {
-//   const isMatch = await bcrypt.compare(plainText, hash);
-//   return isMatch;
-// };
+const comparePassword = async (plainText: string, hash: string) => {
+  const isMatch = await bcrypt.compare(plainText, hash);
+  return isMatch;
+};
 
 const isEmailExist = async (email: string): Promise<boolean> => {
   const pool = await poolPromise;
@@ -121,4 +121,72 @@ const verifyOTPService = async (
   };
 };
 
-export { isEmailExist, registerUserService, verifyOTPService };
+const loginUserService = async (
+  email: string,
+  password: string
+): Promise<{
+  success: boolean;
+  message: string;
+  user?: { user_id: number; role: string; status: string; is_email_verified: boolean };
+  needVerification?: boolean;
+  userEmail?: string;
+  newOtp?: string;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Find user by email
+  const userResult = await pool
+    .request()
+    .input("email", email)
+    .query("SELECT user_id, email, password, role, status, is_email_verified FROM users WHERE email = @email");
+
+  if (userResult.recordset.length === 0) {
+    return { success: false, message: "Invalid email or password" };
+  }
+
+  const user = userResult.recordset[0];
+
+  // Compare password
+  const isPasswordValid = await comparePassword(password, user.password);
+
+  if (!isPasswordValid) {
+    return { success: false, message: "Invalid email or password" };
+  }
+
+  // Check if email is verified
+  if (!user.is_email_verified) {
+    // Generate new OTP for unverified user
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const newOtpExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    // Update user with new OTP
+    await pool
+      .request()
+      .input("userId", user.user_id)
+      .input("newOtp", newOtp)
+      .input("newOtpExpiration", newOtpExpiration)
+      .query("UPDATE users SET otp = @newOtp, otp_expiration = @newOtpExpiration WHERE user_id = @userId");
+
+    return {
+      success: false,
+      message: "Please verify your email before logging in. We have sent a new verification code to your email.",
+      needVerification: true,
+      userEmail: user.email,
+      newOtp: newOtp,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Login successful",
+    user: {
+      user_id: user.user_id,
+      role: user.role,
+      status: user.status,
+      is_email_verified: user.is_email_verified,
+    },
+  };
+};
+
+export { isEmailExist, registerUserService, verifyOTPService, loginUserService };
