@@ -1,4 +1,5 @@
 import { registerUserService } from "@/services/auth.service";
+import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { RegisterSchema, TRegisterSchema } from "@/validation/register.schema";
 import { Request, Response } from "express";
 
@@ -12,7 +13,8 @@ const registerUser = async (req: Request, res: Response) => {
       const oldData = { firstName, lastName, email, password };
       return res.status(400).json({ success: false, message: "Validation errors", data: { errors, oldData } });
     }
-    await registerUserService(firstName, lastName, email, password);
+    const user = await registerUserService(firstName, lastName, email, password);
+    generateTokenAndSetCookie(res, user.user_id.toString());
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     console.error("Error in registerUser controller:", error);

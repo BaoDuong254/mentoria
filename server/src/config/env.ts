@@ -24,6 +24,7 @@ const configSchema = z.object({
   DB_PASS: z.string(),
   DB_SERVER: z.string(),
   DB_NAME: z.string(),
+  JWT_SECRET: z.string(),
 });
 
 const configServer = configSchema.safeParse(process.env);

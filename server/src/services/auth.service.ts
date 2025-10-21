@@ -1,5 +1,7 @@
 import poolPromise from "@/config/database";
+import { TAccountSchema } from "@/validation/account.schema";
 import bcrypt from "bcrypt";
+
 const saltRounds = 10;
 
 const hashPassword = async (plainText: string) => {
@@ -24,19 +26,27 @@ const registerUserService = async (
   lastName: string,
   email: string,
   password: string
-): Promise<void> => {
+): Promise<TAccountSchema> => {
   const passwordHash = await hashPassword(password);
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
-  await pool
+
+  // Insert user and get the inserted user data
+  const result = await pool
     .request()
     .input("firstName", firstName)
     .input("lastName", lastName)
     .input("email", email)
     .input("password", passwordHash)
     .query(
-      "INSERT INTO users (first_name, last_name, email, password) VALUES (@firstName, @lastName, @email, @password)"
+      `INSERT INTO users (first_name, last_name, email, password)
+       OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
+              INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
+              INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status
+       VALUES (@firstName, @lastName, @email, @password)`
     );
+
+  return result.recordset[0];
 };
 
 export { isEmailExist, registerUserService };
