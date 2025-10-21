@@ -19,6 +19,7 @@ checkEnv();
 
 const configSchema = z.object({
   PORT: z.coerce.number().default(3000),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   DB_USER: z.string(),
   DB_PASS: z.string(),
   DB_SERVER: z.string(),
