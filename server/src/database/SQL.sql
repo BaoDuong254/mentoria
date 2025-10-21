@@ -11,8 +11,8 @@ CREATE TABLE users (
     country NVARCHAR(100) NULL,
     role NVARCHAR(50) CHECK (role IN (N'Mentee', N'Mentor', N'Admin')) DEFAULT N'Mentee',
     timezone NVARCHAR(50) NULL,
-    status NVARCHAR(20) CHECK (status IN (N'Active', N'Banned', N'Pending')) DEFAULT N'Active'
-    is_email_verified BOOLEAN DEFAULT 0
+    status NVARCHAR(20) CHECK (status IN (N'Active', N'Banned', N'Pending')) DEFAULT N'Active',
+    is_email_verified BIT DEFAULT 0,
     otp NVARCHAR(6) NULL,
     otp_expiration DATETIME NULL
 );
