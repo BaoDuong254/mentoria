@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import poolPromise from "@/config/database";
+import authRoutes from "@/routes/auth.route";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -27,9 +28,8 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-});
+// routes
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, async () => {
   // Test database connection on server start
