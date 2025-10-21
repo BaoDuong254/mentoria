@@ -14,7 +14,12 @@ const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Validation errors", data: { errors, oldData } });
     }
     const user = await registerUserService(firstName, lastName, email, password);
-    generateTokenAndSetCookie(res, user.user_id.toString());
+    const payload = {
+      userId: user.user_id,
+      userRole: user.role,
+      userStatus: user.status,
+    };
+    generateTokenAndSetCookie(res, payload);
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     console.error("Error in registerUser controller:", error);

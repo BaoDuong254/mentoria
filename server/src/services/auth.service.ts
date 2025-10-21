@@ -30,6 +30,8 @@ const registerUserService = async (
   const passwordHash = await hashPassword(password);
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp_expiration = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes from now
 
   // Insert user and get the inserted user data
   const result = await pool
@@ -38,12 +40,15 @@ const registerUserService = async (
     .input("lastName", lastName)
     .input("email", email)
     .input("password", passwordHash)
+    .input("otp", otp)
+    .input("otp_expiration", otp_expiration)
     .query(
-      `INSERT INTO users (first_name, last_name, email, password)
+      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration)
        OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
               INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
-              INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status
-       VALUES (@firstName, @lastName, @email, @password)`
+              INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
+              INSERTED.otp, INSERTED.otp_expiration
+       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration)`
     );
 
   return result.recordset[0];
