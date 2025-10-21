@@ -1,3 +1,4 @@
+import { verifyMail } from "@/mailtrap/verify-otp";
 import { registerUserService } from "@/services/auth.service";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { RegisterSchema, TRegisterSchema } from "@/validation/register.schema";
@@ -20,6 +21,7 @@ const registerUser = async (req: Request, res: Response) => {
       userStatus: user.status,
     };
     generateTokenAndSetCookie(res, payload);
+    await verifyMail(user.otp, user.email);
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     console.error("Error in registerUser controller:", error);

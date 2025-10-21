@@ -25,6 +25,8 @@ const configSchema = z.object({
   DB_SERVER: z.string(),
   DB_NAME: z.string(),
   JWT_SECRET: z.string(),
+  MAIL_USER: z.string(),
+  MAIL_PASS: z.string(),
 });
 
 const configServer = configSchema.safeParse(process.env);
