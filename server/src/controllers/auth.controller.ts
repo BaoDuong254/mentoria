@@ -1,9 +1,16 @@
-import { verifyMail } from "@/mailtrap/verify-otp";
-import { loginUserService, registerUserService, verifyOTPService } from "@/services/auth.service";
+import { verifyMail, verifyResetPassword } from "@/mailtrap/mailSend";
+import {
+  loginUserService,
+  registerUserService,
+  verifyOTPService,
+  forgotPasswordService,
+  resetPasswordService,
+} from "@/services/auth.service";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { LoginSchema, TLoginSchema } from "@/validation/login.schema";
-import { RegisterSchema, TRegisterSchema } from "@/validation/register.schema";
+import { RegisterSchema, ResetPasswordSchema, TRegisterSchema } from "@/validation/register.schema";
 import { Request, Response } from "express";
+import envConfig from "@/config/env";
 
 const registerUser = async (req: Request, res: Response) => {
   try {
@@ -122,4 +129,77 @@ const logoutUser = async (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, verifyOTP, loginUser, logoutUser };
+const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body as { email: string };
+
+    // Call forgot password service
+    const result = await forgotPasswordService(email);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    // Send reset password email
+    const resetURL = `${envConfig.CLIENT_URL}/reset-password/${result.resetToken}`;
+    await verifyResetPassword(resetURL, result.email!);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Error in forgotPassword controller:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    // Check if token exists
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Reset token is required",
+      });
+    }
+
+    // Validate token and password
+    const validate = await ResetPasswordSchema.safeParseAsync({ token, newPassword });
+    if (!validate.success) {
+      const errorsZod = validate.error.issues;
+      const errors = errorsZod?.map((err) => `${err.message}: ${String(err.path[0])}`);
+      return res.status(400).json({
+        success: false,
+        message: "Validation errors",
+        data: { errors },
+      });
+    }
+
+    // Call reset password service
+    const result = await resetPasswordService(token, newPassword);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Error in resetPassword controller:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword };

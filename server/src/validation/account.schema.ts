@@ -18,6 +18,8 @@ export const AccountSchema = z.object({
   is_email_verified: z.boolean().default(false),
   otp: z.string().nullable(),
   otp_expiration: z.string().nullable(),
+  reset_password_token: z.string().nullable(),
+  reset_password_token_expiration: z.string().nullable(),
 });
 
 export type TAccountSchema = z.TypeOf<typeof AccountSchema>;

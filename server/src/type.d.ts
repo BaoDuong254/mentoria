@@ -5,7 +5,15 @@ declare global {
     interface Request {
       user?: Pick<
         TAccountSchema,
-        Exclude<keyof TAccountSchema, "password" | "otp" | "otp_expiration" | "is_email_verified">
+        Exclude<
+          keyof TAccountSchema,
+          | "password"
+          | "otp"
+          | "otp_expiration"
+          | "is_email_verified"
+          | "reset_password_token"
+          | "reset_password_token_expiration"
+        >
       >;
     }
   }

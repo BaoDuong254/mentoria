@@ -27,6 +27,7 @@ const configSchema = z.object({
   JWT_SECRET: z.string(),
   MAIL_USER: z.string(),
   MAIL_PASS: z.string(),
+  CLIENT_URL: z.string().default("http://localhost:5173"),
 });
 
 const configServer = configSchema.safeParse(process.env);

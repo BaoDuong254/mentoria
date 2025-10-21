@@ -1,4 +1,11 @@
-import { loginUser, logoutUser, registerUser, verifyOTP } from "@/controllers/auth.controller";
+import {
+  forgotPassword,
+  loginUser,
+  logoutUser,
+  registerUser,
+  resetPassword,
+  verifyOTP,
+} from "@/controllers/auth.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
 import express from "express";
 
@@ -8,5 +15,7 @@ router.post("/register", registerUser);
 router.post("/verify-otp", verifyOTP);
 router.post("/login", loginUser);
 router.post("/logout", protectRoute, logoutUser);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 export default router;

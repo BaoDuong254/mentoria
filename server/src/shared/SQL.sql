@@ -14,5 +14,7 @@ CREATE TABLE users (
     status NVARCHAR(20) CHECK (status IN (N'Active', N'Banned', N'Pending')) DEFAULT N'Active',
     is_email_verified BIT DEFAULT 0,
     otp NVARCHAR(6) NULL,
-    otp_expiration DATETIME NULL
+    otp_expiration DATETIME NULL,
+    reset_password_token NVARCHAR(255) NULL,
+    reset_password_token_expiration DATETIME NULL
 );

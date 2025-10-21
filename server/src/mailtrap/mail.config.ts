@@ -1,16 +1,8 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
-import fs from "fs";
-import path from "path";
-import handlebars from "handlebars";
 import envConfig from "@/config/env";
 
-export const verifyMail = async (otp: string, email: string) => {
-  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/verify-otp.hbs"), "utf8");
-
-  const template = handlebars.compile(emailTemplateSource);
-  const htmlToSend = template({ otp });
-
+const mailConfig = async (htmlToSend: string, email: string, subject: string) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -22,7 +14,7 @@ export const verifyMail = async (otp: string, email: string) => {
   const mailConfigurations = {
     from: envConfig.MAIL_USER,
     to: email,
-    subject: "Mentoria Verification",
+    subject: subject,
     html: htmlToSend,
   };
 
@@ -34,3 +26,5 @@ export const verifyMail = async (otp: string, email: string) => {
     }
   });
 };
+
+export default mailConfig;

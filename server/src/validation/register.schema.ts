@@ -24,4 +24,10 @@ export const RegisterSchema = z.object({
   password: passwordSchema,
 });
 
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  newPassword: passwordSchema,
+});
+
+export type TResetPasswordSchema = z.TypeOf<typeof ResetPasswordSchema>;
 export type TRegisterSchema = z.infer<typeof RegisterSchema>;

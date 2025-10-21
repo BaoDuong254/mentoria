@@ -1,6 +1,7 @@
 import poolPromise from "@/config/database";
 import { TAccountSchema } from "@/validation/account.schema";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 const saltRounds = 10;
 
@@ -189,4 +190,91 @@ const loginUserService = async (
   };
 };
 
-export { isEmailExist, registerUserService, verifyOTPService, loginUserService };
+const forgotPasswordService = async (email: string) => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Check if user exists
+  const userResult = await pool
+    .request()
+    .input("email", email)
+    .query("SELECT user_id, email FROM users WHERE email = @email");
+
+  if (userResult.recordset.length === 0) {
+    return { success: false, message: "Email not found" };
+  }
+
+  const user = userResult.recordset[0];
+
+  const resetPasswordToken = crypto.randomUUID();
+  const resetPasswordTokenExpired = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+
+  // Update user with reset password token
+  await pool
+    .request()
+    .input("userId", user.user_id)
+    .input("resetToken", resetPasswordToken)
+    .input("resetTokenExpiry", resetPasswordTokenExpired)
+    .query(
+      "UPDATE users SET reset_password_token = @resetToken, reset_password_token_expiration = @resetTokenExpiry WHERE user_id = @userId"
+    );
+
+  return {
+    success: true,
+    message: "Password reset link has been sent to your email",
+    resetToken: resetPasswordToken,
+    email: user.email,
+  };
+};
+
+const resetPasswordService = async (token: string, newPassword: string) => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Find user by reset token and check if token is not expired
+  const userResult = await pool.request().input("token", token).query(`
+      SELECT user_id, email, reset_password_token_expiration
+      FROM users
+      WHERE reset_password_token = @token
+    `);
+
+  if (userResult.recordset.length === 0) {
+    return { success: false, message: "Invalid reset token" };
+  }
+
+  const user = userResult.recordset[0];
+  const currentTime = new Date();
+  const tokenExpiration = new Date(user.reset_password_token_expiration);
+
+  // Check if token is expired
+  if (currentTime > tokenExpiration) {
+    return { success: false, message: "Reset token has expired" };
+  }
+
+  // Hash new password
+  const hashedPassword = await hashPassword(newPassword);
+
+  // Update user password and clear reset token
+  await pool.request().input("userId", user.user_id).input("newPassword", hashedPassword).query(`
+      UPDATE users
+      SET password = @newPassword,
+          reset_password_token = NULL,
+          reset_password_token_expiration = NULL,
+          updated_at = GETDATE()
+      WHERE user_id = @userId
+    `);
+
+  return {
+    success: true,
+    message: "Password has been reset successfully",
+  };
+};
+
+export {
+  isEmailExist,
+  registerUserService,
+  verifyOTPService,
+  loginUserService,
+  forgotPasswordService,
+  resetPasswordService,
+};
