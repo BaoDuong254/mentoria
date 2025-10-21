@@ -1,5 +1,5 @@
 import poolPromise from "@/config/database";
-import { Provider } from "@/constants/type";
+import { Provider, Role, Status } from "@/constants/type";
 import { TAccountSchema } from "@/validation/account.schema";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -166,6 +166,21 @@ const loginUserService = async (
 
   if (!isPasswordValid) {
     return { success: false, message: "Invalid email or password" };
+  }
+
+  // Check account status before allowing login
+  if (user.status === Status.Banned) {
+    return {
+      success: false,
+      message: "Your account has been banned. Please contact support for assistance.",
+    };
+  }
+
+  if (user.role === Role.Mentor && user.status === Status.Pending) {
+    return {
+      success: false,
+      message: "Your account is currently under review by our admin team. Please wait for approval.",
+    };
   }
 
   // Check if email is verified

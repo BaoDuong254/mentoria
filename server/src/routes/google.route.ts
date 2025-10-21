@@ -3,6 +3,7 @@ import passport from "passport";
 import { protectRoute } from "@/middlewares/auth.middleware";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import envConfig from "@/config/env";
+import { Status } from "@/constants/type";
 
 const router = express.Router();
 
@@ -25,6 +26,12 @@ router.get("/google/callback", passport.authenticate("google", { session: false 
     };
 
     console.log("Google OAuth successful for user:", user.email);
+
+    // Check account status before allowing login
+    if (user.status === Status.Banned) {
+      console.log("Banned user attempted Google login:", user.email);
+      return res.redirect(`${envConfig.CLIENT_URL}/login?error=account_banned`);
+    }
 
     const payload = {
       userId: user.user_id,
