@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import path from "../../utils/path";
-import logo from "../../assets/logo_Layer 1.png";
+import path from "@/constants/path";
+import logo from "@/assets/LogoMentoria.png";
 import { Menu, X } from "lucide-react"; // icon hamburger
 
 export default function Header() {
