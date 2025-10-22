@@ -1,4 +1,4 @@
-import useRoutesConfig from "@/hooks/routes/useRoutesConfig";
+import useRoutesConfig from "@/hooks/useRoutesConfig";
 function App() {
   const routes = useRoutesConfig();
   return routes;

@@ -21,7 +21,7 @@ import MenteeDashboard from "@/pages/mentee/MenteeDashboard";
 export default function useRoutesConfig() {
   const routes = [
     {
-      path: path.PUBLIC,
+      path: "",
       element: <PublicLayout />,
       children: [
         { index: true, element: <Home /> },
@@ -36,13 +36,13 @@ export default function useRoutesConfig() {
     {
       path: path.MENTOR,
       element: <MentorLayout />,
-      children: [{ index: true, element: <MentorDashboard /> }],
+      children: [{ path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> }],
     },
     {
       path: path.MENTEE,
       element: <MenteeLayout />,
       children: [
-        { index: true, element: <MenteeDashboard /> },
+        { path: path.MENTEE_DASHBOARD, element: <MenteeDashboard /> },
         { path: path.MENTEE_BOOKING, element: <Booking /> },
       ],
     },

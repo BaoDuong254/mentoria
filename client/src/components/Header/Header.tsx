@@ -20,7 +20,7 @@ export default function Header() {
           <nav className='hidden justify-center space-x-8 text-base md:flex'>
             <Link to={path.HOME}>Home</Link>
             <Link to={path.MENTOR_BROWSE}>Browse Mentor</Link>
-            <Link to={path.MENTEE_DASHBOARD}>Dashboard</Link>
+            <Link to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}>Dashboard</Link>
           </nav>
 
           {/* Desktop Buttons */}
@@ -62,7 +62,7 @@ export default function Header() {
               Browse Mentor
             </Link>
             <Link
-              to={path.MENTEE_DASHBOARD}
+              to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}
               onClick={() => {
                 setIsOpen(false);
               }}
