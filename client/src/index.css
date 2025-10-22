@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+@layer base {
+  :root {
+    --primary: #6a0dad;
+    --secondary: #0f172a;
+    --green: #008080;
+    --light-purple: #d8b4fe;
+    --dark-grey: #454545;
+
+    --gradient-main: linear-gradient(90deg, #6a0dad, #008080);
+  }
+}
+
 html {
   height: 100%;
   line-height: 1.2;

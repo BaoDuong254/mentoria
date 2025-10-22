@@ -1,3 +1,7 @@
-export default function App() {
-  return <div className='text-red-500'>Hello world</div>;
+import useRoutesConfig from "@/hooks/routes/useRoutesConfig";
+function App() {
+  const routes = useRoutesConfig();
+  return routes;
 }
+
+export default App;
