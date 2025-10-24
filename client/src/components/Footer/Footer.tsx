@@ -2,9 +2,9 @@ import { FaTwitter, FaLinkedin, FaGithub } from "react-icons/fa";
 export default function Footer() {
   return (
     <>
-      <footer className='h-80 w-screen bg-[var(--secondary)] text-white'>
+      <footer className='h-80 w-full border-t border-gray-700 bg-[var(--secondary)] text-white'>
         {/* Top Footer */}
-        <div className='flex w-screen justify-center pt-12'>
+        <div className='flex w-full justify-center pt-12'>
           <div className='bg-secondary flex w-full max-w-7xl justify-between pl-3'>
             <div className='flex h-[160px] w-1/4 flex-col justify-between'>
               <div className='text-2xl font-bold text-[var(--primary)]'>Mentoria</div>
@@ -56,7 +56,7 @@ export default function Footer() {
           </div>
           {/* Bot Footer */}
         </div>
-        <div className='flex w-screen justify-center'>
+        <div className='flex w-full justify-center'>
           <div className='bg-secondary mt-10 flex w-full max-w-7xl items-center justify-center border-t border-gray-700'>
             <div className='flex flex-col items-center justify-center pt-2'>
               <p className='text-gray-300'>&copy; HCMUT L07 Group 1</p>
