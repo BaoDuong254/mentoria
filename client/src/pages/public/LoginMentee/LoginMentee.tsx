@@ -83,7 +83,9 @@ function LoginMentee() {
                       />
                     </div>
                   </div>
+
                   {error && <p className='text-red-500'>{error}</p>}
+
                   <div className='flex justify-between'>
                     <div className='flex justify-between gap-3'>
                       <input type='checkbox' />
