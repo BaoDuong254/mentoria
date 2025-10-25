@@ -1,5 +1,5 @@
 import poolPromise from "@/config/database";
-import { Provider, Role, Status } from "@/constants/type";
+import { Provider, Status } from "@/constants/type";
 import { TAccountSchema } from "@/validation/account.schema";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -176,7 +176,7 @@ const loginUserService = async (
     };
   }
 
-  if (user.role === Role.Mentor && user.status === Status.Pending) {
+  if (user.status === Status.Pending) {
     return {
       success: false,
       message: "Your account is currently under review by our admin team. Please wait for approval.",
