@@ -202,4 +202,13 @@ const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword };
+const getMe = (req: Request, res: Response) => {
+  try {
+    res.json({ success: true, user: req.user });
+  } catch (error) {
+    console.error("Error getting user info:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword, getMe };

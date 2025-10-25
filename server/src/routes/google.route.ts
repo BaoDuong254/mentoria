@@ -1,6 +1,5 @@
 import express from "express";
 import passport from "passport";
-import { protectRoute } from "@/middlewares/auth.middleware";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import envConfig from "@/config/env";
 import { Status } from "@/constants/type";
@@ -44,15 +43,6 @@ router.get("/google/callback", passport.authenticate("google", { session: false 
   } catch (error) {
     console.error("Google login error:", error);
     return res.redirect(`${envConfig.CLIENT_URL}/login?error=google_failed`);
-  }
-});
-
-router.get("/me", protectRoute, (req, res) => {
-  try {
-    res.json({ success: true, user: req.user });
-  } catch (error) {
-    console.error("Error getting user info:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

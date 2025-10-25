@@ -1,5 +1,6 @@
 import {
   forgotPassword,
+  getMe,
   loginUser,
   logoutUser,
   registerUser,
@@ -17,5 +18,6 @@ router.post("/login", loginUser);
 router.post("/logout", protectRoute, logoutUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.get("/me", protectRoute, getMe);
 
 export default router;
