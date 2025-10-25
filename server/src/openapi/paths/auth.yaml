@@ -115,7 +115,7 @@ logout:
     description: Logout user and clear authentication cookie
     operationId: logoutUser
     security:
-      - bearerAuth: []
+      - cookieAuth: []
     responses:
       "200":
         description: Logout successful
@@ -217,7 +217,7 @@ me:
     description: Get information about the currently authenticated user
     operationId: getMe
     security:
-      - bearerAuth: []
+      - cookieAuth: []
     responses:
       "200":
         description: User information retrieved successfully
@@ -229,8 +229,14 @@ me:
                 success:
                   type: boolean
                   example: true
-                user:
-                  $ref: "../schemas/auth.yaml#/User"
+                message:
+                  type: string
+                  example: "User info retrieved successfully"
+                data:
+                  type: object
+                  properties:
+                    user:
+                      $ref: "../schemas/auth.yaml#/User"
       "401":
         description: Unauthorized - user not logged in
         content:

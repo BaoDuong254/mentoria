@@ -198,12 +198,13 @@ npm run format:fix    # Auto-format code
 ### Server
 
 ```bash
-npm run dev           # Start development server with nodemon
-npm run build         # Build TypeScript to JavaScript
-npm run start         # Start production server
-npm run debug         # Start server in debug mode
-npm run lint          # Check for linting errors
-npm run lint:fix      # Fix auto-fixable linting errors
-npm run format        # Check code formatting
-npm run format:fix    # Auto-format code
+npm run dev            # Start development server with nodemon
+npm run build          # Build TypeScript to JavaScript
+npm run start          # Start production server
+npm run debug          # Start server in debug mode
+npm run lint           # Check for linting errors
+npm run lint:fix       # Fix auto-fixable linting errors
+npm run format         # Check code formatting
+npm run format:fix     # Auto-format code
+npm run bundle:swagger # Bundle swagger yaml file
 ```

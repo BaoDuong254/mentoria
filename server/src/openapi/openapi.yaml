@@ -45,8 +45,8 @@ components:
   schemas:
     $ref: "./schemas/_index.yaml"
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: "JWT token obtained from login or OAuth. Token is sent as HTTP-only cookie named 'token'."
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: "JWT token obtained from login or OAuth. Token is automatically sent as HTTP-only cookie named 'token'."

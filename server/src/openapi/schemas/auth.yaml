@@ -24,10 +24,10 @@ RegisterRequest:
       description: "User's email address (must be unique)"
     password:
       type: string
-      minLength: 3
+      minLength: 8
       maxLength: 20
       example: "securepassword123"
-      description: "User's password (3-20 characters)"
+      description: "User's password (8-20 characters)"
 
 LoginRequest:
   type: object
@@ -73,10 +73,10 @@ ResetPasswordRequest:
   properties:
     newPassword:
       type: string
-      minLength: 3
+      minLength: 8
       maxLength: 20
       example: "newsecurepassword123"
-      description: "New password (3-20 characters)"
+      description: "New password (8-20 characters)"
 
 # Response schemas
 SuccessResponse:
@@ -115,7 +115,7 @@ ValidationErrorResponse:
           type: array
           items:
             type: string
-          example: ["Email is invalid: email", "Password must be at least 3 characters long: password"]
+          example: ["Email is invalid: email", "Password must be at least 8 characters long: password"]
         oldData:
           type: object
           description: "Previously submitted data (excluding sensitive fields like password)"
@@ -141,21 +141,44 @@ User:
       type: string
       example: "Doe"
       description: "User's last name"
+    sex:
+      type: string
+      enum: ["Male", "Female"]
+      example: "Male"
+      description: "User's gender"
     email:
       type: string
       format: email
       example: "john.doe@example.com"
       description: "User's email address"
+    avatar_url:
+      type: string
+      format: uri
+      example: "https://example.com/avatars/johndoe.jpg"
+      description: "URL to user's avatar image"
+    country:
+      type: string
+      example: "USA"
+      description: "User's country of residence"
     role:
       type: string
       enum: ["Mentee", "Mentor", "Admin"]
       example: "Mentee"
       description: "User's role in the platform"
+    timezone:
+      type: string
+      example: "America/New_York"
+      description: "User's timezone"
     status:
       type: string
       enum: ["Active", "Banned", "Pending"]
       example: "Active"
       description: "User's account status"
+    google_id:
+      type: string
+      nullable: true
+      example: "google-oauth2|123456789012345678901"
+      description: "Google OAuth2 ID if registered via Google"
     provider:
       type: string
       enum: ["Local", "Google"]

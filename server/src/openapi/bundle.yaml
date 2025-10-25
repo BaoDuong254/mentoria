@@ -134,7 +134,7 @@ paths:
       description: Logout user and clear authentication cookie
       operationId: logoutUser
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: Logout successful
@@ -233,7 +233,7 @@ paths:
       description: Get information about the currently authenticated user
       operationId: getMe
       security:
-        - bearerAuth: []
+        - cookieAuth: []
       responses:
         '200':
           description: User information retrieved successfully
@@ -245,8 +245,14 @@ paths:
                   success:
                     type: boolean
                     example: true
-                  user:
-                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: User info retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
         '401':
           description: Unauthorized - user not logged in
           content:
@@ -326,10 +332,10 @@ components:
           description: User's email address (must be unique)
         password:
           type: string
-          minLength: 3
+          minLength: 8
           maxLength: 20
           example: securepassword123
-          description: User's password (3-20 characters)
+          description: User's password (8-20 characters)
     LoginRequest:
       type: object
       required:
@@ -371,10 +377,10 @@ components:
       properties:
         newPassword:
           type: string
-          minLength: 3
+          minLength: 8
           maxLength: 20
           example: newsecurepassword123
-          description: New password (3-20 characters)
+          description: New password (8-20 characters)
     SuccessResponse:
       type: object
       properties:
@@ -411,7 +417,7 @@ components:
                 type: string
               example:
                 - 'Email is invalid: email'
-                - 'Password must be at least 3 characters long: password'
+                - 'Password must be at least 8 characters long: password'
             oldData:
               type: object
               description: Previously submitted data (excluding sensitive fields like password)
@@ -435,11 +441,27 @@ components:
           type: string
           example: Doe
           description: User's last name
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+          example: Male
+          description: User's gender
         email:
           type: string
           format: email
           example: john.doe@example.com
           description: User's email address
+        avatar_url:
+          type: string
+          format: uri
+          example: 'https://example.com/avatars/johndoe.jpg'
+          description: URL to user's avatar image
+        country:
+          type: string
+          example: USA
+          description: User's country of residence
         role:
           type: string
           enum:
@@ -448,6 +470,10 @@ components:
             - Admin
           example: Mentee
           description: User's role in the platform
+        timezone:
+          type: string
+          example: America/New_York
+          description: User's timezone
         status:
           type: string
           enum:
@@ -456,6 +482,11 @@ components:
             - Pending
           example: Active
           description: User's account status
+        google_id:
+          type: string
+          nullable: true
+          example: google-oauth2|123456789012345678901
+          description: Google OAuth2 ID if registered via Google
         provider:
           type: string
           enum:
@@ -474,8 +505,8 @@ components:
           example: '2023-10-25T10:30:00Z'
           description: Last account update timestamp
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token obtained from login or OAuth. Token is sent as HTTP-only cookie named 'token'.
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: JWT token obtained from login or OAuth. Token is automatically sent as HTTP-only cookie named 'token'.
