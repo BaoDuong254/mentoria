@@ -1,9 +1,31 @@
 import { Mail, Lock, GraduationCap } from "lucide-react";
 import { FaGoogle, FaChalkboardTeacher } from "react-icons/fa";
 import avt from "@/pages/public/LoginMentee/avt.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
+import { useAuth } from "@/contexts/Auth/useAuth";
+import { useState } from "react";
 function LoginMentee() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit() {
+    try {
+      const result = await login(email, password);
+      console.log(result);
+      void navigate(path.HOME);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Login Fail");
+      }
+    }
+  }
+
   return (
     <>
       <div className='flex w-full items-center justify-center bg-(--secondary)'>
@@ -12,7 +34,13 @@ function LoginMentee() {
           <div className='my-10 h-[662px] w-full grid-cols-2 text-white md:grid'>
             {/* Left side */}
             <div className='flex items-center justify-center rounded-tl-xl rounded-bl-xl bg-gray-800'>
-              <form className='flex h-[566px] w-md flex-col justify-between px-3 py-5'>
+              <form
+                className='flex h-[566px] w-md flex-col justify-between px-3 py-5'
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void handleSubmit();
+                }}
+              >
                 {/* Welcome */}
                 <div className='flex h-[68px] w-full flex-col justify-between'>
                   <h2 className='flex items-center justify-center text-3xl font-bold'>Welcome Back</h2>
@@ -27,6 +55,10 @@ function LoginMentee() {
                     <div className='my-2 flex'>
                       <Mail className='h-9.5 w-9 rounded-l-sm border border-r-0 border-y-gray-500/30 border-l-gray-500/30 bg-gray-700 px-2.5 text-slate-500' />
                       <input
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                        }}
                         type='text'
                         name='Email'
                         placeholder='Enter your Email'
@@ -40,6 +72,10 @@ function LoginMentee() {
                     <div className='my-2 flex'>
                       <Lock className='h-9.5 w-9 rounded-l-sm border border-r-0 border-y-gray-500/30 border-l-gray-500/30 bg-gray-700 px-2.5 text-slate-500' />
                       <input
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                        }}
                         type='password'
                         name='Password'
                         placeholder='Enter your password'
@@ -47,6 +83,7 @@ function LoginMentee() {
                       />
                     </div>
                   </div>
+                  {error && <p className='text-red-500'>{error}</p>}
                   <div className='flex justify-between'>
                     <div className='flex justify-between gap-3'>
                       <input type='checkbox' />

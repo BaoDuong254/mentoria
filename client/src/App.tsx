@@ -1,7 +1,8 @@
 import useRoutesConfig from "@/hooks/useRoutesConfig";
+import { AuthProvider } from "./contexts/Auth/AuthProvider";
 function App() {
   const routes = useRoutesConfig();
-  return routes;
+  return <AuthProvider>{routes}</AuthProvider>;
 }
 
 export default App;
