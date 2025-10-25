@@ -1,3 +1,4 @@
+import fs from "fs";
 import logger from "@/utils/logger";
 import express from "express";
 import morgan from "morgan";
@@ -7,9 +8,11 @@ import authRoutes from "@/routes/auth.route";
 import googleRoutes from "@/routes/google.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
-// Import passport configuration
 import "@/config/passport";
 import passport from "passport";
+import YAML from "yaml";
+import swaggerUi from "swagger-ui-express";
+import path from "path";
 
 const app = express();
 const PORT = envConfig.PORT || 3000;
@@ -49,6 +52,11 @@ app.use("/api/auth", googleRoutes);
 app.get("/health", (req, res) => {
   res.json({ status: "OK", message: "Server is running" });
 });
+
+// Swagger API documentation
+const file = fs.readFileSync(path.resolve(__dirname, "../swagger.yaml"), "utf8");
+const swaggerDocument = YAML.parse(file);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, async () => {
   // Test database connection on server start

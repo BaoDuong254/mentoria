@@ -14,7 +14,7 @@ const emailSchema = z.email("Email is invalid").refine(
 
 const passwordSchema = z
   .string()
-  .min(3, { error: "Password must be at least 3 characters long" })
+  .min(8, { error: "Password must be at least 8 characters long" })
   .max(20, { error: "Password must be at most 20 characters long" });
 
 export const RegisterSchema = z.object({
