@@ -1,124 +1,94 @@
-openapi: 3.0.4
+openapi: 3.0.0
 info:
   title: Mentoria API
-  description: |-
-    This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
-
-  termsOfService: http://localhost:5173/terms/
+  description: This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
+  termsOfService: 'http://localhost:5173/terms/'
   contact:
     email: duonggiabao254@gmail.com
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: 'https://opensource.org/licenses/MIT'
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: 'http://localhost:3000'
     description: Development server
-  - url: https://api.mentoria.com
+  - url: 'https://api.mentoria.com'
     description: Production server
 tags:
-  - name: system
-    description: System health and monitoring endpoints
   - name: authentication
     description: User authentication and account management
   - name: oauth
     description: OAuth integration with third-party providers
 paths:
-  # Health check endpoint
-  /health:
-    get:
-      tags:
-        - system
-      summary: Health check
-      description: Check if the server is running and healthy
-      operationId: healthCheck
-      responses:
-        "200":
-          description: Server is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "OK"
-                  message:
-                    type: string
-                    example: "Server is running"
-
-  # Authentication endpoints
   /api/auth/register:
     post:
       tags:
         - authentication
       summary: Register a new user
-      description: Register a new user account. After registration, an OTP will be sent to the provided email for verification.
+      description: 'Register a new user account. After registration, an OTP will be sent to the provided email for verification.'
       operationId: registerUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RegisterRequest"
+              $ref: '#/components/schemas/RegisterRequest'
       responses:
-        "201":
+        '201':
           description: User registered successfully. OTP sent to email.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
-        "400":
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
           description: Validation errors or email already exists
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/verify-otp:
     post:
       tags:
         - authentication
       summary: Verify OTP
-      description: Verify the OTP sent to user's email after registration. Upon successful verification, user will be logged in automatically.
+      description: 'Verify the OTP sent to user''s email after registration. Upon successful verification, user will be logged in automatically.'
       operationId: verifyOTP
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OTPRequest"
+              $ref: '#/components/schemas/OTPRequest'
       responses:
-        "200":
+        '200':
           description: OTP verified successfully. User is now logged in.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                $ref: '#/components/schemas/SuccessResponse'
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid or expired OTP
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/login:
     post:
       tags:
@@ -131,32 +101,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoginRequest"
+              $ref: '#/components/schemas/LoginRequest'
       responses:
-        "200":
+        '200':
           description: Login successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                $ref: '#/components/schemas/SuccessResponse'
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie
               schema:
                 type: string
-        "400":
+        '400':
           description: Invalid credentials or validation errors
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/logout:
     post:
       tags:
@@ -167,25 +136,24 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: Logout successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
-        "401":
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
           description: Unauthorized - user not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/forgot-password:
     post:
       tags:
@@ -198,28 +166,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ForgotPasswordRequest"
+              $ref: '#/components/schemas/ForgotPasswordRequest'
       responses:
-        "200":
+        '200':
           description: Reset password email sent successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
-        "404":
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
           description: Email not found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /api/auth/reset-password/{token}:
+                $ref: '#/components/schemas/ErrorResponse'
+  '/api/auth/reset-password/{token}':
     post:
       tags:
         - authentication
@@ -238,27 +205,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ResetPasswordRequest"
+              $ref: '#/components/schemas/ResetPasswordRequest'
       responses:
-        "200":
+        '200':
           description: Password reset successful
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
-        "400":
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
           description: Invalid token or validation errors
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/me:
     get:
       tags:
@@ -269,7 +235,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        "200":
+        '200':
           description: User information retrieved successfully
           content:
             application/json:
@@ -280,21 +246,19 @@ paths:
                     type: boolean
                     example: true
                   user:
-                    $ref: "#/components/schemas/User"
-        "401":
+                    $ref: '#/components/schemas/User'
+        '401':
           description: Unauthorized - user not logged in
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "500":
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  # OAuth endpoints
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/google:
     get:
       tags:
@@ -303,11 +267,10 @@ paths:
       description: Redirect to Google OAuth consent screen
       operationId: googleAuth
       responses:
-        "302":
+        '302':
           description: Redirect to Google OAuth
-        "500":
+        '500':
           description: OAuth configuration error
-
   /api/auth/google/callback:
     get:
       tags:
@@ -327,18 +290,17 @@ paths:
           schema:
             type: string
       responses:
-        "302":
+        '302':
           description: Redirect to client with authentication status
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie (on success)
               schema:
                 type: string
-        "400":
+        '400':
           description: OAuth authentication failed
 components:
   schemas:
-    # Request schemas
     RegisterRequest:
       type: object
       required:
@@ -350,25 +312,24 @@ components:
         firstName:
           type: string
           minLength: 1
-          example: "John"
-          description: "User's first name"
+          example: John
+          description: User's first name
         lastName:
           type: string
           minLength: 1
-          example: "Doe"
-          description: "User's last name"
+          example: Doe
+          description: User's last name
         email:
           type: string
           format: email
-          example: "john.doe@example.com"
-          description: "User's email address (must be unique)"
+          example: john.doe@example.com
+          description: User's email address (must be unique)
         password:
           type: string
           minLength: 3
           maxLength: 20
-          example: "securepassword123"
-          description: "User's password (3-20 characters)"
-
+          example: securepassword123
+          description: User's password (3-20 characters)
     LoginRequest:
       type: object
       required:
@@ -378,13 +339,12 @@ components:
         email:
           type: string
           format: email
-          example: "john.doe@example.com"
-          description: "User's email address"
+          example: john.doe@example.com
+          description: User's email address
         password:
           type: string
-          example: "securepassword123"
-          description: "User's password"
-
+          example: securepassword123
+          description: User's password
     OTPRequest:
       type: object
       required:
@@ -392,9 +352,8 @@ components:
       properties:
         otp:
           type: string
-          example: "123456"
-          description: "6-digit OTP code sent to user's email"
-
+          example: '123456'
+          description: 6-digit OTP code sent to user's email
     ForgotPasswordRequest:
       type: object
       required:
@@ -403,9 +362,8 @@ components:
         email:
           type: string
           format: email
-          example: "john.doe@example.com"
-          description: "User's registered email address"
-
+          example: john.doe@example.com
+          description: User's registered email address
     ResetPasswordRequest:
       type: object
       required:
@@ -415,10 +373,8 @@ components:
           type: string
           minLength: 3
           maxLength: 20
-          example: "newsecurepassword123"
-          description: "New password (3-20 characters)"
-
-    # Response schemas
+          example: newsecurepassword123
+          description: New password (3-20 characters)
     SuccessResponse:
       type: object
       properties:
@@ -427,8 +383,7 @@ components:
           example: true
         message:
           type: string
-          example: "Operation completed successfully"
-
+          example: Operation completed successfully
     ErrorResponse:
       type: object
       properties:
@@ -437,8 +392,7 @@ components:
           example: false
         message:
           type: string
-          example: "Error occurred"
-
+          example: Error occurred
     ValidationErrorResponse:
       type: object
       properties:
@@ -447,7 +401,7 @@ components:
           example: false
         message:
           type: string
-          example: "Validation errors"
+          example: Validation errors
         data:
           type: object
           properties:
@@ -455,66 +409,73 @@ components:
               type: array
               items:
                 type: string
-              example: ["Email is invalid: email", "Password must be at least 3 characters long: password"]
+              example:
+                - 'Email is invalid: email'
+                - 'Password must be at least 3 characters long: password'
             oldData:
               type: object
-              description: "Previously submitted data (excluding sensitive fields like password)"
+              description: Previously submitted data (excluding sensitive fields like password)
               example:
-                firstName: "John"
-                lastName: "Doe"
-                email: "invalid-email"
-                password: ""
-
-    # User schema
+                firstName: John
+                lastName: Doe
+                email: invalid-email
+                password: ''
     User:
       type: object
       properties:
         user_id:
           type: string
-          example: "123e4567-e89b-12d3-a456-426614174000"
-          description: "Unique user identifier"
+          example: 123e4567-e89b-12d3-a456-426614174000
+          description: Unique user identifier
         firstName:
           type: string
-          example: "John"
-          description: "User's first name"
+          example: John
+          description: User's first name
         lastName:
           type: string
-          example: "Doe"
-          description: "User's last name"
+          example: Doe
+          description: User's last name
         email:
           type: string
           format: email
-          example: "john.doe@example.com"
-          description: "User's email address"
+          example: john.doe@example.com
+          description: User's email address
         role:
           type: string
-          enum: ["Mentee", "Mentor", "Admin"]
-          example: "Mentee"
-          description: "User's role in the platform"
+          enum:
+            - Mentee
+            - Mentor
+            - Admin
+          example: Mentee
+          description: User's role in the platform
         status:
           type: string
-          enum: ["Active", "Banned", "Pending"]
-          example: "Active"
-          description: "User's account status"
+          enum:
+            - Active
+            - Banned
+            - Pending
+          example: Active
+          description: User's account status
         provider:
           type: string
-          enum: ["Local", "Google"]
-          example: "Local"
-          description: "Authentication provider used"
+          enum:
+            - Local
+            - Google
+          example: Local
+          description: Authentication provider used
         created_at:
           type: string
           format: date-time
-          example: "2023-10-25T10:30:00Z"
-          description: "Account creation timestamp"
+          example: '2023-10-25T10:30:00Z'
+          description: Account creation timestamp
         updated_at:
           type: string
           format: date-time
-          example: "2023-10-25T10:30:00Z"
-          description: "Last account update timestamp"
-
+          example: '2023-10-25T10:30:00Z'
+          description: Last account update timestamp
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: "JWT token obtained from login or OAuth. Token is sent as HTTP-only cookie named 'token'."
+      description: JWT token obtained from login or OAuth. Token is sent as HTTP-only cookie named 'token'.

@@ -49,12 +49,15 @@ app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Server is running" });
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "API is running, welcome to Mentoria!",
+  });
 });
 
 // Swagger API documentation
-const file = fs.readFileSync(path.resolve(__dirname, "../swagger.yaml"), "utf8");
+const file = fs.readFileSync(path.resolve(__dirname, "./openapi/bundle.yaml"), "utf8");
 const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

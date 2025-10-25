@@ -1,0 +1,173 @@
+# Request schemas
+RegisterRequest:
+  type: object
+  required:
+    - firstName
+    - lastName
+    - email
+    - password
+  properties:
+    firstName:
+      type: string
+      minLength: 1
+      example: "John"
+      description: "User's first name"
+    lastName:
+      type: string
+      minLength: 1
+      example: "Doe"
+      description: "User's last name"
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+      description: "User's email address (must be unique)"
+    password:
+      type: string
+      minLength: 3
+      maxLength: 20
+      example: "securepassword123"
+      description: "User's password (3-20 characters)"
+
+LoginRequest:
+  type: object
+  required:
+    - email
+    - password
+  properties:
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+      description: "User's email address"
+    password:
+      type: string
+      example: "securepassword123"
+      description: "User's password"
+
+OTPRequest:
+  type: object
+  required:
+    - otp
+  properties:
+    otp:
+      type: string
+      example: "123456"
+      description: "6-digit OTP code sent to user's email"
+
+ForgotPasswordRequest:
+  type: object
+  required:
+    - email
+  properties:
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+      description: "User's registered email address"
+
+ResetPasswordRequest:
+  type: object
+  required:
+    - newPassword
+  properties:
+    newPassword:
+      type: string
+      minLength: 3
+      maxLength: 20
+      example: "newsecurepassword123"
+      description: "New password (3-20 characters)"
+
+# Response schemas
+SuccessResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Operation completed successfully"
+
+ErrorResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: false
+    message:
+      type: string
+      example: "Error occurred"
+
+ValidationErrorResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: false
+    message:
+      type: string
+      example: "Validation errors"
+    data:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          example: ["Email is invalid: email", "Password must be at least 3 characters long: password"]
+        oldData:
+          type: object
+          description: "Previously submitted data (excluding sensitive fields like password)"
+          example:
+            firstName: "John"
+            lastName: "Doe"
+            email: "invalid-email"
+            password: ""
+
+# User schema
+User:
+  type: object
+  properties:
+    user_id:
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      description: "Unique user identifier"
+    firstName:
+      type: string
+      example: "John"
+      description: "User's first name"
+    lastName:
+      type: string
+      example: "Doe"
+      description: "User's last name"
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+      description: "User's email address"
+    role:
+      type: string
+      enum: ["Mentee", "Mentor", "Admin"]
+      example: "Mentee"
+      description: "User's role in the platform"
+    status:
+      type: string
+      enum: ["Active", "Banned", "Pending"]
+      example: "Active"
+      description: "User's account status"
+    provider:
+      type: string
+      enum: ["Local", "Google"]
+      example: "Local"
+      description: "Authentication provider used"
+    created_at:
+      type: string
+      format: date-time
+      example: "2023-10-25T10:30:00Z"
+      description: "Account creation timestamp"
+    updated_at:
+      type: string
+      format: date-time
+      example: "2023-10-25T10:30:00Z"
+      description: "Last account update timestamp"

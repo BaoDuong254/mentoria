@@ -1,0 +1,52 @@
+openapi: 3.0.0
+info:
+  title: Mentoria API
+  description: |-
+    This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
+
+  termsOfService: http://localhost:5173/terms/
+  contact:
+    email: duonggiabao254@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.mentoria.com
+    description: Production server
+tags:
+  - name: authentication
+    description: User authentication and account management
+  - name: oauth
+    description: OAuth integration with third-party providers
+paths:
+  # Authentication Endpoints
+  /api/auth/register:
+    $ref: "./paths/auth.yaml#/register"
+  /api/auth/verify-otp:
+    $ref: "./paths/auth.yaml#/verify-otp"
+  /api/auth/login:
+    $ref: "./paths/auth.yaml#/login"
+  /api/auth/logout:
+    $ref: "./paths/auth.yaml#/logout"
+  /api/auth/forgot-password:
+    $ref: "./paths/auth.yaml#/forgot-password"
+  /api/auth/reset-password/{token}:
+    $ref: "./paths/auth.yaml#/reset-password~1{token}"
+  /api/auth/me:
+    $ref: "./paths/auth.yaml#/me"
+  /api/auth/google:
+    $ref: "./paths/auth.yaml#/google"
+  /api/auth/google/callback:
+    $ref: "./paths/auth.yaml#/google~1callback"
+components:
+  schemas:
+    $ref: "./schemas/_index.yaml"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT token obtained from login or OAuth. Token is sent as HTTP-only cookie named 'token'."
