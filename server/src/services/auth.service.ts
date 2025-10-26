@@ -1,6 +1,7 @@
 import poolPromise from "@/config/database";
 import { Provider, Status } from "@/constants/type";
 import { TAccountSchema } from "@/validation/account.schema";
+import envConfig from "@/config/env";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -32,8 +33,19 @@ const registerUserService = async (
   const passwordHash = await hashPassword(password);
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const otp_expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+  // Check if email verification is required
+  const isEmailVerifyRequired = envConfig.MAIL_VERIFY_INITIAL;
+
+  let otp = null;
+  let otp_expiration = null;
+  const is_email_verified = !isEmailVerifyRequired; // true if verification not required
+  const status = isEmailVerifyRequired ? Status.Inactive : Status.Active;
+
+  if (isEmailVerifyRequired) {
+    otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otp_expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+  }
 
   // Insert user and get the inserted user data
   const result = await pool
@@ -45,13 +57,15 @@ const registerUserService = async (
     .input("otp", otp)
     .input("otp_expiration", otp_expiration)
     .input("provider", "Local")
+    .input("is_email_verified", is_email_verified)
+    .input("status", status)
     .query(
-      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider)
+      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider, is_email_verified, status)
        OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
               INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
               INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
               INSERTED.otp, INSERTED.otp_expiration, INSERTED.google_id, INSERTED.provider
-       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider)`
+       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider, @is_email_verified, @status)`
     );
 
   return result.recordset[0];
@@ -186,8 +200,8 @@ const loginUserService = async (
     };
   }
 
-  // Check if email is verified
-  if (!user.is_email_verified) {
+  // Check if email is verified (only if email verification is enabled)
+  if (envConfig.MAIL_VERIFY_INITIAL && !user.is_email_verified) {
     // Generate new OTP for unverified user
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const newOtpExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now

@@ -27,6 +27,10 @@ const configSchema = z.object({
   JWT_SECRET: z.string(),
   MAIL_USER: z.string(),
   MAIL_PASS: z.string(),
+  MAIL_VERIFY_INITIAL: z
+    .string()
+    .default("true")
+    .transform((val) => val.toLowerCase() === "true"),
   CLIENT_URL: z.string().default("http://localhost:5173"),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),

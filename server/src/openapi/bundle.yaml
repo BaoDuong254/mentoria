@@ -478,6 +478,7 @@ components:
           type: string
           enum:
             - Active
+            - Inactive
             - Banned
             - Pending
           example: Active

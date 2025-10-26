@@ -18,14 +18,22 @@ const registerUser = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, password } = req.body as TRegisterSchema;
     const validate = await RegisterSchema.safeParseAsync(req.body);
+
     if (!validate.success) {
       const errorsZod = validate.error.issues;
       const errors = errorsZod?.map((err) => `${err.message}: ${String(err.path[0])}`);
       const oldData = { firstName, lastName, email, password };
       return res.status(400).json({ success: false, message: "Validation errors", data: { errors, oldData } });
     }
+
     const user = await registerUserService(firstName, lastName, email, password);
-    await verifyMail(user.otp!, user.email);
+
+    if (envConfig.MAIL_VERIFY_INITIAL) {
+      await verifyMail(user.otp!, user.email);
+    } else {
+      console.log("Email verification is disabled; skipping OTP email.");
+    }
+
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     console.error("Error in registerUser controller:", error);
