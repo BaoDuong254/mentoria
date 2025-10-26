@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { login, getMe } from "@/apis/auth.api";
+import { login, getMe, logout } from "@/apis/auth.api";
 import type { AuthState } from "@/types";
 
 export const useAuthStore = create<AuthState>()(
@@ -31,6 +31,16 @@ export const useAuthStore = create<AuthState>()(
         set({ user: userInfo.data.user });
 
         return res;
+      },
+
+      logout: async () => {
+        const res = await logout();
+
+        if (!res.success) {
+          throw new Error(res.message);
+        }
+
+        set({ user: null });
       },
     }),
     {

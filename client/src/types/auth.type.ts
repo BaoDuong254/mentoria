@@ -10,7 +10,7 @@ export interface AuthState {
   loading: boolean;
   login: (email: string, password: string) => Promise<LoginResponse>;
   fetchUser: () => Promise<void>;
-
+  logout: () => Promise<void>;
   //adding more feature soon...
 }
 
@@ -20,4 +20,9 @@ export interface getMeResponse {
   data: {
     user: User;
   };
+}
+
+export interface logoutResponse {
+  success: boolean;
+  message: string;
 }

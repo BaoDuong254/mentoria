@@ -2,10 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import path from "@/constants/path";
 import logo from "@/assets/LogoMentoria.png";
-import { Menu, X } from "lucide-react"; // icon hamburger
+import { Menu, X, ChevronDown } from "lucide-react"; // icon hamburger
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   return (
     <>
       <header className='w-full bg-[hsl(240,28%,14%)] text-white'>
@@ -25,12 +29,54 @@ export default function Header() {
 
           {/* Desktop Buttons */}
           <div className='hidden justify-end space-x-3 md:flex'>
-            <Link to={path.LOGIN_MENTEE}>
-              <button className='rounded-full bg-[var(--dark-grey)] px-4 py-2'>Login</button>
-            </Link>
-            <Link to={path.LOGIN_MENTOR}>
-              <button className='rounded-full bg-[var(--primary)] px-5 py-2'>Login as Mentor</button>
-            </Link>
+            {!user ? (
+              <>
+                <Link to={path.LOGIN_MENTEE}>
+                  <button className='rounded-full bg-[var(--dark-grey)] px-4 py-2'>Login</button>
+                </Link>
+                <Link to={path.LOGIN_MENTOR}>
+                  <button className='rounded-full bg-[var(--primary)] px-5 py-2'>Login as Mentor</button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className='relative'>
+                  <button
+                    className='flex items-center gap-1'
+                    onClick={() => {
+                      setShowMenu(!showMenu);
+                    }}
+                  >
+                    <div className='flex h-8 w-8 items-center justify-center rounded-full bg-purple-700'>
+                      {/* update Logo img */}
+                      <span className='text-sm font-semibold'>{user.last_name[0].toUpperCase() || "U"}</span>
+                    </div>
+                    <ChevronDown size={16} />
+                  </button>
+
+                  {showMenu && (
+                    <div className='absolute right-0 mt-2 w-40 rounded-md border border-amber-50/50 bg-(--secondary) shadow-lg'>
+                      <Link to={path.MENTEE} className='block rounded-md px-4 py-2 hover:bg-(--primary)'>
+                        Profile
+                      </Link>
+
+                      <Link to={path.MENTEE} className='block rounded-md px-4 py-2 hover:bg-(--primary)'>
+                        Setting
+                      </Link>
+                      <button
+                        onClick={() => {
+                          void logout();
+                          setShowMenu(false);
+                        }}
+                        className='flex w-full cursor-pointer justify-start rounded-md px-4 py-2 hover:bg-(--primary)'
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile menu toggle */}
