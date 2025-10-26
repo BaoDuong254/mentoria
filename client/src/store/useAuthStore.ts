@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthState>()(
       fetchUser: async () => {
         try {
           const res = await getMe();
-          set({ user: res });
+          set({ user: res.data.user });
         } catch {
           set({ user: null });
         } finally {
@@ -23,14 +23,12 @@ export const useAuthStore = create<AuthState>()(
       login: async (email, password) => {
         const res = await login(email, password);
 
-        console.log(res);
-
         if (!res.success) {
           throw new Error(res.message);
         }
 
         const userInfo = await getMe();
-        set({ user: userInfo });
+        set({ user: userInfo.data.user });
 
         return res;
       },

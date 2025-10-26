@@ -13,3 +13,11 @@ export interface AuthState {
 
   //adding more feature soon...
 }
+
+export interface getMeResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+  };
+}

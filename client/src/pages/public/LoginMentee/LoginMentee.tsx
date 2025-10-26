@@ -14,8 +14,7 @@ function LoginMentee() {
 
   async function handleSubmit() {
     try {
-      const result = await login(email, password);
-      console.log(result);
+      await login(email, password);
       void navigate(path.HOME);
     } catch (err) {
       if (err instanceof Error) {

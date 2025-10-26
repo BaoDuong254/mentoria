@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { User, LoginResponse } from "@/types";
+import type { LoginResponse, getMeResponse } from "@/types";
 
 const BASE_URL = "http://localhost:3000/api/auth";
 
@@ -15,8 +15,8 @@ export async function login(email: string, password: string): Promise<LoginRespo
 }
 
 //API GETME
-export async function getMe(): Promise<User> {
-  const res = await axios.get<User>(`${BASE_URL}/me`, {
+export async function getMe(): Promise<getMeResponse> {
+  const res = await axios.get<getMeResponse>(`${BASE_URL}/me`, {
     withCredentials: true,
   });
   return res.data;
