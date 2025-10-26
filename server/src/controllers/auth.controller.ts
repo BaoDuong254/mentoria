@@ -5,12 +5,14 @@ import {
   verifyOTPService,
   forgotPasswordService,
   resetPasswordService,
+  updateUserStatusService,
 } from "@/services/auth.service";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { LoginSchema, TLoginSchema } from "@/validation/login.schema";
 import { RegisterSchema, ResetPasswordSchema, TRegisterSchema } from "@/validation/register.schema";
 import { Request, Response } from "express";
 import envConfig from "@/config/env";
+import { Status } from "@/constants/type";
 
 const registerUser = async (req: Request, res: Response) => {
   try {
@@ -117,6 +119,11 @@ const loginUser = async (req: Request, res: Response) => {
 
 const logoutUser = async (req: Request, res: Response) => {
   try {
+    // Update user status to Inactive if user is logged in
+    if (req.user && req.user.user_id) {
+      await updateUserStatusService(parseInt(req.user.user_id), Status.Inactive);
+    }
+
     res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

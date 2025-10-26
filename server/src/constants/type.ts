@@ -6,6 +6,7 @@ export const Role = {
 
 export const Status = {
   Active: "Active",
+  Inactive: "Inactive",
   Banned: "Banned",
   Pending: "Pending",
 } as const;

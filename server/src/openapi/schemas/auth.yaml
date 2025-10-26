@@ -171,7 +171,7 @@ User:
       description: "User's timezone"
     status:
       type: string
-      enum: ["Active", "Banned", "Pending"]
+      enum: ["Active", "Inactive", "Banned", "Pending"]
       example: "Active"
       description: "User's account status"
     google_id:

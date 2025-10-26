@@ -14,7 +14,7 @@ export const AccountSchema = z.object({
   country: z.string().nullable(),
   role: z.enum([Role.Mentee, Role.Mentor, Role.Admin]).default(Role.Mentee),
   timezone: z.string().nullable(),
-  status: z.enum([Status.Active, Status.Banned, Status.Pending]).default(Status.Pending),
+  status: z.enum([Status.Active, Status.Inactive, Status.Banned, Status.Pending]).default(Status.Pending),
   is_email_verified: z.boolean().default(false),
   otp: z.string().nullable(),
   otp_expiration: z.string().nullable(),

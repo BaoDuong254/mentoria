@@ -111,7 +111,10 @@ const verifyOTPService = async (
   await pool
     .request()
     .input("userId", user.user_id)
-    .query("UPDATE users SET is_email_verified = 1, otp = NULL, otp_expiration = NULL WHERE user_id = @userId");
+    .input("status", Status.Active)
+    .query(
+      "UPDATE users SET is_email_verified = 1, otp = NULL, otp_expiration = NULL, status = @status WHERE user_id = @userId"
+    );
 
   return {
     success: true,
@@ -206,6 +209,17 @@ const loginUserService = async (
     };
   }
 
+  // Update user status to Active if currently Inactive
+  if (user.status === Status.Inactive) {
+    await pool
+      .request()
+      .input("userId", user.user_id)
+      .input("status", Status.Active)
+      .query("UPDATE users SET status = @status, updated_at = GETDATE() WHERE user_id = @userId");
+
+    user.status = Status.Active;
+  }
+
   return {
     success: true,
     message: "Login successful",
@@ -298,6 +312,24 @@ const resetPasswordService = async (token: string, newPassword: string) => {
   };
 };
 
+const updateUserStatusService = async (userId: number, status: string) => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Update user status
+  await pool
+    .request()
+    .input("userId", userId)
+    .input("status", status)
+    .input("updatedAt", new Date())
+    .query("UPDATE users SET status = @status, updated_at = @updatedAt WHERE user_id = @userId");
+
+  return {
+    success: true,
+    message: "User status updated successfully",
+  };
+};
+
 export {
   isEmailExist,
   registerUserService,
@@ -305,4 +337,5 @@ export {
   loginUserService,
   forgotPasswordService,
   resetPasswordService,
+  updateUserStatusService,
 };
