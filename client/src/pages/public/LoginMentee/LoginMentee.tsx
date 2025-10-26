@@ -3,10 +3,10 @@ import { FaGoogle, FaChalkboardTeacher } from "react-icons/fa";
 import avt from "@/pages/public/LoginMentee/avt.png";
 import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
-import { useAuth } from "@/contexts/Auth/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useState } from "react";
 function LoginMentee() {
-  const { login } = useAuth();
+  const { login } = useAuthStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

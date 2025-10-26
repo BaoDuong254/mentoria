@@ -5,8 +5,11 @@ export interface LoginResponse {
   message: string;
 }
 
-export interface AuthContextType {
+export interface AuthState {
   user: User | null;
-  login: (email: string, password: string) => Promise<LoginResponse>;
   loading: boolean;
+  login: (email: string, password: string) => Promise<LoginResponse>;
+  fetchUser: () => Promise<void>;
+
+  //adding more feature soon...
 }

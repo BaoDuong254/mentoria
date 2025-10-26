@@ -1,6 +1,8 @@
-import { useAuth } from "@/contexts/Auth/useAuth";
+//import { useAuth } from "@/contexts/Auth/useAuth";
+import { useAuthStore } from "@/store/useAuthStore";
 function Home() {
-  const { user, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
   if (loading) return <p>Loading...</p>;
   return <>{user ? <h2>Hello, {user.user.last_name}</h2> : <h2>Hello, World</h2>}</>;
 }
