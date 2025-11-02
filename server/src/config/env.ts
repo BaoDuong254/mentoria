@@ -34,6 +34,9 @@ const configSchema = z.object({
   CLIENT_URL: z.string().default("http://localhost:5173"),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string(),
 });
 
 const configServer = configSchema.safeParse(process.env);

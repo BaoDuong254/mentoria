@@ -2,6 +2,7 @@ import { verifyMail, verifyResetPassword } from "@/mailtrap/mailSend";
 import {
   loginUserService,
   registerUserService,
+  registerMentorService,
   verifyOTPService,
   forgotPasswordService,
   resetPasswordService,
@@ -9,10 +10,11 @@ import {
 } from "@/services/auth.service";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { LoginSchema, TLoginSchema } from "@/validation/login.schema";
-import { RegisterSchema, ResetPasswordSchema, TRegisterSchema } from "@/validation/register.schema";
+import { RegisterSchema, TRegisterSchema, ResetPasswordSchema } from "@/validation/register.schema";
 import { Request, Response } from "express";
 import envConfig from "@/config/env";
 import { Status } from "@/constants/type";
+import cloudinary from "@/config/cloudinary";
 
 const registerUser = async (req: Request, res: Response) => {
   try {
@@ -37,6 +39,74 @@ const registerUser = async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
     console.error("Error in registerUser controller:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const registerMentor = async (req: Request, res: Response) => {
+  try {
+    const { firstName, lastName, email, password } = req.body as TRegisterSchema;
+
+    // Validate input
+    const validate = await RegisterSchema.safeParseAsync(req.body);
+
+    if (!validate.success) {
+      const errorsZod = validate.error.issues;
+      const errors = errorsZod?.map((err) => `${err.message}: ${String(err.path[0])}`);
+      const oldData = { firstName, lastName, email, password };
+      return res.status(400).json({ success: false, message: "Validation errors", data: { errors, oldData } });
+    }
+
+    // Check if CV file is uploaded
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "CV file is required" });
+    }
+
+    // Check if the uploaded file is a PDF
+    if (req.file.mimetype !== "application/pdf") {
+      return res.status(400).json({ success: false, message: "Only PDF files are allowed for CV" });
+    }
+
+    // Upload CV to Cloudinary
+    const uploadResult = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "auto",
+          folder: "mentor_cvs",
+          public_id: `cv_${email.replace(/[@.]/g, "_")}_${Date.now()}`,
+          type: "upload",
+        },
+        (error, result) => {
+          if (error) {
+            console.error("Cloudinary upload error:", error);
+            reject(error);
+          } else {
+            console.log("Cloudinary upload success:", result?.secure_url);
+            console.log("Public ID:", result?.public_id);
+            resolve(result as { secure_url: string; public_id: string });
+          }
+        }
+      );
+      uploadStream.end(req.file!.buffer);
+    });
+
+    const cvUrl = uploadResult.secure_url;
+
+    // Register mentor with CV URL
+    const user = await registerMentorService(firstName, lastName, email, password, cvUrl);
+
+    if (envConfig.MAIL_VERIFY_INITIAL) {
+      await verifyMail(user.otp!, user.email);
+    } else {
+      console.log("Email verification is disabled; skipping OTP email.");
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Mentor registered successfully. Please verify your email. Your account will be reviewed by our team.",
+    });
+  } catch (error) {
+    console.error("Error in registerMentor controller:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
@@ -226,4 +296,4 @@ const getMe = (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword, getMe };
+export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword, getMe, registerMentor };

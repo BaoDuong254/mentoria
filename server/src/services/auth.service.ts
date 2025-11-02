@@ -1,5 +1,5 @@
 import poolPromise from "@/config/database";
-import { Provider, Status } from "@/constants/type";
+import { Provider, Role, Status } from "@/constants/type";
 import { TAccountSchema } from "@/validation/account.schema";
 import envConfig from "@/config/env";
 import bcrypt from "bcrypt";
@@ -71,6 +71,76 @@ const registerUserService = async (
   return result.recordset[0];
 };
 
+const registerMentorService = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+  cvUrl: string
+): Promise<TAccountSchema> => {
+  const passwordHash = await hashPassword(password);
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Check if email verification is required
+  const isEmailVerifyRequired = envConfig.MAIL_VERIFY_INITIAL;
+
+  let otp = null;
+  let otp_expiration = null;
+  const is_email_verified = !isEmailVerifyRequired; // true if verification not required
+  // Mentor should always start as Pending regardless of email verification
+  const status = Status.Pending;
+  const role = Role.Mentor;
+
+  if (isEmailVerifyRequired) {
+    otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otp_expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+  }
+
+  // Start transaction
+  const transaction = pool.transaction();
+  await transaction.begin();
+
+  try {
+    // Insert user and get the inserted user data
+    const userResult = await transaction
+      .request()
+      .input("firstName", firstName)
+      .input("lastName", lastName)
+      .input("email", email)
+      .input("password", passwordHash)
+      .input("otp", otp)
+      .input("otp_expiration", otp_expiration)
+      .input("provider", "Local")
+      .input("is_email_verified", is_email_verified)
+      .input("status", status)
+      .input("role", role)
+      .query(
+        `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider, is_email_verified, status, role)
+         OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
+                INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
+                INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
+                INSERTED.otp, INSERTED.otp_expiration, INSERTED.google_id, INSERTED.provider
+         VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider, @is_email_verified, @status, @role)`
+      );
+
+    const user = userResult.recordset[0];
+
+    // Insert into mentors table
+    await transaction
+      .request()
+      .input("userId", user.user_id)
+      .input("cvUrl", cvUrl)
+      .query(`INSERT INTO mentors (user_id, cv_url) VALUES (@userId, @cvUrl)`);
+
+    await transaction.commit();
+    return user;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
 const verifyOTPService = async (
   otp: string
 ): Promise<{
@@ -122,10 +192,13 @@ const verifyOTPService = async (
   }
 
   // OTP is valid, update user verification status
+  // Keep mentor status as Pending even after verification
+  const newStatus = user.role === Role.Mentor ? Status.Pending : Status.Active;
+
   await pool
     .request()
     .input("userId", user.user_id)
-    .input("status", Status.Active)
+    .input("status", newStatus)
     .query(
       "UPDATE users SET is_email_verified = 1, otp = NULL, otp_expiration = NULL, status = @status WHERE user_id = @userId"
     );
@@ -347,6 +420,7 @@ const updateUserStatusService = async (userId: number, status: string) => {
 export {
   isEmailExist,
   registerUserService,
+  registerMentorService,
   verifyOTPService,
   loginUserService,
   forgotPasswordService,

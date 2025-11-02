@@ -4,15 +4,18 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  registerMentor,
   resetPassword,
   verifyOTP,
 } from "@/controllers/auth.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
+import { upload } from "@/middlewares/upload.middleware";
 import express from "express";
 
 const router = express.Router();
 
 router.post("/register", registerUser);
+router.post("/mentor-register", upload.single("cv"), registerMentor);
 router.post("/verify-otp", verifyOTP);
 router.post("/login", loginUser);
 router.post("/logout", protectRoute, logoutUser);
