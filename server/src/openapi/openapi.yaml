@@ -25,6 +25,8 @@ paths:
   # Authentication Endpoints
   /api/auth/register:
     $ref: "./paths/auth.yaml#/register"
+  /api/auth/mentor-register:
+    $ref: "./paths/auth.yaml#/mentor-register"
   /api/auth/verify-otp:
     $ref: "./paths/auth.yaml#/verify-otp"
   /api/auth/login:

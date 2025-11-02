@@ -52,6 +52,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/mentor-register:
+    post:
+      tags:
+        - authentication
+      summary: Register a new mentor
+      description: 'Register a new mentor account with CV upload. After registration, an OTP will be sent to the provided email for verification. The account will be reviewed by the admin team before approval.'
+      operationId: registerMentor
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - cv
+              properties:
+                firstName:
+                  type: string
+                  description: Mentor's first name
+                  example: John
+                lastName:
+                  type: string
+                  description: Mentor's last name
+                  example: Doe
+                email:
+                  type: string
+                  format: email
+                  description: Mentor's email address (must be unique)
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 20
+                  description: Password (8-20 characters)
+                  example: SecurePass123
+                cv:
+                  type: string
+                  format: binary
+                  description: Mentor's CV in PDF format
+      responses:
+        '201':
+          description: Mentor registered successfully. OTP sent to email and account pending review.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mentor registered successfully. Please verify your email. Your account will be reviewed by our team.
+        '400':
+          description: 'Validation errors, email already exists, CV missing, or invalid file format'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validationError:
+                  value:
+                    success: false
+                    message: Validation errors
+                    data:
+                      errors:
+                        - 'Email is invalid: email'
+                      oldData:
+                        firstName: John
+                        lastName: Doe
+                        email: invalid-email
+                        password: password123
+                missingCV:
+                  value:
+                    success: false
+                    message: CV file is required
+                invalidFileType:
+                  value:
+                    success: false
+                    message: Only PDF files are allowed for CV
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /api/auth/verify-otp:
     post:
       tags:

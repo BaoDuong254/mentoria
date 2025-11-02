@@ -1,9 +1,10 @@
 {
   "info": {
-    "_postman_id": "766cb574-ac29-4036-a0b7-d95cb1058ffe",
+    "_postman_id": "8d57056d-1e34-4250-90f5-6e19e2058be3",
     "name": "Mentoria",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "41961051"
+    "_exporter_id": "41961051",
+    "_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria-~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/41961051-8d57056d-1e34-4250-90f5-6e19e2058be3?action=share&source=collection_link&creator=41961051"
   },
   "item": [
     {
@@ -34,7 +35,7 @@
                 },
                 {
                   "key": "password",
-                  "value": "123456",
+                  "value": "123456789",
                   "type": "text"
                 }
               ]
@@ -57,7 +58,7 @@
               "urlencoded": [
                 {
                   "key": "otp",
-                  "value": "358756",
+                  "value": "954635",
                   "type": "text"
                 }
               ]
@@ -85,7 +86,7 @@
                 },
                 {
                   "key": "password",
-                  "value": "1234567",
+                  "value": "123456789",
                   "type": "text"
                 }
               ]
@@ -148,15 +149,15 @@
               "urlencoded": [
                 {
                   "key": "newPassword",
-                  "value": "1234567",
+                  "value": "123456",
                   "type": "text"
                 }
               ]
             },
             "url": {
-              "raw": "{{host}}/api/auth/reset-password/a46ea905-195f-45d1-b93e-487a4606e026",
+              "raw": "{{host}}/api/auth/reset-password/d8857764-8d99-4db6-8fad-041b03cdee0e",
               "host": ["{{host}}"],
-              "path": ["api", "auth", "reset-password", "a46ea905-195f-45d1-b93e-487a4606e026"]
+              "path": ["api", "auth", "reset-password", "d8857764-8d99-4db6-8fad-041b03cdee0e"]
             }
           },
           "response": []
@@ -170,6 +171,62 @@
               "raw": "{{host}}/api/auth/google",
               "host": ["{{host}}"],
               "path": ["api", "auth", "google"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/auth/me",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mentor register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "firstName",
+                  "value": "bao",
+                  "type": "text"
+                },
+                {
+                  "key": "lastName",
+                  "value": "duong",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "duonggiabaod254@gmail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "123456789",
+                  "type": "text"
+                },
+                {
+                  "key": "cv",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/mentor-register",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "mentor-register"]
             }
           },
           "response": []
