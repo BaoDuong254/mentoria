@@ -6,8 +6,7 @@ import MentorLayout from "@/layouts/MentorLayout";
 import MenteeLayout from "@/layouts/MenteeLayout";
 
 import Home from "@/pages/public/Home";
-import LoginMentee from "@/pages/public/LoginMentee";
-import LoginMentor from "@/pages/public/LoginMentor";
+import Login from "@/pages/public/Login";
 import MentorBrowse from "@/pages/public/MentorBrowse";
 import MentorProfile from "@/pages/public/MentorProfile";
 import RegisterMentee from "@/pages/public/RegisterMentee";
@@ -25,8 +24,7 @@ export default function useRoutesConfig() {
       element: <PublicLayout />,
       children: [
         { index: true, element: <Home /> },
-        { path: path.LOGIN_MENTEE, element: <LoginMentee /> },
-        { path: path.LOGIN_MENTOR, element: <LoginMentor /> },
+        { path: path.LOGIN, element: <Login /> },
         { path: path.REGISTER_MENTEE, element: <RegisterMentee /> },
         { path: path.REGISTER_MENTOR, element: <RegisterMentor /> },
         { path: path.MENTOR_BROWSE, element: <MentorBrowse /> },

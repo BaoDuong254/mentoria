@@ -1,16 +1,22 @@
 import { Mail, Lock, GraduationCap } from "lucide-react";
 import { FaGoogle, FaChalkboardTeacher } from "react-icons/fa";
-import avt from "@/pages/public/LoginMentee/avt.png";
+import avt from "@/assets/avt.png";
 import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 function LoginMentee() {
-  const { login } = useAuthStore();
+  const { login, user } = useAuthStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      void navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit() {
     try {
@@ -92,12 +98,12 @@ function LoginMentee() {
                     </div>
                     <p className='text-(--primary)'>Forgot password?</p>
                   </div>
-                  <button className='w-full rounded-xl bg-(--primary) py-3 text-white'>Sign In</button>
+                  <button className='w-full cursor-pointer rounded-xl bg-(--primary) py-3 text-white'>Sign In</button>
                 </div>
                 {/* Login by Google */}
                 <div className='flex h-20 flex-col items-center justify-between'>
                   <p className='flex items-center justify-center text-slate-400'>Or continue with</p>
-                  <button className='flex w-56 items-center justify-center rounded-xl bg-gray-700 py-3 text-gray-300'>
+                  <button className='flex w-56 cursor-pointer items-center justify-center rounded-xl bg-gray-700 py-3 text-gray-300'>
                     <FaGoogle className='mr-3 text-xl text-red-400' /> Google
                   </button>
                 </div>

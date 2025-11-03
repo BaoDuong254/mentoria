@@ -31,11 +31,11 @@ export default function Header() {
           <div className='hidden justify-end space-x-3 md:flex'>
             {!user ? (
               <>
-                <Link to={path.LOGIN_MENTEE}>
-                  <button className='rounded-full bg-[var(--dark-grey)] px-4 py-2'>Login</button>
+                <Link to={path.LOGIN}>
+                  <button className='rounded-full bg-(--dark-grey) px-4 py-2'>Login</button>
                 </Link>
-                <Link to={path.LOGIN_MENTOR}>
-                  <button className='rounded-full bg-[var(--primary)] px-5 py-2'>Login as Mentor</button>
+                <Link to={path.REGISTER_MENTEE}>
+                  <button className='rounded-full bg-(--primary) px-5 py-2'>Register</button>
                 </Link>
               </>
             ) : (
@@ -90,7 +90,7 @@ export default function Header() {
           </button>
         </div>
         {isOpen && (
-          <div className='flex flex-col items-center space-y-4 border-t border-gray-600 bg-[var(--secondary)] py-4 md:hidden'>
+          <div className='flex flex-col items-center space-y-4 border-t border-gray-600 bg-(--secondary) py-4 md:hidden'>
             <Link
               to={path.HOME}
               onClick={() => {
@@ -116,20 +116,20 @@ export default function Header() {
               Dashboard
             </Link>
             <Link
-              to={path.LOGIN_MENTEE}
+              to={path.LOGIN}
               onClick={() => {
                 setIsOpen(false);
               }}
             >
-              <button className='rounded-full bg-[var(--dark-grey)] px-4 py-2'>Login</button>
+              <button className='rounded-full bg-(--dark-grey) px-4 py-2'>Login</button>
             </Link>
             <Link
-              to={path.LOGIN_MENTOR}
+              to={path.REGISTER_MENTEE}
               onClick={() => {
                 setIsOpen(false);
               }}
             >
-              <button className='rounded-full bg-[var(--primary)] px-4 py-2'>Login as Mentor</button>
+              <button className='rounded-full bg-(--primary) px-4 py-2'>Register</button>
             </Link>
           </div>
         )}
@@ -147,7 +147,7 @@ export default function Header() {
               "Leadership Mentors",
             ].map((item) => (
               <Link key={item} to={path.MENTOR_BROWSE}>
-                <li className='transition hover:text-[var(--primary)]'>{item}</li>
+                <li className='transition hover:text-(--primary)'>{item}</li>
               </Link>
             ))}
           </ul>
