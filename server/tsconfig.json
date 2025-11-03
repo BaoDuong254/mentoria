@@ -9,11 +9,9 @@
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
     "target": "ES6",
-    "types": ["node"],
     // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    "lib": ["esnext"],
+    "types": ["node"],
 
     // Other Outputs
     "sourceMap": true,
@@ -46,5 +44,6 @@
       "@/*": ["./src/*"]
     }
   },
+  "files": ["./src/types/global.d.ts"], // Path to global type definitions
   "include": ["./src/**/*"] // Path to source code
 }
