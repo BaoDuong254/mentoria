@@ -9,7 +9,7 @@
     // See also https://aka.ms/tsconfig/module
     "module": "commonjs",
     "target": "ES6",
-    "types": [],
+    "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -46,6 +46,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "files": ["./src/type.d.ts"], // Path to custom type definitions
   "include": ["./src/**/*"] // Path to source code
 }

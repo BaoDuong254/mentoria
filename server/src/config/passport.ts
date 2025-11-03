@@ -23,8 +23,24 @@ passport.use(
           avatarUrl: profile.photos?.[0]?.value || undefined,
         };
 
-        // Use the service to find or create user
-        const user = await findOrCreateGoogleUser(userData);
+        const dbUser = await findOrCreateGoogleUser(userData);
+        const user: Express.User = {
+          user_id: String(dbUser.user_id),
+          first_name: dbUser.first_name,
+          last_name: dbUser.last_name,
+          email: dbUser.email,
+          google_id: dbUser.google_id,
+          avatar_url: dbUser.avatar_url ?? null,
+          provider: dbUser.provider as "Local" | "Google",
+          role: dbUser.role as "Mentee" | "Mentor" | "Admin",
+          status: dbUser.status as "Active" | "Inactive" | "Banned" | "Pending",
+          created_at: dbUser.created_at,
+          updated_at: null,
+          sex: null,
+          country: null,
+          timezone: null,
+        };
+
         return cb(null, user);
       } catch (error) {
         console.error("Google OAuth error:", error);
