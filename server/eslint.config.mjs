@@ -26,7 +26,7 @@ export default defineConfig([
           semi: true,
           trailingComma: "es5",
           tabWidth: 2,
-          endOfLine: "auto",
+          endOfLine: "lf",
           useTabs: false,
           singleQuote: false,
           printWidth: 120,
