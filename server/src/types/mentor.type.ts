@@ -36,3 +36,25 @@ export interface MentorProfile {
   }>;
   average_rating: number | null;
 }
+
+export interface UpdateMentorProfileRequest {
+  firstName?: string;
+  lastName?: string;
+  sex?: string;
+  country?: string;
+  timezone?: string;
+  bio?: string;
+  headline?: string;
+  responseTime?: number;
+  cvUrl?: string;
+  socialLinks?: Array<{
+    link: string;
+    platform: string;
+  }>;
+  companies?: Array<{
+    companyName: string;
+    role?: string;
+  }>;
+  languages?: string[];
+  fieldIds?: number[];
+}

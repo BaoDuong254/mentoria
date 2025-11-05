@@ -1,5 +1,5 @@
 import poolPromise from "@/config/database";
-import { MentorProfile } from "@/types/mentor.type";
+import { MentorProfile, UpdateMentorProfileRequest } from "@/types/mentor.type";
 
 const getMentorProfileService = async (
   mentorId: number
@@ -135,4 +135,204 @@ const getMentorProfileService = async (
   }
 };
 
-export { getMentorProfileService };
+const updateMentorProfileService = async (
+  mentorId: number,
+  updateData: UpdateMentorProfileRequest
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify mentor exists
+    const mentorCheck = await pool
+      .request()
+      .input("mentorId", mentorId)
+      .query("SELECT user_id FROM users WHERE user_id = @mentorId AND role = N'Mentor'");
+
+    if (mentorCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Mentor not found",
+      };
+    }
+
+    // Start transaction
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Update users table
+      const userUpdateFields: string[] = [];
+      const userRequest = transaction.request().input("mentorId", mentorId);
+
+      if (updateData.firstName !== undefined) {
+        userUpdateFields.push("first_name = @firstName");
+        userRequest.input("firstName", updateData.firstName);
+      }
+      if (updateData.lastName !== undefined) {
+        userUpdateFields.push("last_name = @lastName");
+        userRequest.input("lastName", updateData.lastName);
+      }
+      if (updateData.sex !== undefined) {
+        userUpdateFields.push("sex = @sex");
+        userRequest.input("sex", updateData.sex);
+      }
+      if (updateData.country !== undefined) {
+        userUpdateFields.push("country = @country");
+        userRequest.input("country", updateData.country);
+      }
+      if (updateData.timezone !== undefined) {
+        userUpdateFields.push("timezone = @timezone");
+        userRequest.input("timezone", updateData.timezone);
+      }
+
+      if (userUpdateFields.length > 0) {
+        userUpdateFields.push("updated_at = GETDATE()");
+        await userRequest.query(`
+          UPDATE users
+          SET ${userUpdateFields.join(", ")}
+          WHERE user_id = @mentorId
+        `);
+      }
+
+      // Update mentors table
+      const mentorUpdateFields: string[] = [];
+      const mentorRequest = transaction.request().input("mentorId", mentorId);
+
+      if (updateData.bio !== undefined) {
+        mentorUpdateFields.push("bio = @bio");
+        mentorRequest.input("bio", updateData.bio);
+      }
+      if (updateData.headline !== undefined) {
+        mentorUpdateFields.push("headline = @headline");
+        mentorRequest.input("headline", updateData.headline);
+      }
+      if (updateData.responseTime !== undefined) {
+        mentorUpdateFields.push("response_time = @responseTime");
+        mentorRequest.input("responseTime", updateData.responseTime);
+      }
+      if (updateData.cvUrl !== undefined) {
+        mentorUpdateFields.push("cv_url = @cvUrl");
+        mentorRequest.input("cvUrl", updateData.cvUrl);
+      }
+
+      if (mentorUpdateFields.length > 0) {
+        await mentorRequest.query(`
+          UPDATE mentors
+          SET ${mentorUpdateFields.join(", ")}
+          WHERE user_id = @mentorId
+        `);
+      }
+
+      // Update social links
+      if (updateData.socialLinks !== undefined) {
+        // Delete existing social links
+        await transaction.request().input("mentorId", mentorId).query(`
+          DELETE FROM user_social_links WHERE user_id = @mentorId
+        `);
+
+        // Insert new social links
+        for (const socialLink of updateData.socialLinks) {
+          await transaction
+            .request()
+            .input("mentorId", mentorId)
+            .input("link", socialLink.link)
+            .input("platform", socialLink.platform).query(`
+              INSERT INTO user_social_links (user_id, link, platform)
+              VALUES (@mentorId, @link, @platform)
+            `);
+        }
+      }
+
+      // Update languages
+      if (updateData.languages !== undefined) {
+        // Delete existing languages
+        await transaction.request().input("mentorId", mentorId).query(`
+          DELETE FROM mentor_languages WHERE mentor_id = @mentorId
+        `);
+
+        // Insert new languages
+        for (const language of updateData.languages) {
+          await transaction.request().input("mentorId", mentorId).input("language", language).query(`
+              INSERT INTO mentor_languages (mentor_id, mentor_language)
+              VALUES (@mentorId, @language)
+            `);
+        }
+      }
+
+      // Update fields
+      if (updateData.fieldIds !== undefined) {
+        // Delete existing fields
+        await transaction.request().input("mentorId", mentorId).query(`
+          DELETE FROM own_field WHERE mentor_id = @mentorId
+        `);
+
+        // Insert new fields
+        for (const fieldId of updateData.fieldIds) {
+          await transaction.request().input("mentorId", mentorId).input("fieldId", fieldId).query(`
+              INSERT INTO own_field (mentor_id, f_field_id)
+              VALUES (@mentorId, @fieldId)
+            `);
+        }
+      }
+
+      // Update companies
+      if (updateData.companies !== undefined) {
+        // Delete existing company associations
+        await transaction.request().input("mentorId", mentorId).query(`
+          DELETE FROM work_for WHERE mentor_id = @mentorId
+        `);
+
+        // Insert new companies
+        for (const company of updateData.companies) {
+          // Check if company exists, if not create it
+          const companyCheck = await transaction.request().input("companyName", company.companyName).query(`
+              SELECT company_id FROM companies WHERE cname = @companyName
+            `);
+
+          let companyId: number;
+
+          if (companyCheck.recordset.length > 0) {
+            companyId = companyCheck.recordset[0].company_id;
+          } else {
+            // Create new company
+            const newCompany = await transaction.request().input("companyName", company.companyName).query(`
+                INSERT INTO companies (cname)
+                OUTPUT INSERTED.company_id
+                VALUES (@companyName)
+              `);
+            companyId = newCompany.recordset[0].company_id;
+          }
+
+          // Associate mentor with company
+          await transaction
+            .request()
+            .input("mentorId", mentorId)
+            .input("companyId", companyId)
+            .input("role", company.role || null).query(`
+              INSERT INTO work_for (mentor_id, c_company_id, crole)
+              VALUES (@mentorId, @companyId, @role)
+            `);
+        }
+      }
+
+      await transaction.commit();
+
+      return {
+        success: true,
+        message: "Mentor profile updated successfully",
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in updateMentorProfileService:", error);
+    throw error;
+  }
+};
+
+export { getMentorProfileService, updateMentorProfileService };

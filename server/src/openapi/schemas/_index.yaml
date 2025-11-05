@@ -29,3 +29,5 @@ Field:
   $ref: "./mentor.yaml#/Field"
 Plan:
   $ref: "./mentor.yaml#/Plan"
+UpdateMentorProfileRequest:
+  $ref: "./mentor.yaml#/UpdateMentorProfileRequest"

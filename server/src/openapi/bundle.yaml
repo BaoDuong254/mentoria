@@ -455,6 +455,87 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - mentor
+      summary: Update mentor profile
+      description: 'Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile.'
+      operationId: updateMentorProfile
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMentorProfileRequest'
+      responses:
+        '200':
+          description: Mentor profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: Mentor profile updated successfully
+        '400':
+          description: Invalid mentor ID or validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidId:
+                  value:
+                    success: false
+                    message: Invalid mentor ID
+                invalidSex:
+                  value:
+                    success: false
+                    message: Invalid sex value. Must be 'Male' or 'Female'
+                invalidResponseTime:
+                  value:
+                    success: false
+                    message: Response time must be a non-negative number
+        '401':
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - user not authorized to update this profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: You are not authorized to update this profile
+        '404':
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Mentor not found
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     RegisterRequest:
@@ -831,6 +912,105 @@ components:
             - Code review
             - Career guidance
           description: List of benefits included in the plan
+    UpdateMentorProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          example: John
+          description: Mentor's first name
+        lastName:
+          type: string
+          minLength: 1
+          example: Doe
+          description: Mentor's last name
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+          example: Male
+          description: Mentor's gender
+        country:
+          type: string
+          example: USA
+          description: Mentor's country of residence
+        timezone:
+          type: string
+          example: America/New_York
+          description: Mentor's timezone
+        bio:
+          type: string
+          example: Experienced software engineer with 10+ years in web development
+          description: Mentor's biography
+        headline:
+          type: string
+          example: Senior Software Engineer at Tech Corp
+          description: Mentor's professional headline
+        responseTime:
+          type: integer
+          minimum: 0
+          example: 24
+          description: Average response time in hours
+        cvUrl:
+          type: string
+          format: uri
+          example: 'https://cloudinary.com/cvs/mentor-john-cv.pdf'
+          description: URL to mentor's CV (PDF)
+        socialLinks:
+          type: array
+          items:
+            type: object
+            required:
+              - link
+              - platform
+            properties:
+              link:
+                type: string
+                format: uri
+                example: 'https://linkedin.com/in/johndoe'
+              platform:
+                type: string
+                example: LinkedIn
+          description: Mentor's social media links
+        companies:
+          type: array
+          items:
+            type: object
+            required:
+              - companyName
+            properties:
+              companyName:
+                type: string
+                example: Tech Corp
+              role:
+                type: string
+                example: Senior Software Engineer
+          example:
+            - companyName: Tech Corp
+              role: Senior Software Engineer
+            - companyName: Web Solutions
+              role: Frontend Developer
+          description: Companies where mentor has worked or is working
+        languages:
+          type: array
+          items:
+            type: string
+          example:
+            - English
+            - Spanish
+            - French
+          description: Languages spoken by mentor
+        fieldIds:
+          type: array
+          items:
+            type: integer
+          example:
+            - 1
+            - 2
+            - 3
+          description: Array of field IDs representing areas of expertise
   securitySchemes:
     cookieAuth:
       type: apiKey

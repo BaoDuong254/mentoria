@@ -1,3 +1,140 @@
+mentorProfile:
+  get:
+    tags:
+      - mentor
+    summary: Get mentor profile
+    description: Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews.
+    operationId: getMentorProfile
+    parameters:
+      - name: mentorId
+        in: path
+        required: true
+        description: Unique identifier of the mentor
+        schema:
+          type: integer
+          example: 1
+    responses:
+      "200":
+        description: Mentor profile retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Mentor profile retrieved successfully"
+                data:
+                  $ref: "../schemas/mentor.yaml#/MentorProfileResponse"
+      "400":
+        description: Invalid mentor ID format
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Invalid mentor ID"
+      "404":
+        description: Mentor not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Mentor not found"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+  put:
+    tags:
+      - mentor
+    summary: Update mentor profile
+    description: Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile.
+    operationId: updateMentorProfile
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: mentorId
+        in: path
+        required: true
+        description: Unique identifier of the mentor
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/mentor.yaml#/UpdateMentorProfileRequest"
+    responses:
+      "200":
+        description: Mentor profile updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/SuccessResponse"
+            example:
+              success: true
+              message: "Mentor profile updated successfully"
+      "400":
+        description: Invalid mentor ID or validation errors
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            examples:
+              invalidId:
+                value:
+                  success: false
+                  message: "Invalid mentor ID"
+              invalidSex:
+                value:
+                  success: false
+                  message: "Invalid sex value. Must be 'Male' or 'Female'"
+              invalidResponseTime:
+                value:
+                  success: false
+                  message: "Response time must be a non-negative number"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - user not authorized to update this profile
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "You are not authorized to update this profile"
+      "404":
+        description: Mentor not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Mentor not found"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+
 getMentorProfile:
   get:
     tags:

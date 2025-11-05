@@ -1,3 +1,96 @@
+# Request schemas
+UpdateMentorProfileRequest:
+  type: object
+  properties:
+    firstName:
+      type: string
+      minLength: 1
+      example: "John"
+      description: "Mentor's first name"
+    lastName:
+      type: string
+      minLength: 1
+      example: "Doe"
+      description: "Mentor's last name"
+    sex:
+      type: string
+      enum: ["Male", "Female"]
+      example: "Male"
+      description: "Mentor's gender"
+    country:
+      type: string
+      example: "USA"
+      description: "Mentor's country of residence"
+    timezone:
+      type: string
+      example: "America/New_York"
+      description: "Mentor's timezone"
+    bio:
+      type: string
+      example: "Experienced software engineer with 10+ years in web development"
+      description: "Mentor's biography"
+    headline:
+      type: string
+      example: "Senior Software Engineer at Tech Corp"
+      description: "Mentor's professional headline"
+    responseTime:
+      type: integer
+      minimum: 0
+      example: 24
+      description: "Average response time in hours"
+    cvUrl:
+      type: string
+      format: uri
+      example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
+      description: "URL to mentor's CV (PDF)"
+    socialLinks:
+      type: array
+      items:
+        type: object
+        required:
+          - link
+          - platform
+        properties:
+          link:
+            type: string
+            format: uri
+            example: "https://linkedin.com/in/johndoe"
+          platform:
+            type: string
+            example: "LinkedIn"
+      description: "Mentor's social media links"
+    companies:
+      type: array
+      items:
+        type: object
+        required:
+          - companyName
+        properties:
+          companyName:
+            type: string
+            example: "Tech Corp"
+          role:
+            type: string
+            example: "Senior Software Engineer"
+      example:
+        - companyName: "Tech Corp"
+          role: "Senior Software Engineer"
+        - companyName: "Web Solutions"
+          role: "Frontend Developer"
+      description: "Companies where mentor has worked or is working"
+    languages:
+      type: array
+      items:
+        type: string
+      example: ["English", "Spanish", "French"]
+      description: "Languages spoken by mentor"
+    fieldIds:
+      type: array
+      items:
+        type: integer
+      example: [1, 2, 3]
+      description: "Array of field IDs representing areas of expertise"
+
 # Response schemas
 MentorProfileResponse:
   type: object
