@@ -9,6 +9,7 @@
     "copy-files": "copyfiles -u 1 src/openapi/**/* dist/",
     "build": "npm run clean && tsc && npm run copy-files && tsc-alias",
     "start": "node dist/index.js",
+    "seed": "tsx src/scripts/seed.ts",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",

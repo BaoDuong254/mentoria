@@ -24,6 +24,10 @@ const configSchema = z.object({
   DB_PASS: z.string(),
   DB_SERVER: z.string(),
   DB_NAME: z.string(),
+  DB_INIT: z
+    .string()
+    .default("false")
+    .transform((val) => val.toLowerCase() === "true"),
   JWT_SECRET: z.string(),
   MAIL_USER: z.string(),
   MAIL_PASS: z.string(),

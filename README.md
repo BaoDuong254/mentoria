@@ -207,4 +207,5 @@ npm run lint:fix       # Fix auto-fixable linting errors
 npm run format         # Check code formatting
 npm run format:fix     # Auto-format code
 npm run bundle:swagger # Bundle swagger yaml file
+npm run seed           # Start mock up data
 ```
