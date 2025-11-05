@@ -1,0 +1,176 @@
+# Response schemas
+MentorProfileResponse:
+  type: object
+  properties:
+    user_id:
+      type: integer
+      example: 1
+      description: "Unique mentor identifier"
+    first_name:
+      type: string
+      example: "John"
+      description: "Mentor's first name"
+    last_name:
+      type: string
+      example: "Doe"
+      description: "Mentor's last name"
+    email:
+      type: string
+      format: email
+      example: "john.mentor@example.com"
+      description: "Mentor's email address"
+    sex:
+      type: string
+      nullable: true
+      enum: ["Male", "Female"]
+      example: "Male"
+      description: "Mentor's gender"
+    avatar_url:
+      type: string
+      nullable: true
+      format: uri
+      example: "https://example.com/avatars/mentor-john.jpg"
+      description: "URL to mentor's avatar image"
+    country:
+      type: string
+      nullable: true
+      example: "USA"
+      description: "Mentor's country of residence"
+    timezone:
+      type: string
+      nullable: true
+      example: "America/New_York"
+      description: "Mentor's timezone"
+    bio:
+      type: string
+      nullable: true
+      example: "Experienced software engineer with 10+ years in web development"
+      description: "Mentor's biography"
+    headline:
+      type: string
+      nullable: true
+      example: "Senior Software Engineer at Tech Corp"
+      description: "Mentor's professional headline"
+    response_time:
+      type: integer
+      nullable: true
+      example: 24
+      description: "Average response time in hours"
+    total_reviews:
+      type: integer
+      example: 15
+      description: "Total number of reviews received"
+    total_stars:
+      type: integer
+      example: 72
+      description: "Total cumulative star rating"
+    total_mentee:
+      type: integer
+      example: 25
+      description: "Total number of mentees"
+    cv_url:
+      type: string
+      nullable: true
+      format: uri
+      example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
+      description: "URL to mentor's CV (PDF)"
+    social_links:
+      type: array
+      items:
+        $ref: "#/SocialLink"
+      description: "Mentor's social media links"
+    companies:
+      type: array
+      items:
+        $ref: "#/Company"
+      description: "Companies where mentor has worked"
+    fields:
+      type: array
+      items:
+        $ref: "#/Field"
+      description: "Areas of expertise"
+    languages:
+      type: array
+      items:
+        type: string
+      example: ["English", "Spanish", "French"]
+      description: "Languages spoken by mentor"
+    plans:
+      type: array
+      items:
+        $ref: "#/Plan"
+      description: "Mentorship plans offered by mentor"
+    average_rating:
+      type: number
+      nullable: true
+      format: float
+      example: 4.8
+      description: "Average rating (total_stars / total_reviews)"
+
+SocialLink:
+  type: object
+  properties:
+    link:
+      type: string
+      format: uri
+      example: "https://linkedin.com/in/johndoe"
+      description: "URL to social media profile"
+    platform:
+      type: string
+      example: "LinkedIn"
+      description: "Social media platform name"
+
+Company:
+  type: object
+  properties:
+    company_id:
+      type: integer
+      example: 1
+      description: "Unique company identifier"
+    company_name:
+      type: string
+      example: "Tech Corp"
+      description: "Company name"
+    role:
+      type: string
+      nullable: true
+      example: "Senior Software Engineer"
+      description: "Mentor's role at the company"
+
+Field:
+  type: object
+  properties:
+    field_id:
+      type: integer
+      example: 1
+      description: "Unique field identifier"
+    field_name:
+      type: string
+      example: "Web Development"
+      description: "Field or area of expertise"
+
+Plan:
+  type: object
+  properties:
+    plan_id:
+      type: integer
+      example: 1
+      description: "Unique plan identifier"
+    charge:
+      type: number
+      format: decimal
+      example: 99.99
+      description: "Cost of the plan"
+    duration:
+      type: integer
+      example: 60
+      description: "Duration of session in minutes"
+    benefits:
+      type: array
+      items:
+        type: string
+      example:
+        - "1-on-1 video call"
+        - "Code review"
+        - "Career guidance"
+      description: "List of benefits included in the plan"

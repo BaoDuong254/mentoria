@@ -21,6 +21,8 @@ tags:
     description: User authentication and account management
   - name: oauth
     description: OAuth integration with third-party providers
+  - name: mentor
+    description: Mentor profile and mentorship services
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -43,6 +45,9 @@ paths:
     $ref: "./paths/auth.yaml#/google"
   /api/auth/google/callback:
     $ref: "./paths/auth.yaml#/google~1callback"
+  # Mentor Endpoints
+  /api/mentors/{mentorId}:
+    $ref: "./paths/mentor.yaml#/getMentorProfile"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

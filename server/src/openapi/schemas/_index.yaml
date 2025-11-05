@@ -1,1 +1,31 @@
-$ref: "./auth.yaml"
+# Authentication schemas
+RegisterRequest:
+  $ref: "./auth.yaml#/RegisterRequest"
+LoginRequest:
+  $ref: "./auth.yaml#/LoginRequest"
+OTPRequest:
+  $ref: "./auth.yaml#/OTPRequest"
+ForgotPasswordRequest:
+  $ref: "./auth.yaml#/ForgotPasswordRequest"
+ResetPasswordRequest:
+  $ref: "./auth.yaml#/ResetPasswordRequest"
+SuccessResponse:
+  $ref: "./auth.yaml#/SuccessResponse"
+ErrorResponse:
+  $ref: "./auth.yaml#/ErrorResponse"
+ValidationErrorResponse:
+  $ref: "./auth.yaml#/ValidationErrorResponse"
+User:
+  $ref: "./auth.yaml#/User"
+
+# Mentor schemas
+MentorProfileResponse:
+  $ref: "./mentor.yaml#/MentorProfileResponse"
+SocialLink:
+  $ref: "./mentor.yaml#/SocialLink"
+Company:
+  $ref: "./mentor.yaml#/Company"
+Field:
+  $ref: "./mentor.yaml#/Field"
+Plan:
+  $ref: "./mentor.yaml#/Plan"

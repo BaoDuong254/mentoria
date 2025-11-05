@@ -1,0 +1,55 @@
+getMentorProfile:
+  get:
+    tags:
+      - mentor
+    summary: Get mentor profile
+    description: Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews.
+    operationId: getMentorProfile
+    parameters:
+      - name: mentorId
+        in: path
+        required: true
+        description: Unique identifier of the mentor
+        schema:
+          type: integer
+          example: 1
+    responses:
+      "200":
+        description: Mentor profile retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Mentor profile retrieved successfully"
+                data:
+                  $ref: "../schemas/mentor.yaml#/MentorProfileResponse"
+      "400":
+        description: Invalid mentor ID format
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Invalid mentor ID"
+      "404":
+        description: Mentor not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Mentor not found"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
