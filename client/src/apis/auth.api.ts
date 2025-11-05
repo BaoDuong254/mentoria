@@ -1,8 +1,8 @@
 import axios from "axios";
 import type { LoginResponse, getMeResponse, logoutResponse } from "@/types";
 
-const BASE_URL = "http://localhost:3000/api/auth";
-
+// const BASE_URL = "http://localhost:3000/api/auth";
+export const BASE_URL = import.meta.env.VITE_API_ENDPOINT;
 //API LOGIN
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const res = await axios.post<LoginResponse>(`${BASE_URL}/login`, new URLSearchParams({ email, password }), {
