@@ -46,6 +46,8 @@ paths:
   /api/auth/google/callback:
     $ref: "./paths/auth.yaml#/google~1callback"
   # Mentor Endpoints
+  /api/mentors:
+    $ref: "./paths/mentor.yaml#/mentorsList"
   /api/mentors/{mentorId}:
     $ref: "./paths/mentor.yaml#/mentorProfile"
 components:

@@ -31,3 +31,9 @@ Plan:
   $ref: "./mentor.yaml#/Plan"
 UpdateMentorProfileRequest:
   $ref: "./mentor.yaml#/UpdateMentorProfileRequest"
+MentorListItem:
+  $ref: "./mentor.yaml#/MentorListItem"
+MentorsListResponse:
+  $ref: "./mentor.yaml#/MentorsListResponse"
+PaginationInfo:
+  $ref: "./mentor.yaml#/PaginationInfo"

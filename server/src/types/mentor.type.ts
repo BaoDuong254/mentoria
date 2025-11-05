@@ -58,3 +58,26 @@ export interface UpdateMentorProfileRequest {
   languages?: string[];
   fieldIds?: number[];
 }
+
+export interface MentorListItem {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url: string | null;
+  country: string | null;
+  bio: string | null;
+  headline: string | null;
+  response_time: number | null;
+  total_reviews: number;
+  average_rating: number | null;
+  fields: Array<{
+    field_id: number;
+    field_name: string;
+  }>;
+  languages: string[];
+}
+
+export interface GetMentorsQuery {
+  page?: number;
+  limit?: number;
+}

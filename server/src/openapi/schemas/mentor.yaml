@@ -92,6 +92,89 @@ UpdateMentorProfileRequest:
       description: "Array of field IDs representing areas of expertise"
 
 # Response schemas
+MentorsListResponse:
+  type: object
+  properties:
+    mentors:
+      type: array
+      items:
+        $ref: "#/MentorListItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+
+MentorListItem:
+  type: object
+  properties:
+    user_id:
+      type: integer
+      example: 1
+    first_name:
+      type: string
+      example: "John"
+    last_name:
+      type: string
+      example: "Doe"
+    avatar_url:
+      type: string
+      nullable: true
+      format: uri
+      example: "https://example.com/avatars/mentor-john.jpg"
+    country:
+      type: string
+      nullable: true
+      example: "USA"
+    bio:
+      type: string
+      nullable: true
+      example: "Experienced software engineer with 10+ years"
+    headline:
+      type: string
+      nullable: true
+      example: "Senior Software Engineer at Tech Corp"
+    response_time:
+      type: integer
+      nullable: true
+      example: 24
+    total_reviews:
+      type: integer
+      example: 15
+    average_rating:
+      type: number
+      nullable: true
+      format: float
+      example: 4.8
+    fields:
+      type: array
+      items:
+        $ref: "#/Field"
+    languages:
+      type: array
+      items:
+        type: string
+      example: ["English", "Spanish"]
+
+PaginationInfo:
+  type: object
+  properties:
+    currentPage:
+      type: integer
+      example: 1
+    totalPages:
+      type: integer
+      example: 5
+    totalItems:
+      type: integer
+      example: 47
+    itemsPerPage:
+      type: integer
+      example: 10
+    hasNextPage:
+      type: boolean
+      example: true
+    hasPreviousPage:
+      type: boolean
+      example: false
+
 MentorProfileResponse:
   type: object
   properties:

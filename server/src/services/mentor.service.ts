@@ -1,5 +1,5 @@
 import poolPromise from "@/config/database";
-import { MentorProfile, UpdateMentorProfileRequest } from "@/types/mentor.type";
+import { MentorProfile, UpdateMentorProfileRequest, MentorListItem, GetMentorsQuery } from "@/types/mentor.type";
 
 const getMentorProfileService = async (
   mentorId: number
@@ -335,4 +335,148 @@ const updateMentorProfileService = async (
   }
 };
 
-export { getMentorProfileService, updateMentorProfileService };
+const getMentorsListService = async (
+  query: GetMentorsQuery
+): Promise<{
+  success: boolean;
+  message: string;
+  data?: {
+    mentors: MentorListItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Build WHERE clause conditions
+    const conditions: string[] = ["u.role = N'Mentor'", "u.status = N'Active'"];
+
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(u.user_id) as total
+      FROM users u
+      INNER JOIN mentors m ON u.user_id = m.user_id
+      ${whereClause}
+    `;
+
+    const countResult = await pool.request().query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get mentors list with pagination
+    const mentorsQuery = `
+      SELECT
+        u.user_id,
+        u.first_name,
+        u.last_name,
+        u.avatar_url,
+        u.country,
+        m.bio,
+        m.headline,
+        m.response_time,
+        m.total_reviews,
+        m.total_stars
+      FROM users u
+      INNER JOIN mentors m ON u.user_id = m.user_id
+      ${whereClause}
+      ORDER BY m.total_reviews DESC, m.total_stars DESC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("limit", limit);
+    mainRequest.input("offset", offset);
+    const mentorsResult = await mainRequest.query(mentorsQuery);
+
+    // Get fields and languages for each mentor
+    const mentors: MentorListItem[] = await Promise.all(
+      mentorsResult.recordset.map(
+        async (mentor: {
+          user_id: number;
+          first_name: string;
+          last_name: string;
+          avatar_url: string | null;
+          country: string | null;
+          bio: string | null;
+          headline: string | null;
+          response_time: number | null;
+          total_reviews: number;
+          total_stars: number;
+        }) => {
+          // Get fields
+          const fieldsResult = await pool.request().input("mentorId", mentor.user_id).query(`
+          SELECT f.field_id, f.name as field_name
+          FROM own_field o
+          INNER JOIN fields f ON o.f_field_id = f.field_id
+          WHERE o.mentor_id = @mentorId
+        `);
+
+          // Get languages
+          const languagesResult = await pool.request().input("mentorId", mentor.user_id).query(`
+          SELECT mentor_language
+          FROM mentor_languages
+          WHERE mentor_id = @mentorId
+        `);
+
+          // Calculate average rating
+          const averageRating = mentor.total_reviews > 0 ? mentor.total_stars / mentor.total_reviews : null;
+
+          return {
+            user_id: mentor.user_id,
+            first_name: mentor.first_name,
+            last_name: mentor.last_name,
+            avatar_url: mentor.avatar_url,
+            country: mentor.country,
+            bio: mentor.bio,
+            headline: mentor.headline,
+            response_time: mentor.response_time,
+            total_reviews: mentor.total_reviews,
+            average_rating: averageRating,
+            fields: fieldsResult.recordset.map((f) => ({
+              field_id: f.field_id,
+              field_name: f.field_name,
+            })),
+            languages: languagesResult.recordset.map((l) => l.mentor_language),
+          };
+        }
+      )
+    );
+
+    return {
+      success: true,
+      message: "Mentors retrieved successfully",
+      data: {
+        mentors,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getMentorsListService:", error);
+    throw error;
+  }
+};
+
+export { getMentorProfileService, updateMentorProfileService, getMentorsListService };
