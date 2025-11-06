@@ -11,7 +11,20 @@
     --gradient-main: linear-gradient(90deg, #6a0dad, #008080);
   }
 }
+/* === Autofill Style Fix === */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #364153 inset !important;
+  -webkit-text-fill-color: #90a1b9 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  font-weight: inherit !important;
+}
 html {
   height: 100%;
   line-height: 1.2;

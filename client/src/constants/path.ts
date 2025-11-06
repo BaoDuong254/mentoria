@@ -1,8 +1,7 @@
 const path = {
   //public routes
   HOME: "/",
-  LOGIN_MENTEE: "/mentee/login",
-  LOGIN_MENTOR: "/mentor/login",
+  LOGIN: "/login",
   REGISTER_MENTEE: "/mentee/register",
   REGISTER_MENTOR: "/mentor/register",
   MENTOR_BROWSE: "/mentor-browse",
