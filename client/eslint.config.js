@@ -54,7 +54,6 @@ export default [
           jsxSingleQuote: true,
         },
       ],
-      "@typescript-eslint/unified-signatures": "off",
     },
   },
 ];

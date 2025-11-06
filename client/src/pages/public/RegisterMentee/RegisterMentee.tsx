@@ -1,18 +1,25 @@
 import Input from "./components/Input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
 import VerifyCode from "./components/VerifyCode";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function RegisterMentee() {
-  const { registerMentee } = useAuthStore();
+  const { registerMentee, user } = useAuthStore();
+  const navigate = useNavigate();
   const [status, setStatus] = useState(false); // use for verify code
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      void navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit() {
     try {
