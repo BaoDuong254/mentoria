@@ -11,6 +11,13 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<LoginResponse>;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
+  registerMentee: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => Promise<registerMenteeResponse>;
+  verify: (otp: string) => Promise<otpResponse>;
   //adding more feature soon...
 }
 
@@ -23,6 +30,25 @@ export interface getMeResponse {
 }
 
 export interface logoutResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface registerMenteeResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    errors?: string[];
+    oldData?: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      password?: string;
+    };
+  };
+}
+
+export interface otpResponse {
   success: boolean;
   message: string;
 }

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { login, getMe, logout } from "@/apis/auth.api";
+import { login, getMe, logout, registerMentee, verify } from "@/apis/auth.api";
 import type { AuthState } from "@/types";
 
 export const useAuthStore = create<AuthState>()(
@@ -41,6 +41,27 @@ export const useAuthStore = create<AuthState>()(
         }
 
         set({ user: null });
+      },
+
+      registerMentee: async (firstName, lastName, email, password) => {
+        const res = await registerMentee(firstName, lastName, email, password);
+
+        if (!res.success) {
+          const errors = res.data?.errors?.join("\n") ?? "Unknown error";
+          throw new Error(errors);
+        }
+
+        return res;
+      },
+
+      verify: async (otp) => {
+        const res = await verify(otp);
+
+        if (!res.success) {
+          throw new Error(res.message);
+        }
+
+        return res;
       },
     }),
     {
