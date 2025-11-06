@@ -92,9 +92,11 @@ function LoginMentee() {
                   {error && <p className='text-red-500'>{error}</p>}
 
                   <div className='flex justify-between'>
-                    <div className='flex justify-between gap-3'>
-                      <input type='checkbox' />
-                      <p>Remember me</p>
+                    <div className='flex items-center gap-3'>
+                      <input id='remember' type='checkbox' title='Remember me' aria-label='Remember me' />
+                      <label htmlFor='remember' className='text-gray-300'>
+                        Remember me
+                      </label>
                     </div>
                     <p className='text-(--primary)'>Forgot password?</p>
                   </div>
