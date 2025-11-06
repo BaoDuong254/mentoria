@@ -1,4 +1,4 @@
-import { Mail, Lock, GraduationCap } from "lucide-react";
+import { Mail, Lock, GraduationCap, Eye, EyeOff } from "lucide-react";
 import { FaGoogle, FaChalkboardTeacher } from "react-icons/fa";
 import avt from "@/assets/avt.png";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ function LoginMentee() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -76,16 +77,26 @@ function LoginMentee() {
                     <label className='text-sm font-medium text-gray-300'>Password</label>
                     <div className='my-2 flex'>
                       <Lock className='h-9.5 w-9 rounded-l-sm border border-r-0 border-y-gray-500/30 border-l-gray-500/30 bg-gray-700 px-2.5 text-slate-500' />
+
                       <input
                         value={password}
                         onChange={(e) => {
                           setPassword(e.target.value);
                         }}
-                        type='password'
+                        type={showPassword ? "text" : "password"}
                         name='Password'
                         placeholder='Enter your password'
-                        className='w-full rounded-r-sm border border-gray-500/30 bg-gray-700 px-1.5 py-2 text-slate-400 focus:border-gray-500/30 focus:ring-0 focus:outline-none'
+                        className='w-full border-y border-gray-500/30 bg-gray-700 px-1.5 py-2 text-slate-400 focus:border-gray-500/30 focus:ring-0 focus:outline-none'
                       />
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPassword(!showPassword);
+                        }}
+                        className='flex h-9.5 items-center justify-center rounded-r-sm border border-l-0 border-y-gray-500/30 border-r-gray-500/30 bg-gray-700 px-3 text-slate-400 hover:text-slate-200 focus:outline-none'
+                      >
+                        {showPassword ? <Eye className='h-5 w-5' /> : <EyeOff className='h-5 w-5' />}
+                      </button>
                     </div>
                   </div>
 

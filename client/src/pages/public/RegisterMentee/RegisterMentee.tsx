@@ -122,7 +122,7 @@ function RegisterMentee() {
 
       {status && (
         <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/60'>
-          <VerifyCode status={status} setStatus={setStatus} />
+          <VerifyCode status={status} setStatus={setStatus} email={email} />
         </div>
       )}
     </>
