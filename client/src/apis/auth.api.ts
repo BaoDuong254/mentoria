@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { LoginResponse, getMeResponse, logoutResponse } from "@/types";
+import type { LoginResponse, getMeResponse, logoutResponse, registerMenteeResponse, otpResponse } from "@/types";
 import envConfig from "@/lib/env";
 
 // const BASE_URL = "http://localhost:3000/api/auth";
@@ -32,6 +32,36 @@ export async function logout(): Promise<logoutResponse> {
       withCredentials: true,
     }
   );
+
+  return res.data;
+}
+
+//API menteeRegister
+export async function registerMentee(
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string
+): Promise<registerMenteeResponse> {
+  const res = await axios.post<registerMenteeResponse>(
+    `${BASE_URL}/register`,
+    new URLSearchParams({ firstName, lastName, email, password }),
+    {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      withCredentials: true,
+      validateStatus: () => true,
+    }
+  );
+  return res.data;
+}
+
+//API verify OTP
+export async function verify(otp: string): Promise<otpResponse> {
+  const res = await axios.post<otpResponse>(`${BASE_URL}/verify-otp`, new URLSearchParams({ otp }), {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    withCredentials: true,
+    validateStatus: () => true,
+  });
 
   return res.data;
 }
