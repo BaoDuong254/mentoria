@@ -7,9 +7,10 @@ import path from "@/constants/path";
 interface VerifyCodeProps {
   status: boolean;
   setStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  email: string;
 }
 
-export default function VerifyCode({ status, setStatus }: VerifyCodeProps) {
+export default function VerifyCode({ status, setStatus, email }: VerifyCodeProps) {
   const { verify } = useAuthStore();
   const navigate = useNavigate();
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
@@ -49,11 +50,11 @@ export default function VerifyCode({ status, setStatus }: VerifyCodeProps) {
           transition={{ duration: 0.3, ease: "easeOut" }} // thời gian và hiệu ứng
           className='fixed inset-0 z-50 flex items-center justify-center bg-black/60'
         >
-          <div className='flex h-[338px] w-[465px] items-center justify-center rounded-t-[9px] bg-gray-800 shadow-lg'>
+          <div className='flex h-[338px] w-[465px] items-center justify-center rounded-[9px] bg-gray-800 shadow-lg'>
             <div className='flex h-10/12 w-10/12 flex-col justify-between text-white'>
               <h2 className='text-2xl font-bold'>Check your email</h2>
-              <span className='text-[12px] font-bold text-gray-400'>
-                We sent a reset link to <span className='text-(--primary)'>youremail@gmail.com</span>
+              <span className='text-gray-400'>
+                We sent a code to <span className='text-white'>{email}</span>
                 <br />
                 Enter 6 digit code that was mentioned in the email
               </span>
