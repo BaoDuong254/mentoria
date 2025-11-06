@@ -31,6 +31,8 @@ paths:
     $ref: "./paths/auth.yaml#/mentor-register"
   /api/auth/verify-otp:
     $ref: "./paths/auth.yaml#/verify-otp"
+  /api/auth/resend-otp:
+    $ref: "./paths/auth.yaml#/resend-otp"
   /api/auth/login:
     $ref: "./paths/auth.yaml#/login"
   /api/auth/logout:

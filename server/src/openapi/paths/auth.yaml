@@ -163,6 +163,55 @@ verify-otp:
             schema:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
 
+resend-otp:
+  post:
+    tags:
+      - authentication
+    summary: Resend OTP
+    description: Request a new OTP to be sent to the user's email address. This is useful when the previous OTP has expired or was not received.
+    operationId: resendOTP
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/auth.yaml#/ResendOTPRequest"
+    responses:
+      "200":
+        description: New OTP sent successfully to the email address
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/SuccessResponse"
+            example:
+              success: true
+              message: "A new OTP has been sent to your email"
+      "400":
+        description: Email not found or email already verified
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            examples:
+              emailNotFound:
+                value:
+                  success: false
+                  message: "Email not found"
+              alreadyVerified:
+                value:
+                  success: false
+                  message: "Email is already verified"
+              missingEmail:
+                value:
+                  success: false
+                  message: "Email is required"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+
 login:
   post:
     tags:

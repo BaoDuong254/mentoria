@@ -417,6 +417,48 @@ const updateUserStatusService = async (userId: number, status: string) => {
   };
 };
 
+const resendOTPService = async (email: string) => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Check if user exists and is not verified
+  const userResult = await pool.request().input("email", email).query(`
+      SELECT user_id, email, is_email_verified, role, status
+      FROM users
+      WHERE email = @email
+    `);
+
+  if (userResult.recordset.length === 0) {
+    return { success: false, message: "Email not found" };
+  }
+
+  const user = userResult.recordset[0];
+
+  // Check if email is already verified
+  if (user.is_email_verified) {
+    return { success: false, message: "Email is already verified" };
+  }
+
+  // Generate new OTP
+  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  const newOtpExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+  // Update user with new OTP
+  await pool
+    .request()
+    .input("userId", user.user_id)
+    .input("newOtp", newOtp)
+    .input("newOtpExpiration", newOtpExpiration)
+    .query("UPDATE users SET otp = @newOtp, otp_expiration = @newOtpExpiration WHERE user_id = @userId");
+
+  return {
+    success: true,
+    message: "A new OTP has been sent to your email",
+    email: user.email,
+    newOtp: newOtp,
+  };
+};
+
 export {
   isEmailExist,
   registerUserService,
@@ -426,4 +468,5 @@ export {
   forgotPasswordService,
   resetPasswordService,
   updateUserStatusService,
+  resendOTPService,
 };

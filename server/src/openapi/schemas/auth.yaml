@@ -55,6 +55,17 @@ OTPRequest:
       example: "123456"
       description: "6-digit OTP code sent to user's email"
 
+ResendOTPRequest:
+  type: object
+  required:
+    - email
+  properties:
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+      description: "User's registered email address to resend OTP"
+
 ForgotPasswordRequest:
   type: object
   required:

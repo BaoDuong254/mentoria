@@ -7,6 +7,7 @@ import {
   forgotPasswordService,
   resetPasswordService,
   updateUserStatusService,
+  resendOTPService,
 } from "@/services/auth.service";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import { LoginSchema, TLoginSchema } from "@/validation/login.schema";
@@ -296,4 +297,50 @@ const getMe = (req: Request, res: Response) => {
   }
 };
 
-export { registerUser, verifyOTP, loginUser, logoutUser, forgotPassword, resetPassword, getMe, registerMentor };
+const resendOTP = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body as { email: string };
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+
+    // Call resend OTP service
+    const result = await resendOTPService(email);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    // Send OTP email
+    if (result.email && result.newOtp) {
+      await verifyMail(result.newOtp, result.email);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Error in resendOTP controller:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export {
+  registerUser,
+  verifyOTP,
+  loginUser,
+  logoutUser,
+  forgotPassword,
+  resetPassword,
+  getMe,
+  registerMentor,
+  resendOTP,
+};

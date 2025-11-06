@@ -5,6 +5,8 @@ LoginRequest:
   $ref: "./auth.yaml#/LoginRequest"
 OTPRequest:
   $ref: "./auth.yaml#/OTPRequest"
+ResendOTPRequest:
+  $ref: "./auth.yaml#/ResendOTPRequest"
 ForgotPasswordRequest:
   $ref: "./auth.yaml#/ForgotPasswordRequest"
 ResetPasswordRequest:
