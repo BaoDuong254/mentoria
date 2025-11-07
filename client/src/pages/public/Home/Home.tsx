@@ -5,4 +5,3 @@ function Home() {
   if (loading) return <p>Loading...</p>;
   return <>{user ? <h2>Hello, {user.last_name}</h2> : <h2>Hello, World</h2>}</>;
 }
-export default Home;
