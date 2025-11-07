@@ -1,6 +1,6 @@
 import { Mail, Lock, GraduationCap, Eye, EyeOff } from "lucide-react";
 import { FaGoogle, FaChalkboardTeacher } from "react-icons/fa";
-import avt from "@/assets/avt.png";
+import avt from "@/assets/avt1.png";
 import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
 import { useAuthStore } from "@/store/useAuthStore";
