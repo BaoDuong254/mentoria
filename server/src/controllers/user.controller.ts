@@ -1,6 +1,7 @@
-import { updateAvatarService } from "@/services/user.service";
+import { updateAvatarService, changePasswordService } from "@/services/user.service";
 import { Request, Response } from "express";
 import cloudinary from "@/config/cloudinary";
+import { ChangePasswordSchema, TChangePasswordSchema } from "@/validation/change-password.schema";
 
 const updateAvatar = async (req: Request, res: Response) => {
   try {
@@ -98,4 +99,53 @@ const updateAvatar = async (req: Request, res: Response) => {
   }
 };
 
-export { updateAvatar };
+const changePassword = async (req: Request, res: Response) => {
+  try {
+    // Check if user is authenticated
+    if (!req.user || !req.user.user_id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User not authenticated",
+      });
+    }
+
+    const { oldPassword, newPassword } = req.body as TChangePasswordSchema;
+
+    // Validate input
+    const validate = await ChangePasswordSchema.safeParseAsync(req.body);
+    if (!validate.success) {
+      const errorsZod = validate.error.issues;
+      const errors = errorsZod?.map((err) => `${err.message}: ${String(err.path[0])}`);
+      return res.status(400).json({
+        success: false,
+        message: "Validation errors",
+        data: { errors },
+      });
+    }
+
+    const userId = parseInt(req.user.user_id);
+
+    // Call change password service
+    const result = await changePasswordService(userId, oldPassword, newPassword);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    console.error("Error in changePassword controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export { updateAvatar, changePassword };

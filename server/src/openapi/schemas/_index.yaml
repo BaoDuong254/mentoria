@@ -11,6 +11,8 @@ ForgotPasswordRequest:
   $ref: "./auth.yaml#/ForgotPasswordRequest"
 ResetPasswordRequest:
   $ref: "./auth.yaml#/ResetPasswordRequest"
+ChangePasswordRequest:
+  $ref: "./auth.yaml#/ChangePasswordRequest"
 SuccessResponse:
   $ref: "./auth.yaml#/SuccessResponse"
 ErrorResponse:

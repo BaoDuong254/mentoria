@@ -57,6 +57,8 @@ paths:
   # User Endpoints
   /api/users/avatar:
     $ref: "./paths/user.yaml#/avatar"
+  /api/users/change-password:
+    $ref: "./paths/user.yaml#/change-password"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

@@ -742,6 +742,97 @@ paths:
               example:
                 success: false
                 message: Internal server error
+  /api/users/change-password:
+    put:
+      tags:
+        - user
+      summary: Change user password
+      description: |
+        Change the password for the authenticated user.
+
+        **Requirements:**
+        - User must be authenticated with a valid JWT token
+        - User must be using local authentication (not Google OAuth)
+        - Old password must be correct
+        - New password must be different from old password
+        - New password must match confirm password
+        - Password must be 8-20 characters long
+
+        **Workflow:**
+        1. User provides current password for verification
+        2. User provides new password and confirmation
+        3. Backend validates old password against database
+        4. Backend hashes new password and updates database
+        5. User can immediately login with new password
+      operationId: changeUserPassword
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: Password changed successfully
+        '400':
+          description: Bad request - Validation errors or incorrect old password
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - $ref: '#/components/schemas/ValidationErrorResponse'
+              examples:
+                incorrectOldPassword:
+                  value:
+                    success: false
+                    message: Current password is incorrect
+                googleUser:
+                  value:
+                    success: false
+                    message: Cannot change password for Google authenticated users
+                validationErrors:
+                  value:
+                    success: false
+                    message: Validation errors
+                    data:
+                      errors:
+                        - 'New password and confirm password do not match: confirmPassword'
+                        - 'New password must be different from old password: newPassword'
+                passwordTooShort:
+                  value:
+                    success: false
+                    message: Validation errors
+                    data:
+                      errors:
+                        - 'Password must be at least 8 characters long: newPassword'
+        '401':
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Unauthorized - User not authenticated
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Internal server error
 components:
   schemas:
     RegisterRequest:
@@ -828,6 +919,31 @@ components:
           maxLength: 20
           example: newsecurepassword123
           description: New password (8-20 characters)
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+        - confirmPassword
+      properties:
+        oldPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: currentpassword123
+          description: User's current password
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: newsecurepassword123
+          description: 'New password (8-20 characters, must be different from old password)'
+        confirmPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: newsecurepassword123
+          description: Confirmation of new password (must match newPassword)
     SuccessResponse:
       type: object
       properties:

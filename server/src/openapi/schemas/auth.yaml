@@ -89,6 +89,32 @@ ResetPasswordRequest:
       example: "newsecurepassword123"
       description: "New password (8-20 characters)"
 
+ChangePasswordRequest:
+  type: object
+  required:
+    - oldPassword
+    - newPassword
+    - confirmPassword
+  properties:
+    oldPassword:
+      type: string
+      minLength: 8
+      maxLength: 20
+      example: "currentpassword123"
+      description: "User's current password"
+    newPassword:
+      type: string
+      minLength: 8
+      maxLength: 20
+      example: "newsecurepassword123"
+      description: "New password (8-20 characters, must be different from old password)"
+    confirmPassword:
+      type: string
+      minLength: 8
+      maxLength: 20
+      example: "newsecurepassword123"
+      description: "Confirmation of new password (must match newPassword)"
+
 # Response schemas
 SuccessResponse:
   type: object
