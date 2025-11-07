@@ -30,7 +30,7 @@
                 },
                 {
                   "key": "email",
-                  "value": "duonggiabao254@gmail.com",
+                  "value": "testss@gmail.com",
                   "type": "text"
                 },
                 {
@@ -81,12 +81,12 @@
               "urlencoded": [
                 {
                   "key": "email",
-                  "value": "duonggiabao254@gmail.com",
+                  "value": "testss@gmail.com",
                   "type": "text"
                 },
                 {
                   "key": "password",
-                  "value": "123456789",
+                  "value": "1234567890",
                   "type": "text"
                 }
               ]
@@ -208,7 +208,7 @@
                 },
                 {
                   "key": "email",
-                  "value": "duonggiabaod254@gmail.com",
+                  "value": "duonggiabaod251453122@gmail.com",
                   "type": "text"
                 },
                 {
@@ -219,7 +219,7 @@
                 {
                   "key": "cv",
                   "type": "file",
-                  "src": []
+                  "src": "/C:/Users/Admin/Downloads/SE251__ProjectDesc__Tutor_v1 (3) (2).pdf"
                 }
               ]
             },
@@ -227,6 +227,153 @@
               "raw": "{{host}}/api/auth/mentor-register",
               "host": ["{{host}}"],
               "path": ["api", "auth", "mentor-register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email",
+                  "value": "test@gmail.com",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/auth/resend-otp",
+              "host": ["{{host}}"],
+              "path": ["api", "auth", "resend-otp"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module mentors",
+      "item": [
+        {
+          "name": "Mentor profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/mentors/13",
+              "host": ["{{host}}"],
+              "path": ["api", "mentors", "13"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update mentor profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"firstName\": \"DuongGia\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/mentors/13",
+              "host": ["{{host}}"],
+              "path": ["api", "mentors", "13"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mentors list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/mentors?page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "mentors"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module users",
+      "item": [
+        {
+          "name": "Upload avatar",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/users/avatar",
+              "host": ["{{host}}"],
+              "path": ["api", "users", "avatar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change password",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "oldPassword",
+                  "value": "123456789",
+                  "type": "text"
+                },
+                {
+                  "key": "newPassword",
+                  "value": "1234567890",
+                  "type": "text"
+                },
+                {
+                  "key": "confirmPassword",
+                  "value": "1234567890",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{host}}/api/users/change-password",
+              "host": ["{{host}}"],
+              "path": ["api", "users", "change-password"]
             }
           },
           "response": []
