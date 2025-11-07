@@ -21,6 +21,8 @@ tags:
     description: OAuth integration with third-party providers
   - name: mentor
     description: Mentor profile and mentorship services
+  - name: user
+    description: User profile and settings management
 paths:
   /api/auth/register:
     post:
@@ -646,6 +648,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/users/avatar:
+    put:
+      tags:
+        - user
+      summary: Update user avatar
+      description: |
+        Upload a new avatar image for the authenticated user.
+
+        **Workflow:**
+        1. Frontend: User selects image and previews it locally (no server call)
+        2. Frontend: User clicks "Save" to confirm
+        3. Backend: Validates file, uploads to Cloudinary with optimizations, saves URL to database
+        4. Backend: Automatically deletes old avatar from Cloudinary
+
+        **Image Processing:**
+        - Resized to 400x400 pixels
+        - Face detection and centering applied
+        - Automatic quality and format optimization (WebP for modern browsers)
+        - Stored in Cloudinary with secure URL
+      operationId: updateUserAvatar
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - avatar
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+                  description: 'Avatar image file (JPEG, PNG, GIF, or WebP). Maximum size 2MB.'
+      responses:
+        '200':
+          description: Avatar updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Avatar updated successfully
+                  data:
+                    type: object
+                    properties:
+                      avatar_url:
+                        type: string
+                        format: uri
+                        example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/user_avatars/avatar_123_1234567890.jpg'
+                        description: Cloudinary URL of the uploaded avatar image
+        '400':
+          description: Bad request - Avatar file is required or invalid file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noFile:
+                  value:
+                    success: false
+                    message: Avatar image is required
+                invalidType:
+                  value:
+                    success: false
+                    message: 'Only image files (JPEG, PNG, GIF, WebP) are allowed'
+                sizeTooLarge:
+                  value:
+                    success: false
+                    message: File size exceeds 2MB limit
+        '401':
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Unauthorized - User not authenticated
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Internal server error
 components:
   schemas:
     RegisterRequest:
