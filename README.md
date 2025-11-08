@@ -16,6 +16,18 @@ Mentoria is a full-stack application built with React + TypeScript (client) and 
 - pnpm >= 10.20.0
 - Git
 
+### Install pnpm
+
+If you don't have pnpm installed, you can install it using one of the following methods:
+
+**Using npm:**
+
+```bash
+npm install -g pnpm
+```
+
+For more installation options, visit [pnpm installation guide](https://pnpm.io/installation).
+
 ## 🚀 Project Installation
 
 ### 1. Clone repository
