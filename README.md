@@ -12,8 +12,8 @@ Mentoria is a full-stack application built with React + TypeScript (client) and 
 
 ## 🛠 System Requirements
 
-- Node.js >= 22.20.0
-- npm >= 11.6.1
+- Node.js >= 24.11.0
+- pnpm >= 10.20.0
 - Git
 
 ## 🚀 Project Installation
@@ -25,42 +25,37 @@ git clone <repository-url>
 cd mentoria
 ```
 
-### 2. Install dependencies for root project
+### 2. Install dependencies
+
+The project uses pnpm workspaces. Simply run from the root directory:
 
 ```bash
-npm install
+pnpm install
 ```
 
-### 3. Install dependencies for client
-
-```bash
-cd client
-npm install
-cd ..
-```
-
-### 4. Install dependencies for server
-
-```bash
-cd server
-npm install
-cd ..
-```
+This will install all dependencies for root, client, and server automatically.
 
 ## 🏃‍♂️ Running the Project
 
 ### Development mode
 
-Run client and server in development mode:
+The project uses Turbo for monorepo management. Run both client and server simultaneously:
 
 ```bash
-# Terminal 1 - Run server
-cd server
-npm run dev
+# From root directory - runs both client and server in parallel
+pnpm dev
+```
 
-# Terminal 2 - Run client
+Or run them separately:
+
+```bash
+# Terminal 1 - Run server only
+cd server
+pnpm dev
+
+# Terminal 2 - Run client only
 cd client
-npm run dev
+pnpm dev
 ```
 
 Server will run on `http://localhost:3000`
@@ -69,15 +64,17 @@ Client will run on `http://localhost:5173`
 ### Production build
 
 ```bash
-# Build client
-cd client
-npm run build
-npm run preview
+# Build all packages from root
+pnpm build
 
-# Build server
+# Or build individually
+cd client
+pnpm build
+pnpm start       # Preview production build
+
 cd server
-npm run build
-npm run start
+pnpm build
+pnpm start       # Start production server
 ```
 
 ## 🔄 Git Workflow
@@ -180,32 +177,42 @@ The project has built-in git hooks to ensure code quality:
 ### Root level
 
 ```bash
-npm run prepare        # Setup husky hooks
+pnpm prepare        # Setup husky hooks
+pnpm dev            # Run both client and server in development mode (parallel)
+pnpm build          # Build both client and server
+pnpm start          # Start both client and server (parallel)
+pnpm lint           # Run linting for all packages
+pnpm lint:fix       # Fix linting errors for all packages
+pnpm format         # Check code formatting for all packages
+pnpm format:fix     # Auto-format code for all packages
+pnpm clean          # Clean build artifacts for all packages
 ```
 
 ### Client
 
 ```bash
-npm run dev           # Start development server
-npm run build         # Build for production
-npm run preview       # Preview production build
-npm run lint          # Check for linting errors
-npm run lint:fix      # Fix auto-fixable linting errors
-npm run format        # Check code formatting
-npm run format:fix    # Auto-format code
+pnpm dev           # Start development server
+pnpm build         # Build for production
+pnpm start         # Preview production build
+pnpm lint          # Check for linting errors
+pnpm lint:fix      # Fix auto-fixable linting errors
+pnpm format        # Check code formatting
+pnpm format:fix    # Auto-format code
+pnpm clean         # Clean build artifacts
 ```
 
 ### Server
 
 ```bash
-npm run dev            # Start development server with nodemon
-npm run build          # Build TypeScript to JavaScript
-npm run start          # Start production server
-npm run debug          # Start server in debug mode
-npm run lint           # Check for linting errors
-npm run lint:fix       # Fix auto-fixable linting errors
-npm run format         # Check code formatting
-npm run format:fix     # Auto-format code
-npm run bundle:swagger # Bundle swagger yaml file
-npm run seed           # Start mock up data
+pnpm dev            # Start development server with nodemon
+pnpm build          # Build TypeScript to JavaScript
+pnpm start          # Start production server
+pnpm debug          # Start server in debug mode
+pnpm seed           # Seed database with mock data
+pnpm lint           # Check for linting errors
+pnpm lint:fix       # Fix auto-fixable linting errors
+pnpm format         # Check code formatting
+pnpm format:fix     # Auto-format code
+pnpm bundle:swagger # Bundle swagger yaml file
+pnpm clean          # Clean build artifacts
 ```
