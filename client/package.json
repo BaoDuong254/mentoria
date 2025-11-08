@@ -2,21 +2,29 @@
   "name": "client",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.20.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview",
+    "start": "vite preview",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "preinstall": "npx only-allow pnpm",
+    "clean": "rimraf dist/"
+  },
+  "engines": {
+    "node": "24.11.0",
+    "pnpm": "10.20.0"
   },
   "dependencies": {
+    "server": "*",
     "@tailwindcss/vite": "^4.1.16",
     "axios": "^1.13.2",
-    "lucide-react": "^0.552.0",
     "framer-motion": "^12.23.24",
+    "lucide-react": "^0.552.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
@@ -46,6 +54,7 @@
     "globals": "^16.5.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
+    "rimraf": "^6.1.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
     "vite": "^7.2.1"

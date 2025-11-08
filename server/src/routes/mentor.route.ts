@@ -1,8 +1,8 @@
 import { getMentorProfile, updateMentorProfile, getMentorsList } from "@/controllers/mentor.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
-import express from "express";
+import express, { Router } from "express";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.get("/", getMentorsList);
 router.get("/:mentorId", getMentorProfile);

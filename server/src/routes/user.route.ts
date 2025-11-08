@@ -1,9 +1,9 @@
 import { updateAvatar, changePassword } from "@/controllers/user.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
 import { uploadImage } from "@/middlewares/upload.middleware";
-import express from "express";
+import express, { Router } from "express";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.put("/avatar", protectRoute, uploadImage.single("avatar"), updateAvatar);
 router.put("/change-password", protectRoute, changePassword);

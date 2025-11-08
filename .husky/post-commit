@@ -1,2 +1,2 @@
 git update-index --again
-echo "⬆️ Commit successfully made!"
+echo "✅ Commit successfully made!"

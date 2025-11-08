@@ -11,9 +11,9 @@ import {
 } from "@/controllers/auth.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
 import { upload } from "@/middlewares/upload.middleware";
-import express from "express";
+import express, { Router } from "express";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/mentor-register", upload.single("cv"), registerMentor);

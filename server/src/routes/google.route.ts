@@ -1,10 +1,10 @@
-import express from "express";
+import express, { Router } from "express";
 import passport from "passport";
 import { generateTokenAndSetCookie } from "@/utils/generateTokenAndSetCookie";
 import envConfig from "@/config/env";
 import { Status } from "@/constants/type";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
