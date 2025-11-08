@@ -25,6 +25,7 @@
       "dependsOn": ["^format:fix"]
     },
     "start": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
