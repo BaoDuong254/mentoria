@@ -8,6 +8,15 @@
     --light-purple: #d8b4fe;
     --dark-grey: #454545;
 
+    /* text */
+    --text-grey: #d1d5db;
+    --text-dark-grey: #9ca3af;
+    --text-light-purple: #d1c4e9;
+
+    /* background */
+    --bg-grey: #111827;
+    --bg-light-grey: #1f2937;
+
     --gradient-main: linear-gradient(90deg, #6a0dad, #008080);
   }
 }
