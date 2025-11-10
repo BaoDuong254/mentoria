@@ -7,6 +7,7 @@ import poolPromise from "@/config/database";
 import authRoutes from "@/routes/auth.route";
 import googleRoutes from "@/routes/google.route";
 import mentorRoutes from "@/routes/mentor.route";
+import menteeRoutes from "@/routes/mentee.route";
 import userRoutes from "@/routes/user.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
@@ -50,6 +51,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/auth", googleRoutes);
 app.use("/api/mentors", mentorRoutes);
+app.use("/api/mentees", menteeRoutes);
 app.use("/api/users", userRoutes);
 
 // Health check endpoint
