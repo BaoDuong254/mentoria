@@ -47,6 +47,78 @@ pnpm install
 
 This will install all dependencies for root, client, and server automatically.
 
+## 📦 Managing Packages
+
+### Installing packages
+
+**Install package for all workspaces (root):**
+
+```bash
+pnpm add <package-name> -w
+```
+
+**Install package for specific workspace:**
+
+```bash
+# For client
+pnpm add <package-name> --filter client
+
+# For server
+pnpm add <package-name> --filter server
+```
+
+**Install dev dependencies:**
+
+```bash
+# For client
+pnpm add -D <package-name> --filter client
+
+# For server
+pnpm add -D <package-name> --filter server
+
+# For root
+pnpm add -D <package-name> -w
+```
+
+**Examples:**
+
+```bash
+# Install axios for client
+pnpm add axios --filter client
+
+# Install express types for server
+pnpm add -D @types/express --filter server
+
+# Install husky for root workspace
+pnpm add -D husky -w
+```
+
+### Removing packages
+
+```bash
+# Remove from client
+pnpm remove <package-name> --filter client
+
+# Remove from server
+pnpm remove <package-name> --filter server
+
+# Remove from root
+pnpm remove <package-name> -w
+```
+
+### Update packages
+
+```bash
+# Update specific package
+pnpm update <package-name>
+
+# Update all packages
+pnpm update
+
+# Update packages for specific workspace
+pnpm update --filter client
+```
+
 ## 🏃‍♂️ Running the Project
 
 ### Development mode

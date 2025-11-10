@@ -3,7 +3,7 @@ packages:
   - server
 
 onlyBuiltDependencies:
-  - '@scarf/scarf'
-  - '@swc/core'
+  - "@scarf/scarf"
+  - "@swc/core"
   - bcrypt
   - esbuild
