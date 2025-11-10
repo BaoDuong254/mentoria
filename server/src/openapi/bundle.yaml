@@ -2,17 +2,17 @@ openapi: 3.0.0
 info:
   title: Mentoria API
   description: This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
-  termsOfService: 'http://localhost:5173/terms/'
+  termsOfService: "http://localhost:5173/terms/"
   contact:
     email: duonggiabao254@gmail.com
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/MIT'
+    url: "https://opensource.org/licenses/MIT"
   version: 1.0.0
 servers:
-  - url: 'http://localhost:3000'
+  - url: "http://localhost:3000"
     description: Development server
-  - url: 'https://api.mentoria.com'
+  - url: "https://api.mentoria.com"
     description: Production server
 tags:
   - name: authentication
@@ -31,39 +31,39 @@ paths:
       tags:
         - authentication
       summary: Register a new user
-      description: 'Register a new user account. After registration, an OTP will be sent to the provided email for verification.'
+      description: "Register a new user account. After registration, an OTP will be sent to the provided email for verification."
       operationId: registerUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: "#/components/schemas/RegisterRequest"
       responses:
-        '201':
+        "201":
           description: User registered successfully. OTP sent to email.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Validation errors or email already exists
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/mentor-register:
     post:
       tags:
         - authentication
       summary: Register a new mentor
-      description: 'Register a new mentor account with CV upload. After registration, an OTP will be sent to the provided email for verification. The account will be reviewed by the admin team before approval.'
+      description: "Register a new mentor account with CV upload. After registration, an OTP will be sent to the provided email for verification. The account will be reviewed by the admin team before approval."
       operationId: registerMentor
       requestBody:
         required: true
@@ -103,7 +103,7 @@ paths:
                   format: binary
                   description: Mentor's CV in PDF format
       responses:
-        '201':
+        "201":
           description: Mentor registered successfully. OTP sent to email and account pending review.
           content:
             application/json:
@@ -116,14 +116,14 @@ paths:
                   message:
                     type: string
                     example: Mentor registered successfully. Please verify your email. Your account will be reviewed by our team.
-        '400':
-          description: 'Validation errors, email already exists, CV missing, or invalid file format'
+        "400":
+          description: "Validation errors, email already exists, CV missing, or invalid file format"
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ValidationErrorResponse'
-                  - $ref: '#/components/schemas/ErrorResponse'
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
               examples:
                 validationError:
                   value:
@@ -131,7 +131,7 @@ paths:
                     message: Validation errors
                     data:
                       errors:
-                        - 'Email is invalid: email'
+                        - "Email is invalid: email"
                       oldData:
                         firstName: John
                         lastName: Doe
@@ -145,49 +145,49 @@ paths:
                   value:
                     success: false
                     message: Only PDF files are allowed for CV
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/verify-otp:
     post:
       tags:
         - authentication
       summary: Verify OTP
-      description: 'Verify the OTP sent to user''s email after registration. Upon successful verification, user will be logged in automatically.'
+      description: "Verify the OTP sent to user's email after registration. Upon successful verification, user will be logged in automatically."
       operationId: verifyOTP
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OTPRequest'
+              $ref: "#/components/schemas/OTPRequest"
       responses:
-        '200':
+        "200":
           description: OTP verified successfully. User is now logged in.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie
               schema:
                 type: string
-        '400':
+        "400":
           description: Invalid or expired OTP
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/resend-otp:
     post:
       tags:
@@ -200,23 +200,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResendOTPRequest'
+              $ref: "#/components/schemas/ResendOTPRequest"
       responses:
-        '200':
+        "200":
           description: New OTP sent successfully to the email address
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
               example:
                 success: true
                 message: A new OTP has been sent to your email
-        '400':
+        "400":
           description: Email not found or email already verified
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 emailNotFound:
                   value:
@@ -230,12 +230,12 @@ paths:
                   value:
                     success: false
                     message: Email is required
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/login:
     post:
       tags:
@@ -248,31 +248,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
+        "200":
           description: Login successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie
               schema:
                 type: string
-        '400':
+        "400":
           description: Invalid credentials or validation errors
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/logout:
     post:
       tags:
@@ -283,24 +283,24 @@ paths:
       security:
         - cookieAuth: []
       responses:
-        '200':
+        "200":
           description: Logout successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '401':
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
           description: Unauthorized - user not logged in
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/forgot-password:
     post:
       tags:
@@ -313,27 +313,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ForgotPasswordRequest'
+              $ref: "#/components/schemas/ForgotPasswordRequest"
       responses:
-        '200':
+        "200":
           description: Reset password email sent successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '404':
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
           description: Email not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  '/api/auth/reset-password/{token}':
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/auth/reset-password/{token}":
     post:
       tags:
         - authentication
@@ -352,26 +352,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResetPasswordRequest'
+              $ref: "#/components/schemas/ResetPasswordRequest"
       responses:
-        '200':
+        "200":
           description: Password reset successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Invalid token or validation errors
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/me:
     get:
       tags:
@@ -382,7 +382,7 @@ paths:
       security:
         - cookieAuth: []
       responses:
-        '200':
+        "200":
           description: User information retrieved successfully
           content:
             application/json:
@@ -399,19 +399,19 @@ paths:
                     type: object
                     properties:
                       user:
-                        $ref: '#/components/schemas/User'
-        '401':
+                        $ref: "#/components/schemas/User"
+        "401":
           description: Unauthorized - user not logged in
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /api/auth/google:
     get:
       tags:
@@ -420,9 +420,9 @@ paths:
       description: Redirect to Google OAuth consent screen
       operationId: googleAuth
       responses:
-        '302':
+        "302":
           description: Redirect to Google OAuth
-        '500':
+        "500":
           description: OAuth configuration error
   /api/auth/google/callback:
     get:
@@ -443,14 +443,14 @@ paths:
           schema:
             type: string
       responses:
-        '302':
+        "302":
           description: Redirect to client with authentication status
           headers:
             Set-Cookie:
               description: JWT token set as HTTP-only cookie (on success)
               schema:
                 type: string
-        '400':
+        "400":
           description: OAuth authentication failed
   /api/mentors:
     get:
@@ -471,14 +471,14 @@ paths:
         - name: limit
           in: query
           required: false
-          description: 'Number of items per page (default 10, max 100)'
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
             maximum: 100
             example: 10
       responses:
-        '200':
+        "200":
           description: Mentors list retrieved successfully
           content:
             application/json:
@@ -492,13 +492,13 @@ paths:
                     type: string
                     example: Mentors retrieved successfully
                   data:
-                    $ref: '#/components/schemas/MentorsListResponse'
-        '400':
+                    $ref: "#/components/schemas/MentorsListResponse"
+        "400":
           description: Invalid query parameters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 invalidPage:
                   value:
@@ -508,18 +508,18 @@ paths:
                   value:
                     success: false
                     message: Invalid limit. Must be between 1 and 100.
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  '/api/mentors/{mentorId}':
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/mentors/{mentorId}":
     get:
       tags:
         - mentor
       summary: Get mentor profile
-      description: 'Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews.'
+      description: "Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews."
       operationId: getMentorProfile
       parameters:
         - name: mentorId
@@ -530,7 +530,7 @@ paths:
             type: integer
             example: 1
       responses:
-        '200':
+        "200":
           description: Mentor profile retrieved successfully
           content:
             application/json:
@@ -544,36 +544,36 @@ paths:
                     type: string
                     example: Mentor profile retrieved successfully
                   data:
-                    $ref: '#/components/schemas/MentorProfileResponse'
-        '400':
+                    $ref: "#/components/schemas/MentorProfileResponse"
+        "400":
           description: Invalid mentor ID format
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Invalid mentor ID
-        '404':
+        "404":
           description: Mentor not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Mentor not found
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
     put:
       tags:
         - mentor
       summary: Update mentor profile
-      description: 'Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile.'
+      description: "Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile."
       operationId: updateMentorProfile
       security:
         - cookieAuth: []
@@ -590,23 +590,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMentorProfileRequest'
+              $ref: "#/components/schemas/UpdateMentorProfileRequest"
       responses:
-        '200':
+        "200":
           description: Mentor profile updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
               example:
                 success: true
                 message: Mentor profile updated successfully
-        '400':
+        "400":
           description: Invalid mentor ID or validation errors
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 invalidId:
                   value:
@@ -620,36 +620,268 @@ paths:
                   value:
                     success: false
                     message: Response time must be a non-negative number
-        '401':
+        "401":
           description: Unauthorized - user not logged in
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
           description: Forbidden - user not authorized to update this profile
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: You are not authorized to update this profile
-        '404':
+        "404":
           description: Mentor not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Mentor not found
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/mentees:
+    get:
+      tags:
+        - mentee
+      summary: Get list of mentees
+      description: Retrieve a paginated list of mentees
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mentees retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      mentees:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user_id:
+                              type: integer
+                              example: 1
+                            first_name:
+                              type: string
+                              example: John
+                            last_name:
+                              type: string
+                              example: Doe
+                            avatar_url:
+                              type: string
+                              nullable: true
+                            country:
+                              type: string
+                              nullable: true
+                            goal:
+                              type: string
+                              nullable: true
+                            created_at:
+                              type: string
+                              format: date-time
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                            example: 1
+                          totalPages:
+                            type: integer
+                            example: 5
+                          totalItems:
+                            type: integer
+                            example: 50
+                          itemsPerPage:
+                            type: integer
+                            example: 10
+                          hasNextPage:
+                            type: boolean
+                            example: true
+                          hasPreviousPage:
+                            type: boolean
+                            example: false
+        "400":
+          description: Invalid parameters
+        "500":
+          description: Internal server error
+  "/api/mentees/{menteeId}":
+    get:
+      tags:
+        - mentee
+      summary: Get mentee profile
+      description: Retrieve detailed profile information for a specific mentee.
+      parameters:
+        - name: menteeId
+          in: path
+          required: true
+          description: ID of the mentee to get
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mentee profile retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        example: 1
+                      first_name:
+                        type: string
+                        example: John
+                      last_name:
+                        type: string
+                        example: Doe
+                      email:
+                        type: string
+                        format: email
+                        example: john.doe@example.com
+                      sex:
+                        type: string
+                        enum:
+                          - Male
+                          - Female
+                          - null
+                        nullable: true
+                      avatar_url:
+                        type: string
+                        nullable: true
+                      country:
+                        type: string
+                        nullable: true
+                      timezone:
+                        type: string
+                        nullable: true
+                      goal:
+                        type: string
+                        nullable: true
+                      created_at:
+                        type: string
+                        format: date-time
+                      updated_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      is_email_verified:
+                        type: boolean
+                        default: false
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Mentee not found
+        "500":
+          description: Internal server error
+    put:
+      tags:
+        - mentee
+      summary: Update mentee profile
+      description: Update profile information for a specific mentee. Only the mentee can update their own profile.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: menteeId
+          in: path
+          required: true
+          description: ID of the mentee to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                sex:
+                  type: string
+                  enum:
+                    - Male
+                    - Female
+                country:
+                  type: string
+                timezone:
+                  type: string
+                goal:
+                  type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mentee profile updated successfully
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden - can only update own profile
+        "404":
+          description: Mentee not found
+        "500":
+          description: Internal server error
   /api/users/avatar:
     put:
       tags:
@@ -684,9 +916,9 @@ paths:
                 avatar:
                   type: string
                   format: binary
-                  description: 'Avatar image file (JPEG, PNG, GIF, or WebP). Maximum size 2MB.'
+                  description: "Avatar image file (JPEG, PNG, GIF, or WebP). Maximum size 2MB."
       responses:
-        '200':
+        "200":
           description: Avatar updated successfully
           content:
             application/json:
@@ -705,14 +937,14 @@ paths:
                       avatar_url:
                         type: string
                         format: uri
-                        example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/user_avatars/avatar_123_1234567890.jpg'
+                        example: "https://res.cloudinary.com/demo/image/upload/v1234567890/user_avatars/avatar_123_1234567890.jpg"
                         description: Cloudinary URL of the uploaded avatar image
-        '400':
+        "400":
           description: Bad request - Avatar file is required or invalid file type
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 noFile:
                   value:
@@ -721,200 +953,29 @@ paths:
                 invalidType:
                   value:
                     success: false
-                    message: 'Only image files (JPEG, PNG, GIF, WebP) are allowed'
+                    message: "Only image files (JPEG, PNG, GIF, WebP) are allowed"
                 sizeTooLarge:
                   value:
                     success: false
                     message: File size exceeds 2MB limit
-        '401':
+        "401":
           description: Unauthorized - User not authenticated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Unauthorized - User not authenticated
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Internal server error
-  /api/mentees:
-    get:
-      tags:
-        - mentee
-      summary: Get list of mentees
-      description: Retrieve a paginated list of mentees
-      operationId: getMenteesList
-      parameters:
-        - name: page
-          in: query
-          required: false
-          description: Page number (default 1)
-          schema:
-            type: integer
-            minimum: 1
-            example: 1
-        - name: limit
-          in: query
-          required: false
-          description: 'Number of items per page (default 10, max 100)'
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 10
-      responses:
-        '200':
-          description: Mentees list retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Mentees retrieved successfully"
-                  data:
-                    type: object
-                    properties:
-                      mentees:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/MenteeListItem'
-                      pagination:
-                        $ref: '#/components/schemas/PaginationInfo'
-        '400':
-          description: Invalid parameters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  '/api/mentees/{menteeId}':
-    get:
-      tags:
-        - mentee
-      summary: Get mentee profile
-      description: Retrieve profile information for a specific mentee
-      operationId: getMenteeProfile
-      parameters:
-        - name: menteeId
-          in: path
-          required: true
-          description: Unique identifier of the mentee
-          schema:
-            type: integer
-            example: 1
-      responses:
-        '200':
-          description: Mentee profile retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Mentee profile retrieved successfully"
-                  data:
-                    $ref: '#/components/schemas/MenteeProfile'
-        '400':
-          description: Invalid mentee ID format
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Mentee not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags:
-        - mentee
-      summary: Update mentee profile
-      description: Update profile information for a specific mentee. Only the authenticated mentee can update their own profile.
-      operationId: updateMenteeProfile
-      security:
-        - cookieAuth: []
-      parameters:
-        - name: menteeId
-          in: path
-          required: true
-          description: Unique identifier of the mentee
-          schema:
-            type: integer
-            example: 1
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateMenteeProfileRequest'
-      responses:
-        '200':
-          description: Mentee profile updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
-          description: Invalid mentee ID or validation errors
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationErrorResponse'
-        '401':
-          description: Unauthorized - user not logged in
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Forbidden - user not authorized to update this profile
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Mentee not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /api/users/change-password:
     put:
       tags:
@@ -945,25 +1006,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangePasswordRequest'
+              $ref: "#/components/schemas/ChangePasswordRequest"
       responses:
-        '200':
+        "200":
           description: Password changed successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
               example:
                 success: true
                 message: Password changed successfully
-        '400':
+        "400":
           description: Bad request - Validation errors or incorrect old password
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ErrorResponse'
-                  - $ref: '#/components/schemas/ValidationErrorResponse'
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
               examples:
                 incorrectOldPassword:
                   value:
@@ -979,30 +1040,30 @@ paths:
                     message: Validation errors
                     data:
                       errors:
-                        - 'New password and confirm password do not match: confirmPassword'
-                        - 'New password must be different from old password: newPassword'
+                        - "New password and confirm password do not match: confirmPassword"
+                        - "New password must be different from old password: newPassword"
                 passwordTooShort:
                   value:
                     success: false
                     message: Validation errors
                     data:
                       errors:
-                        - 'Password must be at least 8 characters long: newPassword'
-        '401':
+                        - "Password must be at least 8 characters long: newPassword"
+        "401":
           description: Unauthorized - User not authenticated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Unauthorized - User not authenticated
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 success: false
                 message: Internal server error
@@ -1059,7 +1120,7 @@ components:
       properties:
         otp:
           type: string
-          example: '123456'
+          example: "123456"
           description: 6-digit OTP code sent to user's email
     ResendOTPRequest:
       type: object
@@ -1110,7 +1171,7 @@ components:
           minLength: 8
           maxLength: 20
           example: newsecurepassword123
-          description: 'New password (8-20 characters, must be different from old password)'
+          description: "New password (8-20 characters, must be different from old password)"
         confirmPassword:
           type: string
           minLength: 8
@@ -1152,8 +1213,8 @@ components:
               items:
                 type: string
               example:
-                - 'Email is invalid: email'
-                - 'Password must be at least 8 characters long: password'
+                - "Email is invalid: email"
+                - "Password must be at least 8 characters long: password"
             oldData:
               type: object
               description: Previously submitted data (excluding sensitive fields like password)
@@ -1161,7 +1222,7 @@ components:
                 firstName: John
                 lastName: Doe
                 email: invalid-email
-                password: ''
+                password: ""
     User:
       type: object
       properties:
@@ -1192,7 +1253,7 @@ components:
         avatar_url:
           type: string
           format: uri
-          example: 'https://example.com/avatars/johndoe.jpg'
+          example: "https://example.com/avatars/johndoe.jpg"
           description: URL to user's avatar image
         country:
           type: string
@@ -1234,12 +1295,12 @@ components:
         created_at:
           type: string
           format: date-time
-          example: '2023-10-25T10:30:00Z'
+          example: "2023-10-25T10:30:00Z"
           description: Account creation timestamp
         updated_at:
           type: string
           format: date-time
-          example: '2023-10-25T10:30:00Z'
+          example: "2023-10-25T10:30:00Z"
           description: Last account update timestamp
     MentorProfileResponse:
       type: object
@@ -1273,7 +1334,7 @@ components:
           type: string
           nullable: true
           format: uri
-          example: 'https://example.com/avatars/mentor-john.jpg'
+          example: "https://example.com/avatars/mentor-john.jpg"
           description: URL to mentor's avatar image
         country:
           type: string
@@ -1316,22 +1377,22 @@ components:
           type: string
           nullable: true
           format: uri
-          example: 'https://cloudinary.com/cvs/mentor-john-cv.pdf'
+          example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
           description: URL to mentor's CV (PDF)
         social_links:
           type: array
           items:
-            $ref: '#/components/schemas/SocialLink'
+            $ref: "#/components/schemas/SocialLink"
           description: Mentor's social media links
         companies:
           type: array
           items:
-            $ref: '#/components/schemas/Company'
+            $ref: "#/components/schemas/Company"
           description: Companies where mentor has worked
         fields:
           type: array
           items:
-            $ref: '#/components/schemas/Field'
+            $ref: "#/components/schemas/Field"
           description: Areas of expertise
         languages:
           type: array
@@ -1345,7 +1406,7 @@ components:
         plans:
           type: array
           items:
-            $ref: '#/components/schemas/Plan'
+            $ref: "#/components/schemas/Plan"
           description: Mentorship plans offered by mentor
         average_rating:
           type: number
@@ -1359,7 +1420,7 @@ components:
         link:
           type: string
           format: uri
-          example: 'https://linkedin.com/in/johndoe'
+          example: "https://linkedin.com/in/johndoe"
           description: URL to social media profile
         platform:
           type: string
@@ -1461,7 +1522,7 @@ components:
         cvUrl:
           type: string
           format: uri
-          example: 'https://cloudinary.com/cvs/mentor-john-cv.pdf'
+          example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
           description: URL to mentor's CV (PDF)
         socialLinks:
           type: array
@@ -1474,7 +1535,7 @@ components:
               link:
                 type: string
                 format: uri
-                example: 'https://linkedin.com/in/johndoe'
+                example: "https://linkedin.com/in/johndoe"
               platform:
                 type: string
                 example: LinkedIn
@@ -1532,7 +1593,7 @@ components:
           type: string
           nullable: true
           format: uri
-          example: 'https://example.com/avatars/mentor-john.jpg'
+          example: "https://example.com/avatars/mentor-john.jpg"
         country:
           type: string
           nullable: true
@@ -1560,7 +1621,7 @@ components:
         fields:
           type: array
           items:
-            $ref: '#/components/schemas/Field'
+            $ref: "#/components/schemas/Field"
         languages:
           type: array
           items:
@@ -1574,9 +1635,9 @@ components:
         mentors:
           type: array
           items:
-            $ref: '#/components/schemas/MentorListItem'
+            $ref: "#/components/schemas/MentorListItem"
         pagination:
-          $ref: '#/components/schemas/PaginationInfo'
+          $ref: "#/components/schemas/PaginationInfo"
     PaginationInfo:
       type: object
       properties:
@@ -1598,93 +1659,6 @@ components:
         hasPreviousPage:
           type: boolean
           example: false
-    MenteeProfile:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 1
-        first_name:
-          type: string
-          example: "John"
-        last_name:
-          type: string
-          example: "Doe"
-        email:
-          type: string
-          format: email
-          example: "john.doe@example.com"
-        sex:
-          type: string
-          enum: [Male, Female, null]
-          nullable: true
-        avatar_url:
-          type: string
-          nullable: true
-        country:
-          type: string
-          nullable: true
-        timezone:
-          type: string
-          nullable: true
-        goal:
-          type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-          nullable: true
-        is_email_verified:
-          type: boolean
-          default: false
-
-    UpdateMenteeProfileRequest:
-      type: object
-      properties:
-        firstName:
-          type: string
-          example: "John"
-        lastName:
-          type: string
-          example: "Doe"
-        sex:
-          type: string
-          enum: [Male, Female]
-        country:
-          type: string
-        timezone:
-          type: string
-        goal:
-          type: string
-
-    MenteeListItem:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 1
-        first_name:
-          type: string
-          example: "John"
-        last_name:
-          type: string
-          example: "Doe"
-        avatar_url:
-          type: string
-          nullable: true
-        country:
-          type: string
-          nullable: true
-        goal:
-          type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-
   securitySchemes:
     cookieAuth:
       type: apiKey

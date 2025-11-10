@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.21.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   },
   "engines": {
     "node": "24.11.0",
-    "pnpm": "10.20.0"
+    "pnpm": "10.21.0"
   },
   "keywords": [],
   "author": "",

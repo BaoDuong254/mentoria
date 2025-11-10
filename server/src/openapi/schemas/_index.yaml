@@ -41,3 +41,11 @@ MentorsListResponse:
   $ref: "./mentor.yaml#/MentorsListResponse"
 PaginationInfo:
   $ref: "./mentor.yaml#/PaginationInfo"
+
+# Mentee schemas
+MenteeProfile:
+  $ref: "./mentee.yaml#/MenteeProfile"
+UpdateMenteeProfileRequest:
+  $ref: "./mentee.yaml#/UpdateMenteeProfileRequest"
+MenteeListItem:
+  $ref: "./mentee.yaml#/MenteeListItem"
