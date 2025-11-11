@@ -4,7 +4,7 @@
     "name": "Mentoria",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "41961051",
-    "_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria-~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/41961051-8d57056d-1e34-4250-90f5-6e19e2058be3?action=share&source=collection_link&creator=41961051"
+    "_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/41961051-8d57056d-1e34-4250-90f5-6e19e2058be3?action=share&source=collection_link&creator=41961051"
   },
   "item": [
     {
@@ -374,6 +374,69 @@
               "raw": "{{host}}/api/users/change-password",
               "host": ["{{host}}"],
               "path": ["api", "users", "change-password"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module mentees",
+      "item": [
+        {
+          "name": "Mentee profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/mentees/162",
+              "host": ["{{host}}"],
+              "path": ["api", "mentees", "162"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mentee list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/mentees?page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "mentees"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update mentee profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"goal\": \"Learn React and Node.js to become a full-stack developer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{host}}/api/mentees/162",
+              "host": ["{{host}}"],
+              "path": ["api", "mentees", "162"]
             }
           },
           "response": []
