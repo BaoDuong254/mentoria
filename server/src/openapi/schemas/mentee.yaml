@@ -16,7 +16,7 @@ MenteeProfile:
       example: "john.doe@example.com"
     sex:
       type: string
-      enum: [Male, Female, null]
+      enum: ["Male", "Female"]
       nullable: true
     avatar_url:
       type: string
@@ -52,7 +52,7 @@ UpdateMenteeProfileRequest:
       example: "Doe"
     sex:
       type: string
-      enum: [Male, Female]
+      enum: ["Male", "Female"]
     country:
       type: string
     timezone:

@@ -12,7 +12,7 @@
     "start": "vite preview",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "pnpm dlx only-allow pnpm",
     "clean": "rimraf dist/"
   },
   "engines": {

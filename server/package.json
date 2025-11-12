@@ -6,7 +6,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npx nodemon",
+    "dev": "pnpm exec nodemon",
     "clean": "rimraf dist/",
     "copy-files": "copyfiles -u 1 src/openapi/**/* dist/",
     "build": "pnpm clean && tsc && pnpm copy-files && tsc-alias",
@@ -17,8 +17,8 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "debug": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register -r tsconfig-paths/register ./src/index.ts",
-    "bundle:swagger": "swagger-cli bundle src/openapi/openapi.yaml -o src/openapi/bundle.yaml --type yaml",
-    "preinstall": "npx only-allow pnpm"
+    "bundle:swagger": "pnpm exec swagger-cli bundle src/openapi/openapi.yaml -o src/openapi/bundle.yaml --type yaml",
+    "preinstall": "pnpm dlx only-allow pnpm"
   },
   "engines": {
     "node": "24.11.0",

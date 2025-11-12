@@ -694,29 +694,7 @@ paths:
                       mentees:
                         type: array
                         items:
-                          type: object
-                          properties:
-                            user_id:
-                              type: integer
-                              example: 1
-                            first_name:
-                              type: string
-                              example: John
-                            last_name:
-                              type: string
-                              example: Doe
-                            avatar_url:
-                              type: string
-                              nullable: true
-                            country:
-                              type: string
-                              nullable: true
-                            goal:
-                              type: string
-                              nullable: true
-                            created_at:
-                              type: string
-                              format: date-time
+                          $ref: "#/components/schemas/MenteeListItem"
                       pagination:
                         type: object
                         properties:
@@ -770,50 +748,7 @@ paths:
                     type: string
                     example: Mentee profile retrieved successfully
                   data:
-                    type: object
-                    properties:
-                      user_id:
-                        type: integer
-                        example: 1
-                      first_name:
-                        type: string
-                        example: John
-                      last_name:
-                        type: string
-                        example: Doe
-                      email:
-                        type: string
-                        format: email
-                        example: john.doe@example.com
-                      sex:
-                        type: string
-                        enum:
-                          - Male
-                          - Female
-                          - null
-                        nullable: true
-                      avatar_url:
-                        type: string
-                        nullable: true
-                      country:
-                        type: string
-                        nullable: true
-                      timezone:
-                        type: string
-                        nullable: true
-                      goal:
-                        type: string
-                        nullable: true
-                      created_at:
-                        type: string
-                        format: date-time
-                      updated_at:
-                        type: string
-                        format: date-time
-                        nullable: true
-                      is_email_verified:
-                        type: boolean
-                        default: false
+                    $ref: "#/components/schemas/MenteeProfile"
         "400":
           description: Invalid ID supplied
         "404":
@@ -839,25 +774,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                  example: John
-                lastName:
-                  type: string
-                  example: Doe
-                sex:
-                  type: string
-                  enum:
-                    - Male
-                    - Female
-                country:
-                  type: string
-                timezone:
-                  type: string
-                goal:
-                  type: string
+              $ref: "#/components/schemas/UpdateMenteeProfileRequest"
       responses:
         "200":
           description: Successful operation
@@ -1659,6 +1576,94 @@ components:
         hasPreviousPage:
           type: boolean
           example: false
+    MenteeProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        goal:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        is_email_verified:
+          type: boolean
+          default: false
+    UpdateMenteeProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+        country:
+          type: string
+        timezone:
+          type: string
+        goal:
+          type: string
+    MenteeListItem:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        avatar_url:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        goal:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
   securitySchemes:
     cookieAuth:
       type: apiKey
