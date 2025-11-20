@@ -19,7 +19,7 @@ interface MenteeDashboardProps {
   onReschedule: (mentorId: string) => void;
 }
 
-const MenteeDashboard: React.FC<MenteeDashboardProps> = ({ mentors, onJoinMeeting, onReschedule }) => {
+const MenteeDashboardComponent: React.FC<MenteeDashboardProps> = ({ mentors, onJoinMeeting, onReschedule }) => {
   return (
     <div className={styles.dashboardContainer}>
       {mentors.map((mentor) => (
@@ -84,4 +84,4 @@ const MenteeDashboard: React.FC<MenteeDashboardProps> = ({ mentors, onJoinMeetin
   );
 };
 
-export default MenteeDashboard;
+export default MenteeDashboardComponent;

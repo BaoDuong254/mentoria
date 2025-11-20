@@ -1,10 +1,10 @@
 import useRoutesConfig from "@/hooks/useRoutesConfig";
-import { useAuthStore } from "./store/useAuthStore";
+import { useMenteeStore } from "@/store/useMenteeStore";
 import { useEffect } from "react";
 function App() {
   const routes = useRoutesConfig();
-  const fetchUser = useAuthStore((state) => state.fetchUser);
-  const loading = useAuthStore((state) => state.loading);
+  const fetchUser = useMenteeStore((state) => state.fetchUser);
+  const loading = useMenteeStore((state) => state.loading);
 
   useEffect(() => {
     void fetchUser();

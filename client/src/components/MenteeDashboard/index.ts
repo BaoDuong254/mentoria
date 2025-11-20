@@ -1,3 +1,3 @@
-import MenteeDashboard from "./MenteeDashboard";
+import MenteeDashboardComponent from "./MenteeDashboardComponent";
 
-export default MenteeDashboard;
+export default MenteeDashboardComponent;
