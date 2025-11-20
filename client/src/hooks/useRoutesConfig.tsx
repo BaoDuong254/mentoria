@@ -2,8 +2,6 @@ import { useRoutes } from "react-router-dom";
 import path from "@/constants/path";
 
 import PublicLayout from "@/layouts/PublicLayout";
-import MentorLayout from "@/layouts/MentorLayout";
-import MenteeLayout from "@/layouts/MenteeLayout";
 
 import Home from "@/pages/public/Home";
 import Login from "@/pages/public/Login";
@@ -16,6 +14,9 @@ import MentorDashboard from "@/pages/mentor/MentorDashboard";
 
 import Booking from "@/pages/mentee/Booking";
 import MenteeDashboard from "@/pages/mentee/MenteeDashboard";
+
+import ProtectedMenteeRoute from "@/layouts/ProtectedMenteeRoute";
+import ProtectedMentorRoute from "@/layouts/ProtectedMentorRoute";
 
 export default function useRoutesConfig() {
   const routes = [
@@ -32,16 +33,26 @@ export default function useRoutesConfig() {
       ],
     },
     {
-      path: path.MENTOR,
-      element: <MentorLayout />,
-      children: [{ path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> }],
+      element: <ProtectedMentorRoute />,
+      children: [
+        {
+          path: path.MENTOR,
+          element: <PublicLayout />,
+          children: [{ path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> }],
+        },
+      ],
     },
     {
-      path: path.MENTEE,
-      element: <MenteeLayout />,
+      element: <ProtectedMenteeRoute />,
       children: [
-        { path: path.MENTEE_DASHBOARD, element: <MenteeDashboard /> },
-        { path: path.MENTEE_BOOKING, element: <Booking /> },
+        {
+          path: path.MENTEE,
+          element: <PublicLayout />,
+          children: [
+            { path: path.MENTEE_DASHBOARD, element: <MenteeDashboard /> },
+            { path: path.MENTEE_BOOKING, element: <Booking /> },
+          ],
+        },
       ],
     },
   ];
