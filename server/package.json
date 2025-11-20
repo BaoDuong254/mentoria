@@ -2,7 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.21.0",
+  "packageManager": "pnpm@10.23.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -22,13 +22,13 @@
   },
   "engines": {
     "node": "24.11.0",
-    "pnpm": "10.21.0"
+    "pnpm": "10.23.0"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@apidevtools/json-schema-ref-parser": "^14.2.1",
+    "@apidevtools/json-schema-ref-parser": "^15.1.2",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
@@ -36,7 +36,7 @@
     "@types/morgan": "^1.9.10",
     "@types/mssql": "^9.1.8",
     "@types/multer": "^2.0.0",
-    "@types/nodemailer": "^7.0.3",
+    "@types/nodemailer": "^7.0.4",
     "@types/passport": "^1.0.17",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
@@ -50,7 +50,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "handlebars": "^4.7.8",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
     "mssql": "^12.1.0",
@@ -71,22 +71,22 @@
     "@types/express": "^5.0.5",
     "@types/express-session": "^1.18.2",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "@types/passport-google-oauth20": "^2.0.17",
     "copyfiles": "^2.4.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.5.0",
-    "nodemon": "^3.1.10",
+    "nodemon": "^3.1.11",
     "prettier": "^3.6.2",
-    "rimraf": "^6.1.0",
+    "rimraf": "^6.1.2",
     "swagger-cli": "^4.0.4",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.3"
+    "typescript-eslint": "^8.47.0"
   }
 }
