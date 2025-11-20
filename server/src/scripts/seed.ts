@@ -8,9 +8,13 @@ const saltRounds = 10;
 
 // Store user IDs and other IDs after insertion
 const userIds: { [key: string]: number } = {};
-const fieldIds: number[] = [];
+const categoryIds: number[] = [];
+const skillIds: number[] = [];
 const companyIds: number[] = [];
+const jobTitleIds: number[] = [];
 const planIds: { [mentorEmail: string]: number[] } = {};
+const discountIds: number[] = [];
+const registrationIds: number[] = [];
 const invoiceIds: number[] = [];
 const notificationIds: number[] = [];
 
@@ -23,24 +27,31 @@ async function clearDatabase() {
   console.log(chalk.yellow("Clearing existing data..."));
 
   // Delete in correct order to respect foreign key constraints
+  await pool.request().query("DELETE FROM meetings");
+  await pool.request().query("DELETE FROM invoices");
+  await pool.request().query("DELETE FROM slots");
+  await pool.request().query("DELETE FROM bookings");
+  await pool.request().query("DELETE FROM plan_registerations");
+  await pool.request().query("DELETE FROM discounts");
+  await pool.request().query("DELETE FROM mentorships_benefits");
+  await pool.request().query("DELETE FROM plan_mentorships");
+  await pool.request().query("DELETE FROM plan_sessions");
+  await pool.request().query("DELETE FROM plans");
+  await pool.request().query("DELETE FROM own_skill");
+  await pool.request().query("DELETE FROM set_skill");
+  await pool.request().query("DELETE FROM skills");
+  await pool.request().query("DELETE FROM categories");
   await pool.request().query("DELETE FROM feedbacks");
   await pool.request().query("DELETE FROM messages");
-  await pool.request().query("DELETE FROM sessions");
-  await pool.request().query("DELETE FROM slots");
-  await pool.request().query("DELETE FROM plan_benefits");
-  await pool.request().query("DELETE FROM plans");
-  await pool.request().query("DELETE FROM mentor_languages");
-  await pool.request().query("DELETE FROM own_field");
-  await pool.request().query("DELETE FROM have_field");
   await pool.request().query("DELETE FROM work_for");
+  await pool.request().query("DELETE FROM job_title");
   await pool.request().query("DELETE FROM companies");
-  await pool.request().query("DELETE FROM invoices");
+  await pool.request().query("DELETE FROM mentor_languages");
+  await pool.request().query("DELETE FROM mentors");
+  await pool.request().query("DELETE FROM mentees");
   await pool.request().query("DELETE FROM sended");
   await pool.request().query("DELETE FROM notifications");
   await pool.request().query("DELETE FROM user_social_links");
-  await pool.request().query("DELETE FROM mentors");
-  await pool.request().query("DELETE FROM mentees");
-  await pool.request().query("DELETE FROM fields");
   await pool.request().query("DELETE FROM users");
 
   console.log(chalk.green("Database cleared successfully"));
@@ -281,79 +292,184 @@ async function seedUserSocialLinks() {
   console.log(chalk.green(`${socialLinks.length} social links seeded successfully`));
 }
 
-async function seedFields() {
+async function seedCategories() {
   const pool = await poolPromise;
   if (!pool) {
     throw new Error("Database connection failed");
   }
 
-  console.log(chalk.yellow("Seeding fields..."));
+  console.log(chalk.yellow("Seeding categories..."));
 
-  const fields = [
-    "Web Development",
-    "Mobile Development",
-    "Data Science",
-    "Machine Learning",
-    "Cloud Computing",
-    "DevOps",
-    "Cybersecurity",
-    "UI/UX Design",
-    "Product Management",
-    "Business Strategy",
-    "Marketing",
-    "Sales",
-    "Career Coaching",
-    "Leadership",
-    "Entrepreneurship",
+  const categories = [
+    { name: "Software Development", super_category_id: null },
+    { name: "Data & Analytics", super_category_id: null },
+    { name: "Design", super_category_id: null },
+    { name: "Business", super_category_id: null },
+    { name: "Career Development", super_category_id: null },
   ];
 
-  for (const field of fields) {
-    const result = await pool.request().input("name", sql.NVarChar, field).query(`
-        INSERT INTO fields (name)
-        OUTPUT INSERTED.field_id
-        VALUES (@name)
+  for (const category of categories) {
+    const result = await pool
+      .request()
+      .input("category_name", sql.NVarChar, category.name)
+      .input("super_category_id", sql.Int, category.super_category_id).query(`
+        INSERT INTO categories (category_name, super_category_id)
+        OUTPUT INSERTED.category_id
+        VALUES (@category_name, @super_category_id)
       `);
 
     if (result.recordset && result.recordset[0]) {
-      fieldIds.push(result.recordset[0].field_id);
+      categoryIds.push(result.recordset[0].category_id);
     }
   }
 
-  console.log(chalk.green(`${fields.length} fields seeded successfully`));
+  // Add subcategories
+  const subcategories = [
+    { name: "Web Development", super_category_id: 0 },
+    { name: "Mobile Development", super_category_id: 0 },
+    { name: "Cloud & DevOps", super_category_id: 0 },
+    { name: "Cybersecurity", super_category_id: 0 },
+    { name: "Data Science", super_category_id: 1 },
+    { name: "Machine Learning", super_category_id: 1 },
+    { name: "UI/UX Design", super_category_id: 2 },
+    { name: "Product Design", super_category_id: 2 },
+    { name: "Marketing", super_category_id: 3 },
+    { name: "Sales", super_category_id: 3 },
+    { name: "Leadership", super_category_id: 4 },
+    { name: "Career Coaching", super_category_id: 4 },
+  ];
+
+  for (const subcategory of subcategories) {
+    const superCategoryId = categoryIds[subcategory.super_category_id];
+    const result = await pool
+      .request()
+      .input("category_name", sql.NVarChar, subcategory.name)
+      .input("super_category_id", sql.Int, superCategoryId).query(`
+        INSERT INTO categories (category_name, super_category_id)
+        OUTPUT INSERTED.category_id
+        VALUES (@category_name, @super_category_id)
+      `);
+
+    if (result.recordset && result.recordset[0]) {
+      categoryIds.push(result.recordset[0].category_id);
+    }
+  }
+
+  console.log(chalk.green(`${categoryIds.length} categories seeded successfully`));
 }
 
-async function seedHaveField() {
+async function seedSkills() {
   const pool = await poolPromise;
   if (!pool) {
     throw new Error("Database connection failed");
   }
 
-  console.log(chalk.yellow("Seeding field relationships..."));
+  console.log(chalk.yellow("Seeding skills..."));
 
-  const relationships = [
-    { field_id_1: 0, field_id_2: 1 }, // Web Dev & Mobile Dev
-    { field_id_1: 0, field_id_2: 7 }, // Web Dev & UI/UX
-    { field_id_1: 1, field_id_2: 7 }, // Mobile Dev & UI/UX
-    { field_id_1: 2, field_id_2: 3 }, // Data Science & Machine Learning
-    { field_id_1: 4, field_id_2: 5 }, // Cloud Computing & DevOps
-    { field_id_1: 8, field_id_2: 9 }, // Product Management & Business Strategy
-    { field_id_1: 9, field_id_2: 10 }, // Business Strategy & Marketing
-    { field_id_1: 12, field_id_2: 13 }, // Career Coaching & Leadership
+  const skills = [
+    "React",
+    "Node.js",
+    "TypeScript",
+    "JavaScript",
+    "Python",
+    "Java",
+    "C++",
+    "SQL",
+    "MongoDB",
+    "PostgreSQL",
+    "AWS",
+    "Azure",
+    "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "React Native",
+    "Flutter",
+    "Swift",
+    "Kotlin",
+    "Android",
+    "Machine Learning",
+    "Deep Learning",
+    "NLP",
+    "Computer Vision",
+    "TensorFlow",
+    "Figma",
+    "Adobe XD",
+    "Sketch",
+    "Photoshop",
+    "Illustrator",
+    "SEO",
+    "Content Marketing",
+    "Social Media",
+    "Email Marketing",
+    "Analytics",
+    "Leadership",
+    "Communication",
+    "Team Management",
+    "Project Management",
+    "Agile",
   ];
 
-  for (const rel of relationships) {
-    const fieldId1 = fieldIds[rel.field_id_1];
-    const fieldId2 = fieldIds[rel.field_id_2];
+  for (const skill of skills) {
+    const result = await pool.request().input("skill_name", sql.NVarChar, skill).query(`
+        INSERT INTO skills (skill_name)
+        OUTPUT INSERTED.skill_id
+        VALUES (@skill_name)
+      `);
 
-    if (fieldId1 && fieldId2 && fieldId1 < fieldId2) {
-      await pool.request().input("field_id_1", sql.Int, fieldId1).input("field_id_2", sql.Int, fieldId2).query(`
-          INSERT INTO have_field (field_id_1, field_id_2)
-          VALUES (@field_id_1, @field_id_2)
-        `);
+    if (result.recordset && result.recordset[0]) {
+      skillIds.push(result.recordset[0].skill_id);
     }
   }
 
-  console.log(chalk.green(`${relationships.length} field relationships seeded successfully`));
+  console.log(chalk.green(`${skills.length} skills seeded successfully`));
+}
+
+async function seedOwnSkill() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding skill-category relationships..."));
+
+  // Map skills to categories (category index from categoryIds array)
+  const relationships = [
+    // Web Development category (index 5) - React, Node.js, TypeScript, JavaScript
+    { categoryIndex: 5, skillIndexes: [0, 1, 2, 3] },
+    // Mobile Development category (index 6) - React Native, Flutter, Swift, Kotlin, Android
+    { categoryIndex: 6, skillIndexes: [15, 16, 17, 18, 19] },
+    // Cloud & DevOps category (index 7) - AWS, Azure, Docker, Kubernetes, CI/CD
+    { categoryIndex: 7, skillIndexes: [10, 11, 12, 13, 14] },
+    // Data Science category (index 9) - Python, SQL, MongoDB, PostgreSQL
+    { categoryIndex: 9, skillIndexes: [4, 7, 8, 9] },
+    // Machine Learning category (index 10) - Machine Learning, Deep Learning, NLP, Computer Vision, TensorFlow
+    { categoryIndex: 10, skillIndexes: [20, 21, 22, 23, 24] },
+    // UI/UX Design category (index 11) - Figma, Adobe XD, Sketch, Photoshop, Illustrator
+    { categoryIndex: 11, skillIndexes: [25, 26, 27, 28, 29] },
+    // Marketing category (index 13) - SEO, Content Marketing, Social Media, Email Marketing, Analytics
+    { categoryIndex: 13, skillIndexes: [30, 31, 32, 33, 34] },
+    // Leadership category (index 15) - Leadership, Communication, Team Management, Project Management, Agile
+    { categoryIndex: 15, skillIndexes: [35, 36, 37, 38, 39] },
+  ];
+
+  let count = 0;
+  for (const rel of relationships) {
+    const categoryId = categoryIds[rel.categoryIndex];
+    if (categoryId) {
+      for (const skillIndex of rel.skillIndexes) {
+        const skillId = skillIds[skillIndex];
+        if (skillId) {
+          await pool.request().input("category_id", sql.Int, categoryId).input("skill_id", sql.Int, skillId).query(`
+              INSERT INTO own_skill (category_id, skill_id)
+              VALUES (@category_id, @skill_id)
+            `);
+          count++;
+        }
+      }
+    }
+  }
+
+  console.log(chalk.green(`${count} skill-category relationships seeded successfully`));
 }
 
 async function seedMentors() {
@@ -369,50 +485,35 @@ async function seedMentors() {
       email: "john.doe@example.com",
       bio: "Experienced full-stack developer with 10+ years in web development. Specialized in React, Node.js, and cloud architecture. Passionate about helping developers grow their careers.",
       headline: "Senior Full-Stack Developer & Tech Lead",
-      response_time: 24,
-      total_reviews: 45,
-      total_stars: 215,
-      total_mentee: 120,
+      response_time: "Within 24 hours",
       cv_url: "https://example.com/cv/johndoe.pdf",
     },
     {
       email: "sarah.johnson@example.com",
       bio: "Product designer with expertise in creating user-centered digital experiences. Worked with startups and Fortune 500 companies.",
       headline: "Lead Product Designer",
-      response_time: 12,
-      total_reviews: 38,
-      total_stars: 185,
-      total_mentee: 95,
+      response_time: "Within 12 hours",
       cv_url: "https://example.com/cv/sarahjohnson.pdf",
     },
     {
       email: "michael.chen@example.com",
       bio: "Data scientist and ML engineer specializing in NLP and computer vision. Published researcher and conference speaker.",
       headline: "Senior Data Scientist & ML Engineer",
-      response_time: 48,
-      total_reviews: 52,
-      total_stars: 248,
-      total_mentee: 140,
+      response_time: "Within 48 hours",
       cv_url: "https://example.com/cv/michaelchen.pdf",
     },
     {
       email: "emily.rodriguez@example.com",
       bio: "Digital marketing strategist with experience in growth hacking and content marketing. Helped 50+ startups scale.",
       headline: "Growth Marketing Lead",
-      response_time: 18,
-      total_reviews: 31,
-      total_stars: 148,
-      total_mentee: 78,
+      response_time: "Within 18 hours",
       cv_url: "https://example.com/cv/emilyrodriguez.pdf",
     },
     {
       email: "david.kim@example.com",
       bio: "Career coach and leadership consultant. Former tech executive with 15+ years of experience guiding professionals.",
       headline: "Career Coach & Leadership Consultant",
-      response_time: 24,
-      total_reviews: 67,
-      total_stars: 325,
-      total_mentee: 200,
+      response_time: "Within 24 hours",
       cv_url: "https://example.com/cv/davidkim.pdf",
     },
   ];
@@ -425,13 +526,10 @@ async function seedMentors() {
         .input("user_id", sql.Int, userId)
         .input("bio", sql.NVarChar, mentor.bio)
         .input("headline", sql.NVarChar, mentor.headline)
-        .input("response_time", sql.Int, mentor.response_time)
-        .input("total_reviews", sql.Int, mentor.total_reviews)
-        .input("total_stars", sql.Int, mentor.total_stars)
-        .input("total_mentee", sql.Int, mentor.total_mentee)
+        .input("response_time", sql.NVarChar, mentor.response_time)
         .input("cv_url", sql.NVarChar, mentor.cv_url).query(`
-          INSERT INTO mentors (user_id, bio, headline, response_time, total_reviews, total_stars, total_mentee, cv_url)
-          VALUES (@user_id, @bio, @headline, @response_time, @total_reviews, @total_stars, @total_mentee, @cv_url)
+          INSERT INTO mentors (user_id, bio, headline, response_time, cv_url)
+          VALUES (@user_id, @bio, @headline, @response_time, @cv_url)
         `);
     }
   }
@@ -506,6 +604,44 @@ async function seedCompanies() {
   console.log(chalk.green(`${companies.length} companies seeded successfully`));
 }
 
+async function seedJobTitles() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding job titles..."));
+
+  const jobTitles = [
+    "Senior Software Engineer",
+    "Tech Lead",
+    "Lead Product Designer",
+    "Senior UX Designer",
+    "ML Engineer",
+    "Data Scientist",
+    "Growth Marketing Manager",
+    "Digital Marketing Lead",
+    "Engineering Manager",
+    "VP of Engineering",
+    "Product Manager",
+    "DevOps Engineer",
+  ];
+
+  for (const jobTitle of jobTitles) {
+    const result = await pool.request().input("job_name", sql.NVarChar, jobTitle).query(`
+        INSERT INTO job_title (job_name)
+        OUTPUT INSERTED.job_title_id
+        VALUES (@job_name)
+      `);
+
+    if (result.recordset && result.recordset[0]) {
+      jobTitleIds.push(result.recordset[0].job_title_id);
+    }
+  }
+
+  console.log(chalk.green(`${jobTitles.length} job titles seeded successfully`));
+}
+
 async function seedWorkFor() {
   const pool = await poolPromise;
   if (!pool) {
@@ -515,30 +651,31 @@ async function seedWorkFor() {
   console.log(chalk.yellow("Seeding work experience..."));
 
   const workExperience = [
-    { mentorEmail: "john.doe@example.com", companyIndex: 0, role: "Senior Software Engineer" },
-    { mentorEmail: "john.doe@example.com", companyIndex: 1, role: "Tech Lead" },
-    { mentorEmail: "sarah.johnson@example.com", companyIndex: 2, role: "Lead Product Designer" },
-    { mentorEmail: "sarah.johnson@example.com", companyIndex: 7, role: "Senior UX Designer" },
-    { mentorEmail: "michael.chen@example.com", companyIndex: 3, role: "ML Engineer" },
-    { mentorEmail: "michael.chen@example.com", companyIndex: 5, role: "Data Scientist" },
-    { mentorEmail: "emily.rodriguez@example.com", companyIndex: 10, role: "Growth Marketing Manager" },
-    { mentorEmail: "emily.rodriguez@example.com", companyIndex: 8, role: "Digital Marketing Lead" },
-    { mentorEmail: "david.kim@example.com", companyIndex: 4, role: "Engineering Manager" },
-    { mentorEmail: "david.kim@example.com", companyIndex: 9, role: "VP of Engineering" },
+    { mentorEmail: "john.doe@example.com", companyIndex: 0, jobTitleIndex: 0 },
+    { mentorEmail: "john.doe@example.com", companyIndex: 1, jobTitleIndex: 1 },
+    { mentorEmail: "sarah.johnson@example.com", companyIndex: 2, jobTitleIndex: 2 },
+    { mentorEmail: "sarah.johnson@example.com", companyIndex: 7, jobTitleIndex: 3 },
+    { mentorEmail: "michael.chen@example.com", companyIndex: 3, jobTitleIndex: 4 },
+    { mentorEmail: "michael.chen@example.com", companyIndex: 5, jobTitleIndex: 5 },
+    { mentorEmail: "emily.rodriguez@example.com", companyIndex: 10, jobTitleIndex: 6 },
+    { mentorEmail: "emily.rodriguez@example.com", companyIndex: 8, jobTitleIndex: 7 },
+    { mentorEmail: "david.kim@example.com", companyIndex: 4, jobTitleIndex: 8 },
+    { mentorEmail: "david.kim@example.com", companyIndex: 9, jobTitleIndex: 9 },
   ];
 
   for (const work of workExperience) {
     const mentorId = userIds[work.mentorEmail];
     const companyId = companyIds[work.companyIndex];
+    const jobTitleId = jobTitleIds[work.jobTitleIndex];
 
-    if (mentorId && companyId) {
+    if (mentorId && companyId && jobTitleId) {
       await pool
         .request()
         .input("mentor_id", sql.Int, mentorId)
         .input("c_company_id", sql.Int, companyId)
-        .input("crole", sql.NVarChar, work.role).query(`
-          INSERT INTO work_for (mentor_id, c_company_id, crole)
-          VALUES (@mentor_id, @c_company_id, @crole)
+        .input("current_job_title_id", sql.Int, jobTitleId).query(`
+          INSERT INTO work_for (mentor_id, c_company_id, current_job_title_id)
+          VALUES (@mentor_id, @c_company_id, @current_job_title_id)
         `);
     }
   }
@@ -546,38 +683,45 @@ async function seedWorkFor() {
   console.log(chalk.green(`${workExperience.length} work experiences seeded successfully`));
 }
 
-async function seedOwnField() {
+async function seedSetSkill() {
   const pool = await poolPromise;
   if (!pool) {
     throw new Error("Database connection failed");
   }
 
-  console.log(chalk.yellow("Seeding mentor fields..."));
+  console.log(chalk.yellow("Seeding mentor skills..."));
 
-  const mentorFields = [
-    { mentorEmail: "john.doe@example.com", fieldIndexes: [0, 1, 4, 5] }, // John - Web, Mobile, Cloud, DevOps
-    { mentorEmail: "sarah.johnson@example.com", fieldIndexes: [7, 8] }, // Sarah - UI/UX, Product Management
-    { mentorEmail: "michael.chen@example.com", fieldIndexes: [2, 3] }, // Michael - Data Science, ML
-    { mentorEmail: "emily.rodriguez@example.com", fieldIndexes: [9, 10, 11] }, // Emily - Business, Marketing, Sales
-    { mentorEmail: "david.kim@example.com", fieldIndexes: [12, 13, 14] }, // David - Career, Leadership, Entrepreneurship
+  const mentorSkills = [
+    // John - Web Dev skills: React, Node.js, TypeScript, JavaScript, AWS, Docker
+    { mentorEmail: "john.doe@example.com", skillIndexes: [0, 1, 2, 3, 10, 12] },
+    // Sarah - Design skills: Figma, Adobe XD, Sketch, Photoshop
+    { mentorEmail: "sarah.johnson@example.com", skillIndexes: [25, 26, 27, 28] },
+    // Michael - ML/Data skills: Python, Machine Learning, Deep Learning, NLP, TensorFlow
+    { mentorEmail: "michael.chen@example.com", skillIndexes: [4, 20, 21, 22, 24] },
+    // Emily - Marketing skills: SEO, Content Marketing, Social Media, Email Marketing, Analytics
+    { mentorEmail: "emily.rodriguez@example.com", skillIndexes: [30, 31, 32, 33, 34] },
+    // David - Leadership skills: Leadership, Communication, Team Management, Project Management
+    { mentorEmail: "david.kim@example.com", skillIndexes: [35, 36, 37, 38] },
   ];
 
-  for (const mentor of mentorFields) {
+  let count = 0;
+  for (const mentor of mentorSkills) {
     const mentorId = userIds[mentor.mentorEmail];
     if (mentorId) {
-      for (const fieldIndex of mentor.fieldIndexes) {
-        const fieldId = fieldIds[fieldIndex];
-        if (fieldId) {
-          await pool.request().input("mentor_id", sql.Int, mentorId).input("f_field_id", sql.Int, fieldId).query(`
-              INSERT INTO own_field (mentor_id, f_field_id)
-              VALUES (@mentor_id, @f_field_id)
+      for (const skillIndex of mentor.skillIndexes) {
+        const skillId = skillIds[skillIndex];
+        if (skillId) {
+          await pool.request().input("mentor_id", sql.Int, mentorId).input("skill_id", sql.Int, skillId).query(`
+              INSERT INTO set_skill (mentor_id, skill_id)
+              VALUES (@mentor_id, @skill_id)
             `);
+          count++;
         }
       }
     }
   }
 
-  console.log(chalk.green("Mentor fields seeded successfully"));
+  console.log(chalk.green(`${count} mentor skills seeded successfully`));
 }
 
 async function seedMentorLanguages() {
@@ -621,24 +765,155 @@ async function seedPlans() {
   console.log(chalk.yellow("Seeding plans..."));
 
   const plans = [
-    // John's plans
-    { mentorEmail: "john.doe@example.com", charge: 50.0, duration: 30 },
-    { mentorEmail: "john.doe@example.com", charge: 90.0, duration: 60 },
-    { mentorEmail: "john.doe@example.com", charge: 150.0, duration: 120 },
-    // Sarah's plans
-    { mentorEmail: "sarah.johnson@example.com", charge: 60.0, duration: 30 },
-    { mentorEmail: "sarah.johnson@example.com", charge: 100.0, duration: 60 },
+    // John's plans - Sessions
+    {
+      mentorEmail: "john.doe@example.com",
+      description: "30-minute focused mentorship session covering React, Node.js, and web development best practices",
+      charge: 50.0,
+      type: "Beginner",
+      planCategory: "Session",
+      duration: 30,
+    },
+    {
+      mentorEmail: "john.doe@example.com",
+      description: "1-hour deep-dive session with code review and architecture discussion",
+      charge: 90.0,
+      type: "Introductory",
+      planCategory: "Session",
+      duration: 60,
+    },
+    {
+      mentorEmail: "john.doe@example.com",
+      description: "2-hour comprehensive technical consultation with system design review",
+      charge: 150.0,
+      type: "Introductory",
+      planCategory: "Session",
+      duration: 120,
+    },
+    // Sarah's plans - Sessions and Mentorship
+    {
+      mentorEmail: "sarah.johnson@example.com",
+      description: "Portfolio review and UX design consultation session",
+      charge: 60.0,
+      type: "Beginner",
+      planCategory: "Session",
+      duration: 30,
+    },
+    {
+      mentorEmail: "sarah.johnson@example.com",
+      description: "Monthly mentorship program for aspiring designers - 2 calls per month (60min/call)",
+      charge: 199.0,
+      type: "Lite",
+      planCategory: "Mentorship",
+      callsPerMonth: 2,
+      callDuration: 60,
+    },
+    {
+      mentorEmail: "sarah.johnson@example.com",
+      description: "Comprehensive design mentorship - 4 calls per month (60min/call)",
+      charge: 349.0,
+      type: "Standard",
+      planCategory: "Mentorship",
+      callsPerMonth: 4,
+      callDuration: 60,
+    },
     // Michael's plans
-    { mentorEmail: "michael.chen@example.com", charge: 75.0, duration: 30 },
-    { mentorEmail: "michael.chen@example.com", charge: 130.0, duration: 60 },
-    { mentorEmail: "michael.chen@example.com", charge: 200.0, duration: 120 },
+    {
+      mentorEmail: "michael.chen@example.com",
+      description: "ML/AI consultation session with hands-on guidance",
+      charge: 75.0,
+      type: "Beginner",
+      planCategory: "Session",
+      duration: 30,
+    },
+    {
+      mentorEmail: "michael.chen@example.com",
+      description: "Advanced machine learning project review and optimization",
+      charge: 130.0,
+      type: "Introductory",
+      planCategory: "Session",
+      duration: 60,
+    },
+    {
+      mentorEmail: "michael.chen@example.com",
+      description: "ML mentorship with weekly sessions - 4 calls per month (60min/call)",
+      charge: 399.0,
+      type: "Standard",
+      planCategory: "Mentorship",
+      callsPerMonth: 4,
+      callDuration: 60,
+    },
+    {
+      mentorEmail: "michael.chen@example.com",
+      description: "Premium ML mentorship with intensive support - 8 calls per month (60min/call)",
+      charge: 699.0,
+      type: "Premium",
+      planCategory: "Mentorship",
+      callsPerMonth: 8,
+      callDuration: 60,
+    },
     // Emily's plans
-    { mentorEmail: "emily.rodriguez@example.com", charge: 45.0, duration: 30 },
-    { mentorEmail: "emily.rodriguez@example.com", charge: 80.0, duration: 60 },
+    {
+      mentorEmail: "emily.rodriguez@example.com",
+      description: "Marketing strategy consultation and growth tactics",
+      charge: 45.0,
+      type: "Beginner",
+      planCategory: "Session",
+      duration: 30,
+    },
+    {
+      mentorEmail: "emily.rodriguez@example.com",
+      description: "Digital marketing mentorship - 2 calls per month (45min/call)",
+      charge: 199.0,
+      type: "Lite",
+      planCategory: "Mentorship",
+      callsPerMonth: 2,
+      callDuration: 45,
+    },
+    {
+      mentorEmail: "emily.rodriguez@example.com",
+      description: "Comprehensive marketing mentorship - 4 calls per month (60min/call)",
+      charge: 349.0,
+      type: "Standard",
+      planCategory: "Mentorship",
+      callsPerMonth: 4,
+      callDuration: 60,
+    },
     // David's plans
-    { mentorEmail: "david.kim@example.com", charge: 70.0, duration: 30 },
-    { mentorEmail: "david.kim@example.com", charge: 120.0, duration: 60 },
-    { mentorEmail: "david.kim@example.com", charge: 180.0, duration: 90 },
+    {
+      mentorEmail: "david.kim@example.com",
+      description: "Career coaching session with resume review",
+      charge: 70.0,
+      type: "Beginner",
+      planCategory: "Session",
+      duration: 30,
+    },
+    {
+      mentorEmail: "david.kim@example.com",
+      description: "Leadership development and career growth session",
+      charge: 120.0,
+      type: "Introductory",
+      planCategory: "Session",
+      duration: 60,
+    },
+    {
+      mentorEmail: "david.kim@example.com",
+      description: "Executive leadership mentorship - 2 calls per month (60min/call)",
+      charge: 399.0,
+      type: "Lite",
+      planCategory: "Mentorship",
+      callsPerMonth: 2,
+      callDuration: 60,
+    },
+    {
+      mentorEmail: "david.kim@example.com",
+      description: "Premium leadership coaching - 4 calls per month (90min/call)",
+      charge: 799.0,
+      type: "Premium",
+      planCategory: "Mentorship",
+      callsPerMonth: 4,
+      callDuration: 90,
+    },
   ];
 
   for (const plan of plans) {
@@ -646,12 +921,13 @@ async function seedPlans() {
     if (mentorId) {
       const result = await pool
         .request()
-        .input("charge", sql.Decimal(10, 2), plan.charge)
-        .input("duration", sql.Int, plan.duration)
+        .input("plan_description", sql.NVarChar, plan.description)
+        .input("plan_charge", sql.Decimal(10, 2), plan.charge)
+        .input("plan_type", sql.NVarChar, plan.type)
         .input("mentor_id", sql.Int, mentorId).query(`
-          INSERT INTO plans (charge, duration, mentor_id)
+          INSERT INTO plans (plan_description, plan_charge, plan_type, mentor_id)
           OUTPUT INSERTED.plan_id
-          VALUES (@charge, @duration, @mentor_id)
+          VALUES (@plan_description, @plan_charge, @plan_type, @mentor_id)
         `);
 
       if (result.recordset && result.recordset[0]) {
@@ -666,103 +942,173 @@ async function seedPlans() {
   console.log(chalk.green(`${plans.length} plans seeded successfully`));
 }
 
-async function seedPlanBenefits() {
+async function seedPlanSessions() {
   const pool = await poolPromise;
   if (!pool) {
     throw new Error("Database connection failed");
   }
 
-  console.log(chalk.yellow("Seeding plan benefits..."));
+  console.log(chalk.yellow("Seeding plan sessions..."));
+
+  // Map which plans are sessions (with duration)
+  const sessionPlans = [
+    { mentorEmail: "john.doe@example.com", planIndex: 0, duration: 30 },
+    { mentorEmail: "john.doe@example.com", planIndex: 1, duration: 60 },
+    { mentorEmail: "john.doe@example.com", planIndex: 2, duration: 120 },
+    { mentorEmail: "sarah.johnson@example.com", planIndex: 0, duration: 30 },
+    { mentorEmail: "michael.chen@example.com", planIndex: 0, duration: 30 },
+    { mentorEmail: "michael.chen@example.com", planIndex: 1, duration: 60 },
+    { mentorEmail: "emily.rodriguez@example.com", planIndex: 0, duration: 30 },
+    { mentorEmail: "david.kim@example.com", planIndex: 0, duration: 30 },
+    { mentorEmail: "david.kim@example.com", planIndex: 1, duration: 60 },
+  ];
+
+  for (const session of sessionPlans) {
+    const mentorPlanIds = planIds[session.mentorEmail];
+    if (mentorPlanIds) {
+      const planId = mentorPlanIds[session.planIndex];
+      if (planId) {
+        await pool.request().input("sessions_id", sql.Int, planId).input("sessions_duration", sql.Int, session.duration)
+          .query(`
+            INSERT INTO plan_sessions (sessions_id, sessions_duration)
+            VALUES (@sessions_id, @sessions_duration)
+          `);
+      }
+    }
+  }
+
+  console.log(chalk.green(`${sessionPlans.length} plan sessions seeded successfully`));
+}
+
+async function seedPlanMentorships() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding plan mentorships..."));
+
+  // Map which plans are mentorships
+  const mentorshipPlans = [
+    { mentorEmail: "sarah.johnson@example.com", planIndex: 1 },
+    { mentorEmail: "sarah.johnson@example.com", planIndex: 2 },
+    { mentorEmail: "michael.chen@example.com", planIndex: 2 },
+    { mentorEmail: "michael.chen@example.com", planIndex: 3 },
+    { mentorEmail: "emily.rodriguez@example.com", planIndex: 1 },
+    { mentorEmail: "emily.rodriguez@example.com", planIndex: 2 },
+    { mentorEmail: "david.kim@example.com", planIndex: 2 },
+    { mentorEmail: "david.kim@example.com", planIndex: 3 },
+  ];
+
+  for (const mentorship of mentorshipPlans) {
+    const mentorPlanIds = planIds[mentorship.mentorEmail];
+    if (mentorPlanIds) {
+      const planId = mentorPlanIds[mentorship.planIndex];
+      if (planId) {
+        await pool.request().input("mentorships_id", sql.Int, planId).query(`
+            INSERT INTO plan_mentorships (mentorships_id)
+            VALUES (@mentorships_id)
+          `);
+      }
+    }
+  }
+
+  console.log(chalk.green(`${mentorshipPlans.length} plan mentorships seeded successfully`));
+}
+
+async function seedMentorshipsBenefits() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding mentorships benefits..."));
 
   const benefits = [
-    // John's plans
     {
-      mentorEmail: "john.doe@example.com",
-      planIndex: 0,
-      benefits: ["1-on-1 video call", "Code review", "Career advice"],
-    },
-    {
-      mentorEmail: "john.doe@example.com",
+      mentorEmail: "sarah.johnson@example.com",
       planIndex: 1,
       benefits: [
-        "Extended 1-on-1 video call",
-        "Detailed code review",
-        "Architecture discussion",
-        "Follow-up resources",
+        "2 calls per month (60min/call)",
+        "Portfolio review and redesign guidance",
+        "Email support",
+        "Access to design resources",
       ],
     },
     {
-      mentorEmail: "john.doe@example.com",
+      mentorEmail: "sarah.johnson@example.com",
       planIndex: 2,
       benefits: [
-        "Deep-dive technical session",
-        "Complete project review",
-        "System design consultation",
-        "30-day email support",
+        "4 calls per month (60min/call)",
+        "Portfolio review and redesign guidance",
+        "Unlimited chat support",
+        "Access to exclusive design resources",
+        "Job application review",
+        "Design system consultation",
       ],
-    },
-    // Sarah's plans
-    {
-      mentorEmail: "sarah.johnson@example.com",
-      planIndex: 0,
-      benefits: ["Design portfolio review", "UX best practices", "Tool recommendations"],
-    },
-    {
-      mentorEmail: "sarah.johnson@example.com",
-      planIndex: 1,
-      benefits: ["Comprehensive design critique", "User research guidance", "Case study development"],
-    },
-    // Michael's plans
-    {
-      mentorEmail: "michael.chen@example.com",
-      planIndex: 0,
-      benefits: ["ML model consultation", "Data pipeline advice"],
-    },
-    {
-      mentorEmail: "michael.chen@example.com",
-      planIndex: 1,
-      benefits: ["In-depth ML project review", "Algorithm optimization", "Research paper guidance"],
     },
     {
       mentorEmail: "michael.chen@example.com",
       planIndex: 2,
       benefits: [
-        "Complete ML system design",
-        "Production deployment strategy",
-        "Performance tuning",
-        "Code implementation review",
+        "4 calls per month (60min/call)",
+        "Real-world ML project guidance",
+        "Code review and optimization",
+        "Research paper discussions",
+        "Email support",
       ],
     },
-    // Emily's plans
     {
-      mentorEmail: "emily.rodriguez@example.com",
-      planIndex: 0,
-      benefits: ["Marketing strategy review", "Growth tactics"],
+      mentorEmail: "michael.chen@example.com",
+      planIndex: 3,
+      benefits: [
+        "8 calls per month (60min/call)",
+        "Real-world ML project guidance",
+        "Code review and optimization",
+        "Research paper discussions",
+        "Career guidance in AI/ML field",
+        "Interview preparation",
+        "Priority 24/7 chat support",
+      ],
     },
     {
       mentorEmail: "emily.rodriguez@example.com",
       planIndex: 1,
-      benefits: ["Comprehensive marketing plan", "Channel optimization", "Analytics setup"],
-    },
-    // David's plans
-    {
-      mentorEmail: "david.kim@example.com",
-      planIndex: 0,
-      benefits: ["Career roadmap discussion", "Resume review"],
+      benefits: ["2 calls per month (45min/call)", "Marketing strategy sessions", "Campaign reviews", "Email support"],
     },
     {
-      mentorEmail: "david.kim@example.com",
-      planIndex: 1,
-      benefits: ["Career strategy session", "Interview preparation", "Salary negotiation tips"],
+      mentorEmail: "emily.rodriguez@example.com",
+      planIndex: 2,
+      benefits: [
+        "4 calls per month (60min/call)",
+        "Marketing strategy sessions",
+        "Marketing campaign reviews",
+        "Analytics and metrics guidance",
+        "Content strategy development",
+        "Chat and email support",
+      ],
     },
     {
       mentorEmail: "david.kim@example.com",
       planIndex: 2,
       benefits: [
-        "Leadership development plan",
-        "Team management coaching",
+        "2 calls per month (60min/call)",
+        "Personalized leadership development plan",
+        "Resume and LinkedIn review",
+        "Email support",
+      ],
+    },
+    {
+      mentorEmail: "david.kim@example.com",
+      planIndex: 3,
+      benefits: [
+        "4 calls per month (90min/call)",
+        "Personalized leadership development plan",
+        "360-degree feedback analysis",
         "Executive presence training",
-        "90-day action plan",
+        "Priority chat support",
+        "Access to leadership resources",
+        "Networking opportunities",
       ],
     },
   ];
@@ -774,9 +1120,12 @@ async function seedPlanBenefits() {
       const planId = mentorPlanIds[item.planIndex];
       if (planId) {
         for (const benefit of item.benefits) {
-          await pool.request().input("plan_id", sql.Int, planId).input("plan_benefit", sql.NVarChar, benefit).query(`
-              INSERT INTO plan_benefits (plan_id, plan_benefit)
-              VALUES (@plan_id, @plan_benefit)
+          await pool
+            .request()
+            .input("mentorships_id", sql.Int, planId)
+            .input("benefit_description", sql.NVarChar, benefit).query(`
+              INSERT INTO mentorships_benefits (mentorships_id, benefit_description)
+              VALUES (@mentorships_id, @benefit_description)
             `);
           totalBenefits++;
         }
@@ -784,7 +1133,185 @@ async function seedPlanBenefits() {
     }
   }
 
-  console.log(chalk.green(`${totalBenefits} plan benefits seeded successfully`));
+  console.log(chalk.green(`${totalBenefits} mentorships benefits seeded successfully`));
+}
+
+async function seedDiscounts() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding discounts..."));
+
+  const discounts = [
+    {
+      name: "WELCOME10",
+      type: "Percentage",
+      value: 10.0,
+      start_date: new Date("2024-01-01"),
+      end_date: new Date("2025-12-31"),
+      status: "Active",
+      usage_limit: 100,
+      used_count: 15,
+    },
+    {
+      name: "SUMMER25",
+      type: "Percentage",
+      value: 25.0,
+      start_date: new Date("2024-06-01"),
+      end_date: new Date("2024-08-31"),
+      status: "Inactive",
+      usage_limit: 50,
+      used_count: 50,
+    },
+    {
+      name: "FIXED20",
+      type: "Fixed",
+      value: 20.0,
+      start_date: new Date("2024-01-01"),
+      end_date: new Date("2025-12-31"),
+      status: "Active",
+      usage_limit: 200,
+      used_count: 35,
+    },
+    {
+      name: "EARLYBIRD",
+      type: "Percentage",
+      value: 15.0,
+      start_date: new Date("2024-01-01"),
+      end_date: new Date("2024-12-31"),
+      status: "Active",
+      usage_limit: 75,
+      used_count: 20,
+    },
+    {
+      name: "LOYALTY30",
+      type: "Percentage",
+      value: 30.0,
+      start_date: new Date("2024-01-01"),
+      end_date: new Date("2025-12-31"),
+      status: "Active",
+      usage_limit: 25,
+      used_count: 5,
+    },
+  ];
+
+  for (const discount of discounts) {
+    const result = await pool
+      .request()
+      .input("discount_name", sql.NVarChar, discount.name)
+      .input("discount_type", sql.NVarChar, discount.type)
+      .input("discount_value", sql.Decimal(10, 2), discount.value)
+      .input("start_date", sql.DateTime, discount.start_date)
+      .input("end_date", sql.DateTime, discount.end_date)
+      .input("status", sql.NVarChar, discount.status)
+      .input("usage_limit", sql.Int, discount.usage_limit)
+      .input("used_count", sql.Int, discount.used_count).query(`
+        INSERT INTO discounts (discount_name, discount_type, discount_value, start_date, end_date, status, usage_limit, used_count)
+        OUTPUT INSERTED.discount_id
+        VALUES (@discount_name, @discount_type, @discount_value, @start_date, @end_date, @status, @usage_limit, @used_count)
+      `);
+
+    if (result.recordset && result.recordset[0]) {
+      discountIds.push(result.recordset[0].discount_id);
+    }
+  }
+
+  console.log(chalk.green(`${discounts.length} discounts seeded successfully`));
+}
+
+async function seedPlanRegisterations() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding plan registerations..."));
+
+  const registerations = [
+    { message: "Looking forward to learning React!", discountIndex: 0 },
+    { message: "Excited to work on my portfolio", discountIndex: 0 },
+    { message: "Can't wait to dive into machine learning", discountIndex: 2 },
+    { message: "Ready to improve my marketing skills", discountIndex: 3 },
+    { message: "Seeking career guidance", discountIndex: 0 },
+    { message: "Want to master full-stack development", discountIndex: 2 },
+    { message: "Interested in leadership mentorship", discountIndex: 4 },
+  ];
+
+  for (const reg of registerations) {
+    const discountId = discountIds[reg.discountIndex];
+    if (discountId) {
+      const result = await pool
+        .request()
+        .input("message", sql.NVarChar, reg.message)
+        .input("discount_id", sql.Int, discountId).query(`
+          INSERT INTO plan_registerations (message, discount_id)
+          OUTPUT INSERTED.registration_id
+          VALUES (@message, @discount_id)
+        `);
+
+      if (result.recordset && result.recordset[0]) {
+        registrationIds.push(result.recordset[0].registration_id);
+      }
+    }
+  }
+
+  console.log(chalk.green(`${registerations.length} plan registerations seeded successfully`));
+}
+
+async function seedBookings() {
+  const pool = await poolPromise;
+  if (!pool) {
+    throw new Error("Database connection failed");
+  }
+
+  console.log(chalk.yellow("Seeding bookings..."));
+
+  const bookings = [
+    { menteeEmail: "alice.smith@example.com", registrationIndex: 0, mentorEmail: "john.doe@example.com", planIndex: 0 },
+    { menteeEmail: "alice.smith@example.com", registrationIndex: 1, mentorEmail: "john.doe@example.com", planIndex: 1 },
+    {
+      menteeEmail: "bob.wilson@example.com",
+      registrationIndex: 2,
+      mentorEmail: "sarah.johnson@example.com",
+      planIndex: 0,
+    },
+    {
+      menteeEmail: "carol.taylor@example.com",
+      registrationIndex: 3,
+      mentorEmail: "michael.chen@example.com",
+      planIndex: 0,
+    },
+    {
+      menteeEmail: "daniel.brown@example.com",
+      registrationIndex: 4,
+      mentorEmail: "michael.chen@example.com",
+      planIndex: 1,
+    },
+    { menteeEmail: "emma.davis@example.com", registrationIndex: 5, mentorEmail: "david.kim@example.com", planIndex: 0 },
+    { menteeEmail: "emma.davis@example.com", registrationIndex: 6, mentorEmail: "david.kim@example.com", planIndex: 1 },
+  ];
+
+  for (const booking of bookings) {
+    const menteeId = userIds[booking.menteeEmail];
+    const registrationId = registrationIds[booking.registrationIndex];
+    const mentorPlanIds = planIds[booking.mentorEmail];
+    const planId = mentorPlanIds ? mentorPlanIds[booking.planIndex] : undefined;
+
+    if (menteeId && registrationId && planId) {
+      await pool
+        .request()
+        .input("mentee_id", sql.Int, menteeId)
+        .input("plan_registerations_id", sql.Int, registrationId)
+        .input("plan_id", sql.Int, planId).query(`
+          INSERT INTO bookings (mentee_id, plan_registerations_id, plan_id)
+          VALUES (@mentee_id, @plan_registerations_id, @plan_id)
+        `);
+    }
+  }
+
+  console.log(chalk.green(`${bookings.length} bookings seeded successfully`));
 }
 
 async function seedSlots() {
@@ -814,49 +1341,68 @@ async function seedSlots() {
 
     for (const mentorEmail of mentorEmails) {
       const mentorId = userIds[mentorEmail];
-      if (!mentorId) continue;
+      const mentorPlanIds = planIds[mentorEmail];
+      if (!mentorId || !mentorPlanIds) continue;
+
+      // Use the first session plan for this mentor
+      const planId = mentorPlanIds[0];
 
       // Morning slots (9 AM - 12 PM)
       for (let hour = 9; hour <= 11; hour++) {
-        const timeStr = `${hour.toString().padStart(2, "0")}:00:00`;
+        const startTime = new Date(slotDate);
+        startTime.setHours(hour, 0, 0, 0);
+        const endTime = new Date(slotDate);
+        endTime.setHours(hour + 1, 0, 0, 0);
         await pool
           .request()
+          .input("start_time", sql.DateTime, startTime)
+          .input("end_time", sql.DateTime, endTime)
+          .input("date", sql.Date, dateStr)
           .input("mentor_id", sql.Int, mentorId)
-          .input("slot_date", sql.Date, dateStr)
-          .input("start_time", sql.VarChar, timeStr)
-          .input("slot_status", sql.NVarChar, dayOffset < 2 ? "Booked" : "Available").query(`
-            INSERT INTO slots (mentor_id, slot_date, start_time, slot_status)
-            VALUES (@mentor_id, @slot_date, CAST(@start_time AS TIME), @slot_status)
+          .input("status", sql.NVarChar, dayOffset < 2 ? "Booked" : "Available")
+          .input("plan_id", sql.Int, planId).query(`
+            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
+            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
           `);
         slotsCount++;
       }
 
       // Afternoon slots (2 PM - 5 PM)
       for (let hour = 14; hour <= 16; hour++) {
-        const timeStr = `${hour.toString().padStart(2, "0")}:00:00`;
+        const startTime = new Date(slotDate);
+        startTime.setHours(hour, 0, 0, 0);
+        const endTime = new Date(slotDate);
+        endTime.setHours(hour + 1, 0, 0, 0);
         await pool
           .request()
+          .input("start_time", sql.DateTime, startTime)
+          .input("end_time", sql.DateTime, endTime)
+          .input("date", sql.Date, dateStr)
           .input("mentor_id", sql.Int, mentorId)
-          .input("slot_date", sql.Date, dateStr)
-          .input("start_time", sql.VarChar, timeStr)
-          .input("slot_status", sql.NVarChar, dayOffset < 3 && hour === 14 ? "Booked" : "Available").query(`
-            INSERT INTO slots (mentor_id, slot_date, start_time, slot_status)
-            VALUES (@mentor_id, @slot_date, CAST(@start_time AS TIME), @slot_status)
+          .input("status", sql.NVarChar, dayOffset < 3 && hour === 14 ? "Booked" : "Available")
+          .input("plan_id", sql.Int, planId).query(`
+            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
+            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
           `);
         slotsCount++;
       }
 
       // Evening slots (6 PM - 8 PM)
       for (let hour = 18; hour <= 19; hour++) {
-        const timeStr = `${hour.toString().padStart(2, "0")}:00:00`;
+        const startTime = new Date(slotDate);
+        startTime.setHours(hour, 0, 0, 0);
+        const endTime = new Date(slotDate);
+        endTime.setHours(hour + 1, 0, 0, 0);
         await pool
           .request()
+          .input("start_time", sql.DateTime, startTime)
+          .input("end_time", sql.DateTime, endTime)
+          .input("date", sql.Date, dateStr)
           .input("mentor_id", sql.Int, mentorId)
-          .input("slot_date", sql.Date, dateStr)
-          .input("start_time", sql.VarChar, timeStr)
-          .input("slot_status", sql.NVarChar, "Available").query(`
-            INSERT INTO slots (mentor_id, slot_date, start_time, slot_status)
-            VALUES (@mentor_id, @slot_date, CAST(@start_time AS TIME), @slot_status)
+          .input("status", sql.NVarChar, "Available")
+          .input("plan_id", sql.Int, planId).query(`
+            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
+            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
           `);
         slotsCount++;
       }
@@ -875,25 +1421,28 @@ async function seedInvoices() {
   console.log(chalk.yellow("Seeding invoices..."));
 
   const invoices = [
-    { menteeEmail: "alice.smith@example.com", amount: 50.0 },
-    { menteeEmail: "alice.smith@example.com", amount: 90.0 },
-    { menteeEmail: "bob.wilson@example.com", amount: 60.0 },
-    { menteeEmail: "carol.taylor@example.com", amount: 75.0 },
-    { menteeEmail: "daniel.brown@example.com", amount: 130.0 },
-    { menteeEmail: "emma.davis@example.com", amount: 70.0 },
-    { menteeEmail: "emma.davis@example.com", amount: 120.0 },
+    { registrationIndex: 0, menteeEmail: "alice.smith@example.com", amount: 50.0, method: "Credit Card" },
+    { registrationIndex: 1, menteeEmail: "alice.smith@example.com", amount: 90.0, method: "PayPal" },
+    { registrationIndex: 2, menteeEmail: "bob.wilson@example.com", amount: 60.0, method: "Credit Card" },
+    { registrationIndex: 3, menteeEmail: "carol.taylor@example.com", amount: 75.0, method: "Debit Card" },
+    { registrationIndex: 4, menteeEmail: "daniel.brown@example.com", amount: 130.0, method: "Credit Card" },
+    { registrationIndex: 5, menteeEmail: "emma.davis@example.com", amount: 70.0, method: "PayPal" },
+    { registrationIndex: 6, menteeEmail: "emma.davis@example.com", amount: 120.0, method: "Credit Card" },
   ];
 
   for (const invoice of invoices) {
     const menteeId = userIds[invoice.menteeEmail];
-    if (menteeId) {
+    const registrationId = registrationIds[invoice.registrationIndex];
+    if (menteeId && registrationId) {
       const result = await pool
         .request()
-        .input("mentee_id", sql.Int, menteeId)
-        .input("amount", sql.Decimal(10, 2), invoice.amount).query(`
-          INSERT INTO invoices (mentee_id, amount)
+        .input("plan_registerations_id", sql.Int, registrationId)
+        .input("amount", sql.Decimal(10, 2), invoice.amount)
+        .input("method", sql.NVarChar, invoice.method)
+        .input("mentee_id", sql.Int, menteeId).query(`
+          INSERT INTO invoices (plan_registerations_id, amount, method, mentee_id)
           OUTPUT INSERTED.invoice_id
-          VALUES (@mentee_id, @amount)
+          VALUES (@plan_registerations_id, @amount, @method, @mentee_id)
         `);
 
       if (result.recordset && result.recordset[0]) {
@@ -905,79 +1454,67 @@ async function seedInvoices() {
   console.log(chalk.green(`${invoices.length} invoices seeded successfully`));
 }
 
-async function seedSessions() {
+async function seedMeetings() {
   const pool = await poolPromise;
   if (!pool) {
     throw new Error("Database connection failed");
   }
 
-  console.log(chalk.yellow("Seeding sessions..."));
+  console.log(chalk.yellow("Seeding meetings..."));
 
-  const sessions = [
+  const meetings = [
     {
-      mentorEmail: "john.doe@example.com",
-      menteeEmail: "alice.smith@example.com",
-      planIndex: 0,
       invoiceIndex: 0,
-      session_status: "Completed",
-      session_location: "https://meet.google.com/abc-defg-hij",
-      discuss_info: "Introduction to React hooks and state management",
-    },
-    {
+      registrationIndex: 0,
       mentorEmail: "john.doe@example.com",
-      menteeEmail: "alice.smith@example.com",
-      planIndex: 1,
+      status: "Completed",
+      location: "https://meet.google.com/abc-defg-hij",
+    },
+    {
       invoiceIndex: 1,
-      session_status: "Scheduled",
-      session_location: "https://meet.google.com/klm-nopq-rst",
-      discuss_info: "Deep dive into Node.js and Express",
+      registrationIndex: 1,
+      mentorEmail: "john.doe@example.com",
+      status: "Scheduled",
+      location: "https://meet.google.com/klm-nopq-rst",
     },
     {
-      mentorEmail: "sarah.johnson@example.com",
-      menteeEmail: "bob.wilson@example.com",
-      planIndex: 0,
       invoiceIndex: 2,
-      session_status: "Scheduled",
-      session_location: "https://zoom.us/j/123456789",
-      discuss_info: "Portfolio review and UX principles",
+      registrationIndex: 2,
+      mentorEmail: "sarah.johnson@example.com",
+      status: "Scheduled",
+      location: "https://zoom.us/j/123456789",
     },
     {
-      mentorEmail: "michael.chen@example.com",
-      menteeEmail: "carol.taylor@example.com",
-      planIndex: 0,
       invoiceIndex: 3,
-      session_status: "Completed",
-      session_location: "https://meet.google.com/uvw-xyz-abc",
-      discuss_info: "Introduction to machine learning concepts",
+      registrationIndex: 3,
+      mentorEmail: "michael.chen@example.com",
+      status: "Completed",
+      location: "https://meet.google.com/uvw-xyz-abc",
     },
     {
-      mentorEmail: "michael.chen@example.com",
-      menteeEmail: "daniel.brown@example.com",
-      planIndex: 1,
       invoiceIndex: 4,
-      session_status: "Scheduled",
-      session_location: "https://meet.google.com/def-ghi-jkl",
-      discuss_info: "Data preprocessing and feature engineering",
+      registrationIndex: 4,
+      mentorEmail: "michael.chen@example.com",
+      status: "Scheduled",
+      location: "https://meet.google.com/def-ghi-jkl",
     },
   ];
 
-  for (const session of sessions) {
-    const mentorId = userIds[session.mentorEmail];
-    const menteeId = userIds[session.menteeEmail];
-    const mentorPlanIds = planIds[session.mentorEmail];
-    const planId = mentorPlanIds ? mentorPlanIds[session.planIndex] : undefined;
-    const invoiceId = invoiceIds[session.invoiceIndex];
+  for (const meeting of meetings) {
+    const invoiceId = invoiceIds[meeting.invoiceIndex];
+    const registrationId = registrationIds[meeting.registrationIndex];
+    const mentorId = userIds[meeting.mentorEmail];
 
-    if (mentorId && menteeId && planId && invoiceId) {
-      // Get a booked slot for this mentor to use for the session
+    if (invoiceId && registrationId && mentorId) {
+      // Get a booked slot for this mentor to use for the meeting
       const slotResult = await pool
         .request()
         .input("mentor_id", sql.Int, mentorId)
-        .input("slot_status", sql.NVarChar, "Booked").query(`
-          SELECT TOP 1 mentor_id, slot_date, start_time
+        .input("status", sql.NVarChar, "Booked").query(`
+          SELECT TOP 1 mentor_id, start_time, end_time, date
           FROM slots
-          WHERE mentor_id = @mentor_id AND slot_status = @slot_status
-          ORDER BY slot_date, start_time
+          WHERE mentor_id = @mentor_id AND status = @status
+          ORDER BY date, start_time
         `);
 
       if (slotResult.recordset && slotResult.recordset.length > 0) {
@@ -985,25 +1522,24 @@ async function seedSessions() {
 
         await pool
           .request()
-          .input("plan_id", sql.Int, planId)
           .input("invoice_id", sql.Int, invoiceId)
-          .input("mentee_id", sql.Int, menteeId)
-          .input("session_status", sql.NVarChar, session.session_status)
-          .input("session_location", sql.NVarChar, session.session_location)
-          .input("discuss_info", sql.NVarChar, session.discuss_info)
-          .input("start_time", sql.Time, slot.start_time)
-          .input("session_date", sql.Date, slot.slot_date)
+          .input("plan_registerations_id", sql.Int, registrationId)
+          .input("status", sql.NVarChar, meeting.status)
+          .input("location", sql.NVarChar, meeting.location)
+          .input("start_time", sql.DateTime, slot.start_time)
+          .input("end_time", sql.DateTime, slot.end_time)
+          .input("date", sql.Date, slot.date)
           .input("mentor_id", sql.Int, slot.mentor_id).query(`
-            INSERT INTO sessions (plan_id, invoice_id, mentee_id, session_status, session_location, discuss_info, start_time, session_date, mentor_id)
-            VALUES (@plan_id, @invoice_id, @mentee_id, @session_status, @session_location, @discuss_info, @start_time, @session_date, @mentor_id)
+            INSERT INTO meetings (invoice_id, plan_registerations_id, status, location, start_time, end_time, date, mentor_id)
+            VALUES (@invoice_id, @plan_registerations_id, @status, @location, @start_time, @end_time, @date, @mentor_id)
           `);
       } else {
-        console.log(chalk.yellow(`No booked slot found for mentor ${session.mentorEmail}`));
+        console.log(chalk.yellow(`No booked slot found for mentor ${meeting.mentorEmail}`));
       }
     }
   }
 
-  console.log(chalk.green(`${sessions.length} sessions seeded successfully`));
+  console.log(chalk.green(`${meetings.length} meetings seeded successfully`));
 }
 
 async function seedFeedbacks() {
@@ -1164,38 +1700,49 @@ async function seedMessages() {
 
   const messages = [
     {
-      menteeEmail: "alice.smith@example.com",
-      mentorEmail: "john.doe@example.com",
+      senderEmail: "alice.smith@example.com",
+      receiverEmail: "john.doe@example.com",
       content: "Hi John! Looking forward to our session tomorrow. Any preparation needed?",
-      sent_from: "Mentee",
     },
     {
-      menteeEmail: "bob.wilson@example.com",
-      mentorEmail: "sarah.johnson@example.com",
+      senderEmail: "john.doe@example.com",
+      receiverEmail: "alice.smith@example.com",
+      content: "Hi Alice! No special preparation needed. Just bring any specific questions you have about React.",
+    },
+    {
+      senderEmail: "bob.wilson@example.com",
+      receiverEmail: "sarah.johnson@example.com",
       content: "Thank you for the great session! The portfolio feedback was very helpful.",
-      sent_from: "Mentee",
     },
     {
-      menteeEmail: "carol.taylor@example.com",
-      mentorEmail: "michael.chen@example.com",
+      senderEmail: "sarah.johnson@example.com",
+      receiverEmail: "bob.wilson@example.com",
+      content: "You're welcome! Keep working on those improvements and feel free to reach out anytime.",
+    },
+    {
+      senderEmail: "carol.taylor@example.com",
+      receiverEmail: "michael.chen@example.com",
       content: "Could we schedule a follow-up session to discuss the ML project implementation?",
-      sent_from: "Mentee",
+    },
+    {
+      senderEmail: "michael.chen@example.com",
+      receiverEmail: "carol.taylor@example.com",
+      content: "Sure! Check my available slots and book a time that works for you.",
     },
   ];
 
   for (const message of messages) {
-    const menteeId = userIds[message.menteeEmail];
-    const mentorId = userIds[message.mentorEmail];
+    const senderId = userIds[message.senderEmail];
+    const receiverId = userIds[message.receiverEmail];
 
-    if (menteeId && mentorId) {
+    if (senderId && receiverId) {
       await pool
         .request()
-        .input("mentee_id", sql.Int, menteeId)
-        .input("mentor_id", sql.Int, mentorId)
         .input("content", sql.NVarChar, message.content)
-        .input("sent_from", sql.NVarChar, message.sent_from).query(`
-          INSERT INTO messages (mentee_id, mentor_id, content, sent_from)
-          VALUES (@mentee_id, @mentor_id, @content, @sent_from)
+        .input("sender_id", sql.Int, senderId)
+        .input("receiver_id", sql.Int, receiverId).query(`
+          INSERT INTO messages (content, sender_id, receiver_id)
+          VALUES (@content, @sender_id, @receiver_id)
         `);
     }
   }
@@ -1217,19 +1764,26 @@ async function seed() {
     await clearDatabase();
     await seedUsers();
     await seedUserSocialLinks();
-    await seedFields();
-    await seedHaveField();
+    await seedCategories();
+    await seedSkills();
+    await seedOwnSkill();
     await seedMentors();
     await seedMentees();
     await seedCompanies();
+    await seedJobTitles();
     await seedWorkFor();
-    await seedOwnField();
+    await seedSetSkill();
     await seedMentorLanguages();
     await seedPlans();
-    await seedPlanBenefits();
+    await seedPlanSessions();
+    await seedPlanMentorships();
+    await seedMentorshipsBenefits();
+    await seedDiscounts();
+    await seedPlanRegisterations();
+    await seedBookings();
     await seedSlots();
     await seedInvoices();
-    await seedSessions();
+    await seedMeetings();
     await seedFeedbacks();
     await seedNotifications();
     await seedSended();
@@ -1238,10 +1792,12 @@ async function seed() {
     console.log(chalk.blue("\n✅ Database seeding completed successfully!\n"));
     console.log(chalk.cyan("Summary:"));
     console.log(chalk.cyan("- 11 Users (5 Mentors, 5 Mentees, 1 Admin)"));
-    console.log(chalk.cyan("- 15 Fields"));
-    console.log(chalk.cyan("- 12 Companies"));
-    console.log(chalk.cyan("- 13 Mentorship Plans"));
-    console.log(chalk.cyan("- Multiple Sessions, Feedbacks, and Messages"));
+    console.log(chalk.cyan("- 17 Categories (5 main, 12 subcategories)"));
+    console.log(chalk.cyan("- 40 Skills"));
+    console.log(chalk.cyan("- 12 Companies & 12 Job Titles"));
+    console.log(chalk.cyan("- 13 Plans (9 Sessions, 4 Mentorships)"));
+    console.log(chalk.cyan("- 5 Discounts & 7 Bookings"));
+    console.log(chalk.cyan("- Multiple Meetings, Feedbacks, and Messages"));
     console.log(chalk.cyan("\nDefault password for all users: Password123!\n"));
 
     process.exit(0);

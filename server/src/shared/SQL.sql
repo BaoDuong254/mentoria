@@ -1,3 +1,32 @@
+-- Drop tables if they exist (in reverse order of dependencies)
+IF OBJECT_ID('dbo.meetings', 'U') IS NOT NULL DROP TABLE dbo.meetings;
+IF OBJECT_ID('dbo.invoices', 'U') IS NOT NULL DROP TABLE dbo.invoices;
+IF OBJECT_ID('dbo.slots', 'U') IS NOT NULL DROP TABLE dbo.slots;
+IF OBJECT_ID('dbo.bookings', 'U') IS NOT NULL DROP TABLE dbo.bookings;
+IF OBJECT_ID('dbo.plan_registerations', 'U') IS NOT NULL DROP TABLE dbo.plan_registerations;
+IF OBJECT_ID('dbo.discounts', 'U') IS NOT NULL DROP TABLE dbo.discounts;
+IF OBJECT_ID('dbo.mentorships_benefits', 'U') IS NOT NULL DROP TABLE dbo.mentorships_benefits;
+IF OBJECT_ID('dbo.plan_mentorships', 'U') IS NOT NULL DROP TABLE dbo.plan_mentorships;
+IF OBJECT_ID('dbo.plan_sessions', 'U') IS NOT NULL DROP TABLE dbo.plan_sessions;
+IF OBJECT_ID('dbo.plans', 'U') IS NOT NULL DROP TABLE dbo.plans;
+IF OBJECT_ID('dbo.own_skill', 'U') IS NOT NULL DROP TABLE dbo.own_skill;
+IF OBJECT_ID('dbo.set_skill', 'U') IS NOT NULL DROP TABLE dbo.set_skill;
+IF OBJECT_ID('dbo.skills', 'U') IS NOT NULL DROP TABLE dbo.skills;
+IF OBJECT_ID('dbo.categories', 'U') IS NOT NULL DROP TABLE dbo.categories;
+IF OBJECT_ID('dbo.feedbacks', 'U') IS NOT NULL DROP TABLE dbo.feedbacks;
+IF OBJECT_ID('dbo.messages', 'U') IS NOT NULL DROP TABLE dbo.messages;
+IF OBJECT_ID('dbo.work_for', 'U') IS NOT NULL DROP TABLE dbo.work_for;
+IF OBJECT_ID('dbo.job_title', 'U') IS NOT NULL DROP TABLE dbo.job_title;
+IF OBJECT_ID('dbo.companies', 'U') IS NOT NULL DROP TABLE dbo.companies;
+IF OBJECT_ID('dbo.mentor_languages', 'U') IS NOT NULL DROP TABLE dbo.mentor_languages;
+IF OBJECT_ID('dbo.mentors', 'U') IS NOT NULL DROP TABLE dbo.mentors;
+IF OBJECT_ID('dbo.mentees', 'U') IS NOT NULL DROP TABLE dbo.mentees;
+IF OBJECT_ID('dbo.sended', 'U') IS NOT NULL DROP TABLE dbo.sended;
+IF OBJECT_ID('dbo.notifications', 'U') IS NOT NULL DROP TABLE dbo.notifications;
+IF OBJECT_ID('dbo.user_social_links', 'U') IS NOT NULL DROP TABLE dbo.user_social_links;
+IF OBJECT_ID('dbo.users', 'U') IS NOT NULL DROP TABLE dbo.users;
+GO
+
 CREATE TABLE users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     first_name NVARCHAR(50) NOT NULL,
@@ -62,64 +91,9 @@ CREATE TABLE mentors (
     user_id INT PRIMARY KEY,
     bio NVARCHAR(MAX),
     headline NVARCHAR(255),
-    response_time INT CHECK (response_time >= 0),
-    total_reviews INT DEFAULT 0,
-    total_stars INT DEFAULT 0,
-    total_mentee INT DEFAULT 0,
+    response_time NVARCHAR(100) NOT NULL,
     cv_url NVARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE companies (
-    company_id INT IDENTITY(1,1) PRIMARY KEY,
-    cname NVARCHAR(255) NOT NULL
-);
-
-CREATE TABLE work_for (
-    mentor_id INT NOT NULL,
-    c_company_id INT NOT NULL,
-    crole NVARCHAR(100),
-    PRIMARY KEY (mentor_id, c_company_id),
-    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (c_company_id) REFERENCES companies(company_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE fields (
-    field_id INT IDENTITY(1,1) PRIMARY KEY,
-    name NVARCHAR(255) NOT NULL
-);
-
-DROP TABLE IF EXISTS have_field;
-GO
-CREATE TABLE have_field (
-    field_id_1 INT NOT NULL,
-    field_id_2 INT NOT NULL,
-    CONSTRAINT CK_have_field_order CHECK (field_id_1 < field_id_2),
-    CONSTRAINT PK_have_field PRIMARY KEY (field_id_1, field_id_2),
-
-    CONSTRAINT FK_have_field_f1
-      FOREIGN KEY (field_id_1) REFERENCES fields(field_id)
-      ON DELETE CASCADE ON UPDATE CASCADE,
-
-    CONSTRAINT FK_have_field_f2
-      FOREIGN KEY (field_id_2) REFERENCES fields(field_id)
-      ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
-CREATE TABLE own_field (
-    mentor_id INT NOT NULL,
-    f_field_id INT NOT NULL,
-    PRIMARY KEY (mentor_id, f_field_id),
-    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (f_field_id) REFERENCES fields(field_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -133,100 +107,46 @@ CREATE TABLE mentor_languages (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE plans (
-    plan_id INT IDENTITY(1,1) PRIMARY KEY,
-    charge DECIMAL(10,2) CHECK (charge >= 0),
-    duration INT CHECK (duration > 0 AND duration <= 120),
+CREATE TABLE companies (
+    company_id INT IDENTITY(1,1) PRIMARY KEY,
+    cname NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE job_title (
+    job_title_id INT IDENTITY(1,1) PRIMARY KEY,
+    job_name NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE work_for (
     mentor_id INT NOT NULL,
+    c_company_id INT NOT NULL,
+    current_job_title_id INT NOT NULL,
+    PRIMARY KEY (mentor_id, c_company_id),
     FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE plan_benefits (
-    plan_id INT NOT NULL,
-    plan_benefit NVARCHAR(255) NOT NULL,
-    PRIMARY KEY (plan_id, plan_benefit),
-    FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
+        ON UPDATE CASCADE,
+    FOREIGN KEY (c_company_id) REFERENCES companies(company_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (current_job_title_id) REFERENCES job_title(job_title_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
-CREATE TABLE invoices (
-    invoice_id INT IDENTITY(1,1) PRIMARY KEY,
-    mentee_id INT NOT NULL,
-    amount DECIMAL(10,2) CHECK (amount >= 0),
-    paid_time DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE slots (
-    mentor_id INT NOT NULL,
-    slot_date DATE NOT NULL,
-    start_time TIME NOT NULL ,
-    slot_status NVARCHAR(50) CHECK (slot_status IN (N'Available', N'Booked', N'Completed')),
-    PRIMARY KEY (mentor_id, slot_date, start_time),
-    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-DROP TABLE IF EXISTS sessions;
-GO
-CREATE TABLE sessions (
-    plan_id INT NOT NULL,
-    invoice_id INT NOT NULL,
-    mentee_id INT NOT NULL,
-    session_id INT IDENTITY(1,1) NOT NULL,
-    PRIMARY KEY (plan_id, invoice_id, mentee_id, session_id),
-
-    session_status NVARCHAR(50) CHECK (session_status IN (N'Scheduled', N'Completed', N'Cancelled')) DEFAULT N'Scheduled',
-    session_location NVARCHAR(255),
-    discuss_info NVARCHAR(MAX),
-    start_time TIME NOT NULL,
-    session_date DATE NOT NULL,
-    mentor_id INT NOT NULL,
-
-    CONSTRAINT FK_sessions_plan
-        FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-
-    CONSTRAINT FK_sessions_invoice
-        FOREIGN KEY (invoice_id) REFERENCES invoices(invoice_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-
-    CONSTRAINT FK_sessions_mentee
-        FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION,
-
-    CONSTRAINT FK_sessions_slot
-        FOREIGN KEY (mentor_id, session_date, start_time)
-        REFERENCES slots(mentor_id, slot_date, start_time)
-);
-
-DROP TABLE IF EXISTS messages;
-GO
 CREATE TABLE messages (
-    mentee_id INT NOT NULL,
-    mentor_id INT NOT NULL,
+    message_id INT IDENTITY(1,1) PRIMARY KEY,
     content NVARCHAR(MAX) NOT NULL,
     sent_time DATETIME DEFAULT GETDATE(),
-    sent_from NVARCHAR(10) CHECK (sent_from IN (N'Mentor', N'Mentee')) NOT NULL,
-    PRIMARY KEY (mentee_id, mentor_id),
-
-    CONSTRAINT FK_messages_mentee
-        FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-
-    CONSTRAINT FK_messages_mentor
-        FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+    FOREIGN KEY (receiver_id) REFERENCES users(user_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
 );
 
-DROP TABLE IF EXISTS feedbacks;
-GO
 CREATE TABLE feedbacks (
     mentee_id INT NOT NULL,
     mentor_id INT NOT NULL,
@@ -234,12 +154,171 @@ CREATE TABLE feedbacks (
     content NVARCHAR(MAX) NOT NULL,
     sent_time DATETIME DEFAULT GETDATE(),
     PRIMARY KEY (mentee_id, mentor_id),
+    FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION,
+    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
 
-    CONSTRAINT FK_feedbacks_mentee
-        FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+CREATE TABLE categories (
+    category_id INT IDENTITY(1,1) PRIMARY KEY,
+    category_name NVARCHAR(100) NOT NULL,
+    super_category_id INT NULL,
+    FOREIGN KEY (super_category_id) REFERENCES categories(category_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
 
-    CONSTRAINT FK_feedbacks_mentor
-        FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
-        ON DELETE NO ACTION ON UPDATE NO ACTION
+CREATE TABLE skills (
+    skill_id INT IDENTITY(1,1) PRIMARY KEY,
+    skill_name NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE set_skill(
+    mentor_id INT NOT NULL,
+    skill_id INT NOT NULL,
+    PRIMARY KEY (mentor_id, skill_id),
+    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(skill_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE own_skill(
+    category_id INT NOT NULL,
+    skill_id INT NOT NULL,
+    PRIMARY KEY (category_id, skill_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(skill_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE plans(
+    plan_id INT IDENTITY(1,1) PRIMARY KEY,
+    plan_description NVARCHAR(MAX) NOT NULL,
+    plan_charge DECIMAL(10,2) NOT NULL,
+    plan_type NVARCHAR(50) NOT NULL,
+    mentor_id INT NOT NULL,
+    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE plan_sessions(
+    sessions_id INT PRIMARY KEY,
+    sessions_duration INT NOT NULL,
+    FOREIGN KEY (sessions_id) REFERENCES plans(plan_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE plan_mentorships(
+    mentorships_id INT PRIMARY KEY,
+    FOREIGN KEY (mentorships_id) REFERENCES plans(plan_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE mentorships_benefits(
+    mentorships_id INT NOT NULL,
+    benefit_description NVARCHAR(255) NOT NULL,
+    PRIMARY KEY (mentorships_id, benefit_description),
+    FOREIGN KEY (mentorships_id) REFERENCES plan_mentorships(mentorships_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE discounts(
+    discount_id INT IDENTITY(1,1) PRIMARY KEY,
+    discount_name NVARCHAR(100) NOT NULL,
+    discount_type NVARCHAR(50) CHECK (discount_type IN (N'Percentage', N'Fixed')),
+    discount_value DECIMAL(10,2) NOT NULL,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    status NVARCHAR(20) CHECK (status IN (N'Active', N'Inactive')) DEFAULT N'Active',
+    usage_limit INT NOT NULL,
+    used_count INT DEFAULT 0
+);
+
+CREATE TABLE plan_registerations(
+    registration_id INT IDENTITY(1,1) PRIMARY KEY,
+    message NVARCHAR(MAX) NOT NULL,
+    discount_id INT NOT NULL,
+    FOREIGN KEY (discount_id) REFERENCES discounts(discount_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE bookings(
+    mentee_id INT NOT NULL,
+    plan_registerations_id INT NOT NULL,
+    plan_id INT NOT NULL,
+    PRIMARY KEY (mentee_id, plan_registerations_id),
+    FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (plan_registerations_id) REFERENCES plan_registerations(registration_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+CREATE TABLE slots(
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    date DATE NOT NULL,
+    mentor_id INT NOT NULL,
+    status NVARCHAR(20) CHECK (status IN (N'Available', N'Booked', N'Cancelled')) DEFAULT N'Available',
+    plan_id INT NOT NULL,
+    PRIMARY KEY (mentor_id, start_time, end_time, date),
+    FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+);
+
+CREATE TABLE invoices(
+    invoice_id INT IDENTITY(1,1) PRIMARY KEY,
+    plan_registerations_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    method NVARCHAR(50) NOT NULL,
+    paid_time DATETIME DEFAULT GETDATE(),
+    mentee_id INT NOT NULL,
+    UNIQUE (invoice_id, plan_registerations_id),
+    FOREIGN KEY (plan_registerations_id) REFERENCES plan_registerations(registration_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE meetings(
+    meeting_id INT IDENTITY(1,1) PRIMARY KEY,
+    invoice_id INT NOT NULL,
+    plan_registerations_id INT NOT NULL,
+    status NVARCHAR(20) CHECK (status IN (N'Scheduled', N'Completed', N'Cancelled')) DEFAULT N'Scheduled',
+    location NVARCHAR(255) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    date DATE NOT NULL,
+    mentor_id INT NOT NULL,
+    UNIQUE (meeting_id, invoice_id, plan_registerations_id),
+    FOREIGN KEY (invoice_id, plan_registerations_id) REFERENCES invoices(invoice_id, plan_registerations_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (mentor_id, start_time, end_time, date) REFERENCES slots(mentor_id, start_time, end_time, date)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
 );
