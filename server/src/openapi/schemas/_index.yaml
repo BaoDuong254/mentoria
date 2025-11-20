@@ -25,12 +25,14 @@ User:
 # Mentor schemas
 MentorProfileResponse:
   $ref: "./mentor.yaml#/MentorProfileResponse"
+MentorStatsResponse:
+  $ref: "./mentor.yaml#/MentorStatsResponse"
 SocialLink:
   $ref: "./mentor.yaml#/SocialLink"
 Company:
   $ref: "./mentor.yaml#/Company"
-Field:
-  $ref: "./mentor.yaml#/Field"
+Skill:
+  $ref: "./mentor.yaml#/Skill"
 Plan:
   $ref: "./mentor.yaml#/Plan"
 UpdateMentorProfileRequest:

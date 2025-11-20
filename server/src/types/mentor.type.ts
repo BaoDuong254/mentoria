@@ -9,10 +9,7 @@ export interface MentorProfile {
   timezone: string | null;
   bio: string | null;
   headline: string | null;
-  response_time: number | null;
-  total_reviews: number;
-  total_stars: number;
-  total_mentee: number;
+  response_time: string;
   cv_url: string | null;
   social_links: Array<{
     link: string;
@@ -21,19 +18,28 @@ export interface MentorProfile {
   companies: Array<{
     company_id: number;
     company_name: string;
-    role: string | null;
+    job_title_id: number;
+    job_name: string;
   }>;
-  fields: Array<{
-    field_id: number;
-    field_name: string;
+  skills: Array<{
+    skill_id: number;
+    skill_name: string;
   }>;
   languages: string[];
   plans: Array<{
     plan_id: number;
-    charge: number;
-    duration: number;
-    benefits: string[];
+    plan_description: string;
+    plan_charge: number;
+    plan_type: string;
+    // For plan_sessions type
+    sessions_duration?: number;
+    // For plan_mentorships type
+    benefits?: string[];
   }>;
+  // Stats (calculated from utility functions)
+  total_mentees: number;
+  total_feedbacks: number;
+  total_stars: number;
   average_rating: number | null;
 }
 
@@ -45,7 +51,7 @@ export interface UpdateMentorProfileRequest {
   timezone?: string;
   bio?: string;
   headline?: string;
-  responseTime?: number;
+  responseTime?: string;
   cvUrl?: string;
   socialLinks?: Array<{
     link: string;
@@ -53,10 +59,10 @@ export interface UpdateMentorProfileRequest {
   }>;
   companies?: Array<{
     companyName: string;
-    role?: string;
+    jobTitleName: string;
   }>;
   languages?: string[];
-  fieldIds?: number[];
+  skillIds?: number[];
 }
 
 export interface MentorListItem {
@@ -67,12 +73,13 @@ export interface MentorListItem {
   country: string | null;
   bio: string | null;
   headline: string | null;
-  response_time: number | null;
-  total_reviews: number;
+  response_time: string;
+  total_feedbacks: number;
   average_rating: number | null;
-  fields: Array<{
-    field_id: number;
-    field_name: string;
+  lowest_plan_price: number | null;
+  skills: Array<{
+    skill_id: number;
+    skill_name: string;
   }>;
   languages: string[];
 }
@@ -80,4 +87,11 @@ export interface MentorListItem {
 export interface GetMentorsQuery {
   page?: number;
   limit?: number;
+}
+
+export interface MentorStatsResponse {
+  total_mentees: number;
+  total_feedbacks: number;
+  total_stars: number;
+  average_rating: number | null;
 }

@@ -1,4 +1,9 @@
-import { getMentorProfileService, updateMentorProfileService, getMentorsListService } from "@/services/mentor.service";
+import {
+  getMentorProfileService,
+  updateMentorProfileService,
+  getMentorsListService,
+  getMentorStatsService,
+} from "@/services/mentor.service";
 import { UpdateMentorProfileRequest, GetMentorsQuery } from "@/types/mentor.type";
 import { Request, Response } from "express";
 
@@ -83,11 +88,11 @@ const updateMentorProfile = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate responseTime if provided
-    if (updateData.responseTime !== undefined && updateData.responseTime < 0) {
+    // Validate responseTime if provided (should be a string like "Within 1 hour" or "1-2 days")
+    if (updateData.responseTime !== undefined && typeof updateData.responseTime !== "string") {
       return res.status(400).json({
         success: false,
-        message: "Response time must be a non-negative number",
+        message: "Response time must be a string",
       });
     }
 
@@ -155,4 +160,47 @@ const getMentorsList = async (req: Request, res: Response) => {
   }
 };
 
-export { getMentorProfile, updateMentorProfile, getMentorsList };
+const getMentorStats = async (req: Request, res: Response) => {
+  try {
+    const { mentorId } = req.params;
+
+    // Validate mentorId is a number
+    if (!mentorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Mentor ID is required",
+      });
+    }
+
+    const mentorIdNum = parseInt(mentorId);
+    if (isNaN(mentorIdNum)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid mentor ID",
+      });
+    }
+
+    const result = await getMentorStatsService(mentorIdNum);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.stats,
+    });
+  } catch (error) {
+    console.error("Error in getMentorStats controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export { getMentorProfile, updateMentorProfile, getMentorsList, getMentorStats };

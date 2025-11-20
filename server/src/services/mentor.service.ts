@@ -26,9 +26,6 @@ const getMentorProfileService = async (
           m.bio,
           m.headline,
           m.response_time,
-          m.total_reviews,
-          m.total_stars,
-          m.total_mentee,
           m.cv_url
         FROM users u
         INNER JOIN mentors m ON u.user_id = m.user_id
@@ -53,18 +50,19 @@ const getMentorProfileService = async (
 
     // Get companies
     const companiesResult = await pool.request().input("mentorId", mentorId).query(`
-        SELECT c.company_id, c.cname as company_name, w.crole as role
+        SELECT c.company_id, c.cname as company_name, j.job_title_id, j.job_name
         FROM work_for w
         INNER JOIN companies c ON w.c_company_id = c.company_id
+        INNER JOIN job_title j ON w.current_job_title_id = j.job_title_id
         WHERE w.mentor_id = @mentorId
       `);
 
-    // Get fields
-    const fieldsResult = await pool.request().input("mentorId", mentorId).query(`
-        SELECT f.field_id, f.name as field_name
-        FROM own_field o
-        INNER JOIN fields f ON o.f_field_id = f.field_id
-        WHERE o.mentor_id = @mentorId
+    // Get skills
+    const skillsResult = await pool.request().input("mentorId", mentorId).query(`
+        SELECT s.skill_id, s.skill_name
+        FROM set_skill ss
+        INNER JOIN skills s ON ss.skill_id = s.skill_id
+        WHERE ss.mentor_id = @mentorId
       `);
 
     // Get languages
@@ -74,34 +72,68 @@ const getMentorProfileService = async (
         WHERE mentor_id = @mentorId
       `);
 
-    // Get plans with benefits
+    // Get plans
     const plansResult = await pool.request().input("mentorId", mentorId).query(`
-        SELECT plan_id, charge, duration
+        SELECT plan_id, plan_description, plan_charge, plan_type
         FROM plans
         WHERE mentor_id = @mentorId
       `);
 
-    // Get benefits for each plan
+    // Get additional details for each plan
     const plans = await Promise.all(
       plansResult.recordset.map(async (plan) => {
-        const benefitsResult = await pool.request().input("planId", plan.plan_id).query(`
-            SELECT plan_benefit
-            FROM plan_benefits
-            WHERE plan_id = @planId
+        const planData: {
+          plan_id: number;
+          plan_description: string;
+          plan_charge: number;
+          plan_type: string;
+          sessions_duration?: number;
+          benefits?: string[];
+        } = {
+          plan_id: plan.plan_id,
+          plan_description: plan.plan_description,
+          plan_charge: plan.plan_charge,
+          plan_type: plan.plan_type,
+        };
+
+        // If it's a session plan, get duration
+        const sessionResult = await pool.request().input("planId", plan.plan_id).query(`
+            SELECT sessions_duration
+            FROM plan_sessions
+            WHERE sessions_id = @planId
           `);
 
-        return {
-          plan_id: plan.plan_id,
-          charge: plan.charge,
-          duration: plan.duration,
-          benefits: benefitsResult.recordset.map((b) => b.plan_benefit),
-        };
+        if (sessionResult.recordset.length > 0) {
+          planData.sessions_duration = sessionResult.recordset[0].sessions_duration;
+        }
+
+        // If it's a mentorship plan, get benefits
+        const mentorshipCheck = await pool.request().input("planId", plan.plan_id).query(`
+            SELECT mentorships_id
+            FROM plan_mentorships
+            WHERE mentorships_id = @planId
+          `);
+
+        if (mentorshipCheck.recordset.length > 0) {
+          const benefitsResult = await pool.request().input("planId", plan.plan_id).query(`
+              SELECT benefit_description
+              FROM mentorships_benefits
+              WHERE mentorships_id = @planId
+            `);
+          planData.benefits = benefitsResult.recordset.map(
+            (b: { benefit_description: string }) => b.benefit_description
+          );
+        }
+
+        return planData;
       })
     );
 
-    // Calculate average rating
-    const averageRating =
-      mentorBasicInfo.total_reviews > 0 ? mentorBasicInfo.total_stars / mentorBasicInfo.total_reviews : null;
+    // Get mentor stats using utility functions
+    const totalMentees = await getTotalUniqueMenteesService(mentorId);
+    const totalFeedbacks = await getTotalFeedbackCountService(mentorId);
+    const totalStars = await getTotalStarsService(mentorId);
+    const averageRating = await getAverageRatingService(mentorId);
 
     // Construct the complete mentor profile
     const mentorProfile: MentorProfile = {
@@ -113,14 +145,18 @@ const getMentorProfileService = async (
       companies: companiesResult.recordset.map((c) => ({
         company_id: c.company_id,
         company_name: c.company_name,
-        role: c.role,
+        job_title_id: c.job_title_id,
+        job_name: c.job_name,
       })),
-      fields: fieldsResult.recordset.map((f) => ({
-        field_id: f.field_id,
-        field_name: f.field_name,
+      skills: skillsResult.recordset.map((s) => ({
+        skill_id: s.skill_id,
+        skill_name: s.skill_name,
       })),
       languages: languagesResult.recordset.map((l) => l.mentor_language),
       plans: plans,
+      total_mentees: totalMentees,
+      total_feedbacks: totalFeedbacks,
+      total_stars: totalStars,
       average_rating: averageRating,
     };
 
@@ -263,18 +299,18 @@ const updateMentorProfileService = async (
         }
       }
 
-      // Update fields
-      if (updateData.fieldIds !== undefined) {
-        // Delete existing fields
+      // Update skills
+      if (updateData.skillIds !== undefined) {
+        // Delete existing skills
         await transaction.request().input("mentorId", mentorId).query(`
-          DELETE FROM own_field WHERE mentor_id = @mentorId
+          DELETE FROM set_skill WHERE mentor_id = @mentorId
         `);
 
-        // Insert new fields
-        for (const fieldId of updateData.fieldIds) {
-          await transaction.request().input("mentorId", mentorId).input("fieldId", fieldId).query(`
-              INSERT INTO own_field (mentor_id, f_field_id)
-              VALUES (@mentorId, @fieldId)
+        // Insert new skills
+        for (const skillId of updateData.skillIds) {
+          await transaction.request().input("mentorId", mentorId).input("skillId", skillId).query(`
+              INSERT INTO set_skill (mentor_id, skill_id)
+              VALUES (@mentorId, @skillId)
             `);
         }
       }
@@ -307,14 +343,33 @@ const updateMentorProfileService = async (
             companyId = newCompany.recordset[0].company_id;
           }
 
+          // Check if job title exists, if not create it
+          const jobTitleCheck = await transaction.request().input("jobName", company.jobTitleName).query(`
+              SELECT job_title_id FROM job_title WHERE job_name = @jobName
+            `);
+
+          let jobTitleId: number;
+
+          if (jobTitleCheck.recordset.length > 0) {
+            jobTitleId = jobTitleCheck.recordset[0].job_title_id;
+          } else {
+            // Create new job title
+            const newJobTitle = await transaction.request().input("jobName", company.jobTitleName).query(`
+                INSERT INTO job_title (job_name)
+                OUTPUT INSERTED.job_title_id
+                VALUES (@jobName)
+              `);
+            jobTitleId = newJobTitle.recordset[0].job_title_id;
+          }
+
           // Associate mentor with company
           await transaction
             .request()
             .input("mentorId", mentorId)
             .input("companyId", companyId)
-            .input("role", company.role || null).query(`
-              INSERT INTO work_for (mentor_id, c_company_id, crole)
-              VALUES (@mentorId, @companyId, @role)
+            .input("jobTitleId", jobTitleId).query(`
+              INSERT INTO work_for (mentor_id, c_company_id, current_job_title_id)
+              VALUES (@mentorId, @companyId, @jobTitleId)
             `);
         }
       }
@@ -389,12 +444,11 @@ const getMentorsListService = async (
         m.bio,
         m.headline,
         m.response_time,
-        m.total_reviews,
-        m.total_stars
+        (SELECT MIN(plan_charge) FROM plans WHERE mentor_id = u.user_id) as lowest_plan_price
       FROM users u
       INNER JOIN mentors m ON u.user_id = m.user_id
       ${whereClause}
-      ORDER BY m.total_reviews DESC, m.total_stars DESC
+      ORDER BY u.user_id DESC
       OFFSET @offset ROWS
       FETCH NEXT @limit ROWS ONLY
     `;
@@ -404,7 +458,7 @@ const getMentorsListService = async (
     mainRequest.input("offset", offset);
     const mentorsResult = await mainRequest.query(mentorsQuery);
 
-    // Get fields and languages for each mentor
+    // Get skills and languages for each mentor
     const mentors: MentorListItem[] = await Promise.all(
       mentorsResult.recordset.map(
         async (mentor: {
@@ -415,16 +469,15 @@ const getMentorsListService = async (
           country: string | null;
           bio: string | null;
           headline: string | null;
-          response_time: number | null;
-          total_reviews: number;
-          total_stars: number;
+          response_time: string;
+          lowest_plan_price: number | null;
         }) => {
-          // Get fields
-          const fieldsResult = await pool.request().input("mentorId", mentor.user_id).query(`
-          SELECT f.field_id, f.name as field_name
-          FROM own_field o
-          INNER JOIN fields f ON o.f_field_id = f.field_id
-          WHERE o.mentor_id = @mentorId
+          // Get skills
+          const skillsResult = await pool.request().input("mentorId", mentor.user_id).query(`
+          SELECT s.skill_id, s.skill_name
+          FROM set_skill ss
+          INNER JOIN skills s ON ss.skill_id = s.skill_id
+          WHERE ss.mentor_id = @mentorId
         `);
 
           // Get languages
@@ -434,8 +487,9 @@ const getMentorsListService = async (
           WHERE mentor_id = @mentorId
         `);
 
-          // Calculate average rating
-          const averageRating = mentor.total_reviews > 0 ? mentor.total_stars / mentor.total_reviews : null;
+          // Get feedback stats for this mentor
+          const totalFeedbacks = await getTotalFeedbackCountService(mentor.user_id);
+          const averageRating = await getAverageRatingService(mentor.user_id);
 
           return {
             user_id: mentor.user_id,
@@ -446,11 +500,12 @@ const getMentorsListService = async (
             bio: mentor.bio,
             headline: mentor.headline,
             response_time: mentor.response_time,
-            total_reviews: mentor.total_reviews,
+            total_feedbacks: totalFeedbacks,
             average_rating: averageRating,
-            fields: fieldsResult.recordset.map((f) => ({
-              field_id: f.field_id,
-              field_name: f.field_name,
+            lowest_plan_price: mentor.lowest_plan_price,
+            skills: skillsResult.recordset.map((s) => ({
+              skill_id: s.skill_id,
+              skill_name: s.skill_name,
             })),
             languages: languagesResult.recordset.map((l) => l.mentor_language),
           };
@@ -479,4 +534,166 @@ const getMentorsListService = async (
   }
 };
 
-export { getMentorProfileService, updateMentorProfileService, getMentorsListService };
+/**
+ * Get the total number of unique mentees for a mentor
+ * @param mentorId - The mentor's user ID
+ * @returns The count of unique mentees
+ */
+const getTotalUniqueMenteesService = async (mentorId: number): Promise<number> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const result = await pool.request().input("mentorId", mentorId).query(`
+        SELECT COUNT(DISTINCT b.mentee_id) as total_unique_mentees
+        FROM bookings b
+        INNER JOIN plans p ON b.plan_id = p.plan_id
+        WHERE p.mentor_id = @mentorId
+      `);
+
+    return result.recordset[0].total_unique_mentees || 0;
+  } catch (error) {
+    console.error("Error in getTotalUniqueMenteesService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get the total number of feedback entries for a mentor
+ * @param mentorId - The mentor's user ID
+ * @returns The count of feedback records
+ */
+const getTotalFeedbackCountService = async (mentorId: number): Promise<number> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const result = await pool.request().input("mentorId", mentorId).query(`
+        SELECT COUNT(*) as total_feedbacks
+        FROM feedbacks
+        WHERE mentor_id = @mentorId
+      `);
+
+    return result.recordset[0].total_feedbacks || 0;
+  } catch (error) {
+    console.error("Error in getTotalFeedbackCountService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get the total sum of all rating stars for a mentor
+ * @param mentorId - The mentor's user ID
+ * @returns The total sum of stars
+ */
+const getTotalStarsService = async (mentorId: number): Promise<number> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const result = await pool.request().input("mentorId", mentorId).query(`
+        SELECT ISNULL(SUM(stars), 0) as total_stars
+        FROM feedbacks
+        WHERE mentor_id = @mentorId
+      `);
+
+    return result.recordset[0].total_stars || 0;
+  } catch (error) {
+    console.error("Error in getTotalStarsService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get the average rating for a mentor
+ * @param mentorId - The mentor's user ID
+ * @returns The average rating (or null if no feedbacks)
+ */
+const getAverageRatingService = async (mentorId: number): Promise<number | null> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const result = await pool.request().input("mentorId", mentorId).query(`
+        SELECT
+          CASE
+            WHEN COUNT(*) > 0 THEN CAST(SUM(stars) AS FLOAT) / COUNT(*)
+            ELSE NULL
+          END as average_rating
+        FROM feedbacks
+        WHERE mentor_id = @mentorId
+      `);
+
+    return result.recordset[0].average_rating;
+  } catch (error) {
+    console.error("Error in getAverageRatingService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get all mentor statistics/metrics
+ * @param mentorId - The mentor's user ID
+ * @returns All mentor stats in a single response
+ */
+const getMentorStatsService = async (
+  mentorId: number
+): Promise<{
+  success: boolean;
+  message: string;
+  stats?: {
+    total_mentees: number;
+    total_feedbacks: number;
+    total_stars: number;
+    average_rating: number | null;
+  };
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify mentor exists
+    const mentorCheck = await pool
+      .request()
+      .input("mentorId", mentorId)
+      .query("SELECT user_id FROM users WHERE user_id = @mentorId AND role = N'Mentor'");
+
+    if (mentorCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Mentor not found",
+      };
+    }
+
+    // Get all stats
+    const totalMentees = await getTotalUniqueMenteesService(mentorId);
+    const totalFeedbacks = await getTotalFeedbackCountService(mentorId);
+    const totalStars = await getTotalStarsService(mentorId);
+    const averageRating = await getAverageRatingService(mentorId);
+
+    return {
+      success: true,
+      message: "Mentor stats retrieved successfully",
+      stats: {
+        total_mentees: totalMentees,
+        total_feedbacks: totalFeedbacks,
+        total_stars: totalStars,
+        average_rating: averageRating,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getMentorStatsService:", error);
+    throw error;
+  }
+};
+
+export {
+  getMentorProfileService,
+  updateMentorProfileService,
+  getMentorsListService,
+  getMentorStatsService,
+  getTotalUniqueMenteesService,
+  getTotalFeedbackCountService,
+  getTotalStarsService,
+  getAverageRatingService,
+};

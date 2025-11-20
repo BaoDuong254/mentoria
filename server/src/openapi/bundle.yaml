@@ -514,6 +514,69 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  "/api/mentors/{mentorId}/stats":
+    get:
+      tags:
+        - mentor
+      summary: Get mentor statistics
+      description: "Retrieve comprehensive statistics for a specific mentor including total unique mentees, total feedbacks, total stars, and average rating."
+      operationId: getMentorStats
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Mentor statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Mentor stats retrieved successfully
+                  data:
+                    $ref: "#/components/schemas/MentorStatsResponse"
+              example:
+                success: true
+                message: Mentor stats retrieved successfully
+                data:
+                  total_mentees: 25
+                  total_feedbacks: 15
+                  total_stars: 72
+                  average_rating: 4.8
+        "400":
+          description: Invalid mentor ID format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: Invalid mentor ID
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: Mentor not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   "/api/mentors/{mentorId}":
     get:
       tags:
@@ -619,7 +682,7 @@ paths:
                 invalidResponseTime:
                   value:
                     success: false
-                    message: Response time must be a non-negative number
+                    message: Response time must be a string
         "401":
           description: Unauthorized - user not logged in
           content:
@@ -1274,22 +1337,9 @@ components:
           example: Senior Software Engineer at Tech Corp
           description: Mentor's professional headline
         response_time:
-          type: integer
-          nullable: true
-          example: 24
-          description: Average response time in hours
-        total_reviews:
-          type: integer
-          example: 15
-          description: Total number of reviews received
-        total_stars:
-          type: integer
-          example: 72
-          description: Total cumulative star rating
-        total_mentee:
-          type: integer
-          example: 25
-          description: Total number of mentees
+          type: string
+          example: Within 24 hours
+          description: Average response time description
         cv_url:
           type: string
           nullable: true
@@ -1306,11 +1356,11 @@ components:
           items:
             $ref: "#/components/schemas/Company"
           description: Companies where mentor has worked
-        fields:
+        skills:
           type: array
           items:
-            $ref: "#/components/schemas/Field"
-          description: Areas of expertise
+            $ref: "#/components/schemas/Skill"
+          description: Skills and areas of expertise
         languages:
           type: array
           items:
@@ -1325,12 +1375,45 @@ components:
           items:
             $ref: "#/components/schemas/Plan"
           description: Mentorship plans offered by mentor
+        total_mentees:
+          type: integer
+          example: 25
+          description: Total number of unique mentees guided
+        total_feedbacks:
+          type: integer
+          example: 15
+          description: Total number of feedback entries received
+        total_stars:
+          type: integer
+          example: 72
+          description: Total cumulative star rating from all feedbacks
         average_rating:
           type: number
           nullable: true
           format: float
           example: 4.8
-          description: Average rating (total_stars / total_reviews)
+          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
+    MentorStatsResponse:
+      type: object
+      properties:
+        total_mentees:
+          type: integer
+          example: 25
+          description: Total number of unique mentees guided by the mentor
+        total_feedbacks:
+          type: integer
+          example: 15
+          description: Total number of feedback entries received by the mentor
+        total_stars:
+          type: integer
+          example: 72
+          description: Total cumulative star rating from all feedbacks
+        average_rating:
+          type: number
+          nullable: true
+          format: float
+          example: 4.8
+          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
     SocialLink:
       type: object
       properties:
@@ -1354,22 +1437,25 @@ components:
           type: string
           example: Tech Corp
           description: Company name
-        role:
+        job_title_id:
+          type: integer
+          example: 3
+          description: Unique job title identifier
+        job_name:
           type: string
-          nullable: true
           example: Senior Software Engineer
-          description: Mentor's role at the company
-    Field:
+          description: Mentor's job title at the company
+    Skill:
       type: object
       properties:
-        field_id:
+        skill_id:
           type: integer
           example: 1
-          description: Unique field identifier
-        field_name:
+          description: Unique skill identifier
+        skill_name:
           type: string
-          example: Web Development
-          description: Field or area of expertise
+          example: JavaScript
+          description: Skill or area of expertise
     Plan:
       type: object
       properties:
@@ -1377,24 +1463,34 @@ components:
           type: integer
           example: 1
           description: Unique plan identifier
-        charge:
+        plan_description:
+          type: string
+          example: 1-hour mentorship session with personalized career guidance
+          description: Description of the mentorship plan
+        plan_charge:
           type: number
           format: decimal
           example: 99.99
           description: Cost of the plan
-        duration:
+        plan_type:
+          type: string
+          example: Session
+          description: Type of plan (Session or Mentorship)
+        sessions_duration:
           type: integer
+          nullable: true
           example: 60
-          description: Duration of session in minutes
+          description: Duration of session in minutes (only for Session type plans)
         benefits:
           type: array
+          nullable: true
           items:
             type: string
           example:
             - 1-on-1 video call
             - Code review
             - Career guidance
-          description: List of benefits included in the plan
+          description: List of benefits included in the plan (only for Mentorship type plans)
     UpdateMentorProfileRequest:
       type: object
       properties:
@@ -1432,10 +1528,9 @@ components:
           example: Senior Software Engineer at Tech Corp
           description: Mentor's professional headline
         responseTime:
-          type: integer
-          minimum: 0
-          example: 24
-          description: Average response time in hours
+          type: string
+          example: Within 24 hours
+          description: "Average response time description (e.g., 'Within 1 hour', '1-2 days')"
         cvUrl:
           type: string
           format: uri
@@ -1463,18 +1558,19 @@ components:
             type: object
             required:
               - companyName
+              - jobTitleName
             properties:
               companyName:
                 type: string
                 example: Tech Corp
-              role:
+              jobTitleName:
                 type: string
                 example: Senior Software Engineer
           example:
             - companyName: Tech Corp
-              role: Senior Software Engineer
+              jobTitleName: Senior Software Engineer
             - companyName: Web Solutions
-              role: Frontend Developer
+              jobTitleName: Frontend Developer
           description: Companies where mentor has worked or is working
         languages:
           type: array
@@ -1485,7 +1581,7 @@ components:
             - Spanish
             - French
           description: Languages spoken by mentor
-        fieldIds:
+        skillIds:
           type: array
           items:
             type: integer
@@ -1493,7 +1589,7 @@ components:
             - 1
             - 2
             - 3
-          description: Array of field IDs representing areas of expertise
+          description: Array of skill IDs representing areas of expertise
     MentorListItem:
       type: object
       properties:
@@ -1524,21 +1620,30 @@ components:
           nullable: true
           example: Senior Software Engineer at Tech Corp
         response_time:
-          type: integer
-          nullable: true
-          example: 24
-        total_reviews:
+          type: string
+          example: Within 24 hours
+          description: Average response time description
+        total_feedbacks:
           type: integer
           example: 15
+          description: Total number of feedback entries received
         average_rating:
           type: number
           nullable: true
           format: float
           example: 4.8
-        fields:
+          description: Average rating calculated from all feedbacks
+        lowest_plan_price:
+          type: number
+          nullable: true
+          format: decimal
+          example: 49.99
+          description: Lowest price among all plans offered by the mentor
+        skills:
           type: array
           items:
-            $ref: "#/components/schemas/Field"
+            $ref: "#/components/schemas/Skill"
+          description: Mentor's skills and areas of expertise
         languages:
           type: array
           items:
@@ -1546,6 +1651,7 @@ components:
           example:
             - English
             - Spanish
+          description: Languages spoken by the mentor
     MentorsListResponse:
       type: object
       properties:

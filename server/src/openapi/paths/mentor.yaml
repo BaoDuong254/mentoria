@@ -166,7 +166,7 @@ mentorProfile:
               invalidResponseTime:
                 value:
                   success: false
-                  message: "Response time must be a non-negative number"
+                  message: "Response time must be a string"
       "401":
         description: Unauthorized - user not logged in
         content:
@@ -198,13 +198,13 @@ mentorProfile:
             schema:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
 
-getMentorProfile:
+mentorStats:
   get:
     tags:
       - mentor
-    summary: Get mentor profile
-    description: Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews.
-    operationId: getMentorProfile
+    summary: Get mentor statistics
+    description: Retrieve comprehensive statistics for a specific mentor including total unique mentees, total feedbacks, total stars, and average rating.
+    operationId: getMentorStats
     parameters:
       - name: mentorId
         in: path
@@ -215,7 +215,7 @@ getMentorProfile:
           example: 1
     responses:
       "200":
-        description: Mentor profile retrieved successfully
+        description: Mentor statistics retrieved successfully
         content:
           application/json:
             schema:
@@ -226,9 +226,17 @@ getMentorProfile:
                   example: true
                 message:
                   type: string
-                  example: "Mentor profile retrieved successfully"
+                  example: "Mentor stats retrieved successfully"
                 data:
-                  $ref: "../schemas/mentor.yaml#/MentorProfileResponse"
+                  $ref: "../schemas/mentor.yaml#/MentorStatsResponse"
+            example:
+              success: true
+              message: "Mentor stats retrieved successfully"
+              data:
+                total_mentees: 25
+                total_feedbacks: 15
+                total_stars: 72
+                average_rating: 4.8
       "400":
         description: Invalid mentor ID format
         content:
