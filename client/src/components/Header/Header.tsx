@@ -22,10 +22,24 @@ export default function Header() {
 
           {/*Desktop Nav */}
           <nav className='hidden justify-center space-x-8 text-base md:flex'>
+            {user?.role === "Mentor" ? (
+              <>
+                <Link to={path.HOME}>Home</Link>
+                <Link to={`${path.MENTOR}/${path.MENTOR_DASHBOARD}`}>Dashboard</Link>
+              </>
+            ) : (
+              <>
+                <Link to={path.HOME}>Home</Link>
+                <Link to={path.MENTOR_BROWSE}>Browse Mentor</Link>
+                <Link to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}>Dashboard</Link>
+              </>
+            )}
+          </nav>
+          {/* <nav className='hidden justify-center space-x-8 text-base md:flex'>
             <Link to={path.HOME}>Home</Link>
             <Link to={path.MENTOR_BROWSE}>Browse Mentor</Link>
             <Link to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}>Dashboard</Link>
-          </nav>
+          </nav> */}
 
           {/* Desktop Buttons */}
           <div className='hidden justify-end space-x-3 md:flex'>
@@ -135,23 +149,25 @@ export default function Header() {
         )}
 
         {/* Category Bar */}
-        <div className='hidden h-[49px] justify-center border-t border-gray-500 md:flex'>
-          <ul className='flex w-screen max-w-7xl items-center justify-between px-4 text-sm'>
-            {[
-              "Engineering Mentors",
-              "Design Mentors",
-              "Startup Mentors",
-              "AI Mentors",
-              "Product Mentors",
-              "Marketing Mentors",
-              "Leadership Mentors",
-            ].map((item) => (
-              <Link key={item} to={path.MENTOR_BROWSE}>
-                <li className='transition hover:text-(--primary)'>{item}</li>
-              </Link>
-            ))}
-          </ul>
-        </div>
+        {!(user?.role === "Mentor") && (
+          <div className='hidden h-[49px] justify-center border-t border-gray-500 md:flex'>
+            <ul className='flex w-screen max-w-7xl items-center justify-between px-4 text-sm'>
+              {[
+                "Engineering Mentors",
+                "Design Mentors",
+                "Startup Mentors",
+                "AI Mentors",
+                "Product Mentors",
+                "Marketing Mentors",
+                "Leadership Mentors",
+              ].map((item) => (
+                <Link key={item} to={path.MENTOR_BROWSE}>
+                  <li className='transition hover:text-(--primary)'>{item}</li>
+                </Link>
+              ))}
+            </ul>
+          </div>
+        )}
       </header>
     </>
   );
