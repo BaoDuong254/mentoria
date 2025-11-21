@@ -1,35 +1,30 @@
-//ver3
-import { useCallback, useEffect, useMemo, useState } from "react";
+//ver1
+import { useMemo, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import path from "@/constants/path";
-import menteeApi from "@/apis/mentee.api";
-import { useMenteeStore } from "@/store/useMenteeStore";
-import type { DashboardSessionStatus, MenteeDashboardSession } from "@/types";
 
-interface MonthConfig {
-  month: number;
-  year: number;
-}
+type SessionStatus = "accepted" | "payment_required" | "pending" | "completed" | "cancelled";
 
 interface MentorSession {
   id: string;
-  sessionId: number;
-  isoDate: string;
   name: string;
   avatar: string;
   specialty: string;
   hourlyRate: number;
-  sessionPrice: number;
   topic: string;
   scheduledDate: string;
-  startTime: string;
-  endTime?: string | null;
-  status: DashboardSessionStatus;
+  scheduledTime: string;
+  status: SessionStatus;
 }
 
-type SessionsByDate = Record<string, MentorSession[] | undefined>;
+type SessionsByDate = Record<string, MentorSession[]>;
+
+interface MonthConfig {
+  month: number; // 1-12
+  year: number;
+}
 
 const MONTHS: MonthConfig[] = [
   { month: 11, year: 2024 },
@@ -37,12 +32,147 @@ const MONTHS: MonthConfig[] = [
   { month: 1, year: 2025 },
 ];
 
-const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+const initialSessionsByDate: SessionsByDate = {
+  "2024-11-05": [
+    {
+      id: "nov5-1",
+      name: "Avery Kim",
+      avatar: "https://i.pravatar.cc/150?img=28",
+      specialty: "Product Manager",
+      hourlyRate: 85,
+      topic: "Building cross-functional trust",
+      scheduledDate: "Nov 5, 2024",
+      scheduledTime: "9:00 AM - 10:00 AM",
+      status: "completed",
+    },
+    {
+      id: "nov5-2",
+      name: "Liam Carter",
+      avatar: "https://i.pravatar.cc/150?img=14",
+      specialty: "AI Architect",
+      hourlyRate: 110,
+      topic: "Evaluating ML roadmaps",
+      scheduledDate: "Nov 5, 2024",
+      scheduledTime: "11:00 AM - 12:00 PM",
+      status: "completed",
+    },
+    {
+      id: "nov5-3",
+      name: "Priya Patel",
+      avatar: "https://i.pravatar.cc/150?img=32",
+      specialty: "UX Lead",
+      hourlyRate: 95,
+      topic: "Design critiques that work",
+      scheduledDate: "Nov 5, 2024",
+      scheduledTime: "2:00 PM - 3:00 PM",
+      status: "completed",
+    },
+    {
+      id: "nov5-4",
+      name: "Ethan Moore",
+      avatar: "https://i.pravatar.cc/150?img=50",
+      specialty: "Startup Advisor",
+      hourlyRate: 70,
+      topic: "Pivoting early-stage products",
+      scheduledDate: "Nov 5, 2024",
+      scheduledTime: "4:00 PM - 5:00 PM",
+      status: "cancelled",
+    },
+  ],
+  "2024-12-12": [
+    {
+      id: "dec12-1",
+      name: "Dr. Sarah Chen",
+      avatar: "https://i.pravatar.cc/150?img=5",
+      specialty: "AI Research Scientist",
+      hourlyRate: 80,
+      topic: "System Design and Architecture",
+      scheduledDate: "Dec 12, 2024",
+      scheduledTime: "10:00 AM - 11:30 AM",
+      status: "accepted",
+    },
+    {
+      id: "dec12-2",
+      name: "Mark Rodriguez",
+      avatar: "https://i.pravatar.cc/150?img=11",
+      specialty: "Senior Software Engineer",
+      hourlyRate: 90,
+      topic: "Machine Learning Career Growth",
+      scheduledDate: "Dec 12, 2024",
+      scheduledTime: "1:00 PM - 2:00 PM",
+      status: "accepted",
+    },
+    {
+      id: "dec12-3",
+      name: "Emily Johnson",
+      avatar: "https://i.pravatar.cc/150?img=47",
+      specialty: "UX Design Lead",
+      hourlyRate: 75,
+      topic: "Career Transition to AI Engineering",
+      scheduledDate: "Dec 12, 2024",
+      scheduledTime: "3:00 PM - 4:00 PM",
+      status: "payment_required",
+    },
+    {
+      id: "dec12-4",
+      name: "Noah Williams",
+      avatar: "https://i.pravatar.cc/150?img=33",
+      specialty: "Cloud Architect",
+      hourlyRate: 105,
+      topic: "Scaling infra safely",
+      scheduledDate: "Dec 12, 2024",
+      scheduledTime: "5:00 PM - 6:00 PM",
+      status: "pending",
+    },
+  ],
+  "2025-01-15": [
+    {
+      id: "jan15-1",
+      name: "Anika Rao",
+      avatar: "https://i.pravatar.cc/150?img=55",
+      specialty: "Data Science Director",
+      hourlyRate: 120,
+      topic: "Roadmapping analytics orgs",
+      scheduledDate: "Jan 15, 2025",
+      scheduledTime: "8:00 AM - 9:00 AM",
+      status: "accepted",
+    },
+    {
+      id: "jan15-2",
+      name: "Lucas Martin",
+      avatar: "https://i.pravatar.cc/150?img=8",
+      specialty: "Security Principal",
+      hourlyRate: 95,
+      topic: "Zero Trust implementations",
+      scheduledDate: "Jan 15, 2025",
+      scheduledTime: "10:30 AM - 12:00 PM",
+      status: "accepted",
+    },
+    {
+      id: "jan15-3",
+      name: "Sofia Alvarez",
+      avatar: "https://i.pravatar.cc/150?img=21",
+      specialty: "Leadership Coach",
+      hourlyRate: 85,
+      topic: "Leading through change",
+      scheduledDate: "Jan 15, 2025",
+      scheduledTime: "2:00 PM - 3:00 PM",
+      status: "payment_required",
+    },
+  ],
+};
 
-const STATUS_ORDER: DashboardSessionStatus[] = ["accepted", "payment_required", "pending", "completed", "cancelled"];
+const initialSelectionByMonth: Record<string, string> = {
+  "2024-11": "2024-11-05",
+  "2024-12": "2024-12-12",
+  "2025-01": "2025-01-15",
+};
+
+const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+const STATUS_ORDER: SessionStatus[] = ["accepted", "payment_required", "pending", "completed", "cancelled"];
 
 const STATUS_META: Record<
-  DashboardSessionStatus,
+  SessionStatus,
   {
     label: string;
     badgeClass: string;
@@ -76,43 +206,32 @@ const STATUS_META: Record<
   },
 };
 
-const formatDateLabel = (isoDate: string) => {
+function pad(value: number) {
+  return value.toString().padStart(2, "0");
+}
+
+function getMonthKey(year: number, month: number) {
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+  return `${year}-${pad(month)}`;
+}
+
+function formatFullDate(isoDate: string) {
+  const date = new Date(`${isoDate}T00:00:00`);
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(`${isoDate}T00:00:00`));
-};
+  }).format(date);
+}
 
-const formatFullDate = (isoDate: string | null) => {
-  if (!isoDate) return "No date selected";
-  return formatDateLabel(isoDate);
-};
-
-const formatTimeRange = (start: string, end?: string | null) => {
-  const normalize = (time: string) => {
-    if (!time) return "00:00";
-    return time.length === 5 ? `${time}:00` : time;
-  };
-  const formatter = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
-  const startLabel = formatter.format(new Date(`1970-01-01T${normalize(start)}`));
-  if (!end) return startLabel;
-  return `${startLabel} - ${formatter.format(new Date(`1970-01-01T${normalize(end)}`))}`;
-};
-
-const pad = (value: number) => value.toString().padStart(2, "0");
-
-const getMonthKey = (year: number, month: number) => `${String(year)}-${pad(month)}`;
-
-const buildCalendarMatrix = (year: number, month: number) => {
-  const firstDay = new Date(year, month - 1, 1).getDay();
+function buildCalendarMatrix(year: number, month: number) {
+  const firstDayIndex = new Date(year, month - 1, 1).getDay();
   const daysInMonth = new Date(year, month, 0).getDate();
-
   const weeks: (number | null)[][] = [];
   let currentWeek: (number | null)[] = [];
 
-  for (let i = 0; i < firstDay; i += 1) {
+  for (let i = 0; i < firstDayIndex; i += 1) {
     currentWeek.push(null);
   }
 
@@ -132,304 +251,24 @@ const buildCalendarMatrix = (year: number, month: number) => {
   }
 
   return weeks;
-};
-
-const getFirstAvailableDateForMonth = (targetMonthKey: string, data: SessionsByDate) => {
-  const sortedDates = Object.keys(data)
-    .filter((date) => date.startsWith(targetMonthKey) && (data[date]?.length ?? 0) > 0)
-    .sort();
-  return sortedDates[0] ?? null;
-};
-
-const normalizeSession = (session: MenteeDashboardSession): MentorSession => ({
-  id: String(session.sessionId),
-  sessionId: session.sessionId,
-  isoDate: session.sessionDate,
-  name: session.mentorName,
-  avatar: session.mentorAvatar ?? "https://via.placeholder.com/64",
-  specialty: session.mentorHeadline ?? "Mentor",
-  hourlyRate: session.ratePerHour,
-  sessionPrice: session.sessionPrice,
-  topic: session.topic,
-  scheduledDate: formatDateLabel(session.sessionDate),
-  startTime: session.startTime,
-  endTime: session.endTime,
-  status: session.status,
-});
-
-const INITIAL_SELECTION_BY_MONTH: Partial<Record<string, string>> = {
-  "2024-11": "2024-11-05",
-  "2024-12": "2024-12-12",
-  "2025-01": "2025-01-15",
-};
-
-const SAMPLE_SESSIONS: SessionsByDate = {
-  "2024-11-05": [
-    {
-      id: "nov5-1",
-      sessionId: 9001,
-      isoDate: "2024-11-05",
-      name: "Avery Kim",
-      avatar: "https://i.pravatar.cc/150?img=28",
-      specialty: "Product Manager",
-      hourlyRate: 85,
-      sessionPrice: 85,
-      topic: "Building cross-functional trust",
-      scheduledDate: formatDateLabel("2024-11-05"),
-      startTime: "09:00",
-      endTime: "10:00",
-      status: "completed",
-    },
-    {
-      id: "nov5-2",
-      sessionId: 9002,
-      isoDate: "2024-11-05",
-      name: "Liam Carter",
-      avatar: "https://i.pravatar.cc/150?img=14",
-      specialty: "AI Architect",
-      hourlyRate: 110,
-      sessionPrice: 110,
-      topic: "Evaluating ML roadmaps",
-      scheduledDate: formatDateLabel("2024-11-05"),
-      startTime: "11:00",
-      endTime: "12:00",
-      status: "completed",
-    },
-    {
-      id: "nov5-3",
-      sessionId: 9003,
-      isoDate: "2024-11-05",
-      name: "Priya Patel",
-      avatar: "https://i.pravatar.cc/150?img=32",
-      specialty: "UX Lead",
-      hourlyRate: 95,
-      sessionPrice: 95,
-      topic: "Design critiques that work",
-      scheduledDate: formatDateLabel("2024-11-05"),
-      startTime: "14:00",
-      endTime: "15:00",
-      status: "completed",
-    },
-    {
-      id: "nov5-4",
-      sessionId: 9004,
-      isoDate: "2024-11-05",
-      name: "Ethan Moore",
-      avatar: "https://i.pravatar.cc/150?img=50",
-      specialty: "Startup Advisor",
-      hourlyRate: 70,
-      sessionPrice: 70,
-      topic: "Pivoting early-stage products",
-      scheduledDate: formatDateLabel("2024-11-05"),
-      startTime: "16:00",
-      endTime: "17:00",
-      status: "cancelled",
-    },
-  ],
-  "2024-12-12": [
-    {
-      id: "dec12-1",
-      sessionId: 9011,
-      isoDate: "2024-12-12",
-      name: "Dr. Sarah Chen",
-      avatar: "https://i.pravatar.cc/150?img=5",
-      specialty: "AI Research Scientist",
-      hourlyRate: 80,
-      sessionPrice: 80,
-      topic: "System Design and Architecture",
-      scheduledDate: formatDateLabel("2024-12-12"),
-      startTime: "10:00",
-      endTime: "11:30",
-      status: "accepted",
-    },
-    {
-      id: "dec12-2",
-      sessionId: 9012,
-      isoDate: "2024-12-12",
-      name: "Mark Rodriguez",
-      avatar: "https://i.pravatar.cc/150?img=11",
-      specialty: "Senior Software Engineer",
-      hourlyRate: 90,
-      sessionPrice: 90,
-      topic: "Machine Learning Career Growth",
-      scheduledDate: formatDateLabel("2024-12-12"),
-      startTime: "13:00",
-      endTime: "14:00",
-      status: "accepted",
-    },
-    {
-      id: "dec12-3",
-      sessionId: 9013,
-      isoDate: "2024-12-12",
-      name: "Emily Johnson",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      specialty: "UX Design Lead",
-      hourlyRate: 75,
-      sessionPrice: 75,
-      topic: "Career Transition to AI Engineering",
-      scheduledDate: formatDateLabel("2024-12-12"),
-      startTime: "15:00",
-      endTime: "16:00",
-      status: "payment_required",
-    },
-    {
-      id: "dec12-4",
-      sessionId: 9014,
-      isoDate: "2024-12-12",
-      name: "Noah Williams",
-      avatar: "https://i.pravatar.cc/150?img=33",
-      specialty: "Cloud Architect",
-      hourlyRate: 105,
-      sessionPrice: 105,
-      topic: "Scaling infra safely",
-      scheduledDate: formatDateLabel("2024-12-12"),
-      startTime: "17:00",
-      endTime: "18:00",
-      status: "pending",
-    },
-  ],
-  "2025-01-15": [
-    {
-      id: "jan15-1",
-      sessionId: 9021,
-      isoDate: "2025-01-15",
-      name: "Anika Rao",
-      avatar: "https://i.pravatar.cc/150?img=55",
-      specialty: "Data Science Director",
-      hourlyRate: 120,
-      sessionPrice: 120,
-      topic: "Roadmapping analytics orgs",
-      scheduledDate: formatDateLabel("2025-01-15"),
-      startTime: "08:00",
-      endTime: "09:00",
-      status: "accepted",
-    },
-    {
-      id: "jan15-2",
-      sessionId: 9022,
-      isoDate: "2025-01-15",
-      name: "Lucas Martin",
-      avatar: "https://i.pravatar.cc/150?img=8",
-      specialty: "Security Principal",
-      hourlyRate: 95,
-      sessionPrice: 95,
-      topic: "Zero Trust implementations",
-      scheduledDate: formatDateLabel("2025-01-15"),
-      startTime: "10:30",
-      endTime: "12:00",
-      status: "accepted",
-    },
-    {
-      id: "jan15-3",
-      sessionId: 9023,
-      isoDate: "2025-01-15",
-      name: "Sofia Alvarez",
-      avatar: "https://i.pravatar.cc/150?img=21",
-      specialty: "Leadership Coach",
-      hourlyRate: 85,
-      sessionPrice: 85,
-      topic: "Leading through change",
-      scheduledDate: formatDateLabel("2025-01-15"),
-      startTime: "14:00",
-      endTime: "15:00",
-      status: "payment_required",
-    },
-  ],
-};
+}
 
 function MenteeDashboard() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useMenteeStore((state) => ({
-    user: state.user,
-    loading: state.loading,
-  }));
-
-  const [sessionsByDate, setSessionsByDate] = useState<SessionsByDate>(SAMPLE_SESSIONS);
-  const [selectionByMonth, setSelectionByMonth] = useState<Partial<Record<string, string>>>(INITIAL_SELECTION_BY_MONTH);
-  const [loadedMonths, setLoadedMonths] = useState<Record<string, boolean>>({});
-  const [monthLoading, setMonthLoading] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-
+  const [sessionsByDate, setSessionsByDate] = useState<SessionsByDate>(initialSessionsByDate);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(1);
-  const currentMonth = MONTHS[currentMonthIndex] ?? MONTHS[0];
+  const [selectedDate, setSelectedDate] = useState("2024-12-12");
+  const [selectionByMonth, setSelectionByMonth] = useState<Record<string, string>>(initialSelectionByMonth);
+
+  const currentMonth = MONTHS[currentMonthIndex];
   const monthKey = getMonthKey(currentMonth.year, currentMonth.month);
-  const isMonthLoaded = loadedMonths[monthKey] ?? false;
-
-  const storedSelection = selectionByMonth[monthKey] ?? null;
-  const fallbackSelection = useMemo(
-    () => getFirstAvailableDateForMonth(monthKey, sessionsByDate),
-    [monthKey, sessionsByDate]
-  );
-  const selectedDate = storedSelection ?? fallbackSelection;
-
-  const loadMonthSessions = useCallback(
-    async (abortSignal: { cancelled: boolean }) => {
-      if (user?.role !== "Mentee") return;
-      const menteeUser = user;
-
-      setMonthLoading(true);
-      setFetchError(null);
-
-      try {
-        const response = await menteeApi.getDashboardSessions(menteeUser.user_id, {
-          month: currentMonth.month,
-          year: currentMonth.year,
-        });
-
-        if (abortSignal.cancelled) return;
-
-        const normalizedSessions = response.data.sessions.map(normalizeSession);
-        setSessionsByDate((prev) => {
-          const next: SessionsByDate = { ...prev };
-
-          Object.keys(next).forEach((dateKey) => {
-            if (dateKey.startsWith(monthKey)) {
-              next[dateKey] = undefined;
-            }
-          });
-
-          normalizedSessions.forEach((session) => {
-            const existingSessions = next[session.isoDate];
-            const bucket = existingSessions ? [...existingSessions] : [];
-            const index = bucket.findIndex((item) => item.sessionId === session.sessionId);
-            if (index >= 0) {
-              bucket[index] = session;
-            } else {
-              bucket.push(session);
-            }
-            bucket.sort((a, b) => a.startTime.localeCompare(b.startTime));
-            next[session.isoDate] = bucket;
-          });
-
-          return next;
-        });
-
-        setLoadedMonths((prev) => ({ ...prev, [monthKey]: true }));
-      } catch (error) {
-        if (abortSignal.cancelled) return;
-        setFetchError(error instanceof Error ? error.message : "Unable to load mentee sessions");
-      } finally {
-        if (!abortSignal.cancelled) {
-          setMonthLoading(false);
-        }
-      }
-    },
-    [user, currentMonth.month, currentMonth.year, monthKey]
-  );
-
-  useEffect(() => {
-    if (isMonthLoaded) return;
-    const signal = { cancelled: false };
-    void loadMonthSessions(signal);
-    return () => {
-      signal.cancelled = true;
-    };
-  }, [isMonthLoaded, loadMonthSessions]);
 
   const calendarWeeks = useMemo(
     () => buildCalendarMatrix(currentMonth.year, currentMonth.month),
     [currentMonth.year, currentMonth.month]
   );
+
+  const selectedDateLabel = useMemo(() => formatFullDate(selectedDate), [selectedDate]);
 
   const monthLabel = useMemo(
     () =>
@@ -439,84 +278,73 @@ function MenteeDashboard() {
     [currentMonth.year, currentMonth.month]
   );
 
-  const selectedDateLabel = useMemo(() => formatFullDate(selectedDate), [selectedDate]);
-
-  const sessionsForSelectedDate = useMemo(() => {
-    if (!selectedDate) return [];
-    return sessionsByDate[selectedDate] ?? [];
-  }, [selectedDate, sessionsByDate]);
-
-  const groupedSessions = useMemo(
-    () =>
-      STATUS_ORDER.map((status) => ({
-        status,
-        label: STATUS_META[status].label,
-        sessions: sessionsForSelectedDate.filter((session) => session.status === status),
-      })).filter((group) => group.sessions.length > 0),
-    [sessionsForSelectedDate]
-  );
+  const groupedSessions = useMemo(() => {
+    const sessionsForSelectedDate = sessionsByDate[selectedDate] ?? [];
+    return STATUS_ORDER.map((status) => ({
+      status,
+      label: STATUS_META[status].label,
+      sessions: sessionsForSelectedDate.filter((session) => session.status === status),
+    })).filter((group) => group.sessions.length > 0);
+  }, [sessionsByDate, selectedDate]);
 
   const hasSessions = groupedSessions.length > 0;
+
+  const setSelectedDateForMonth = (iso: string) => {
+    setSelectedDate(iso);
+    setSelectionByMonth((prev) => ({ ...prev, [iso.slice(0, 7)]: iso }));
+  };
+
+  const getFirstAvailableDateForMonth = (targetMonthKey: string) => {
+    const sortedDates = Object.keys(sessionsByDate)
+      .filter((date) => date.startsWith(targetMonthKey) && sessionsByDate[date].length > 0)
+      .sort();
+    return sortedDates[0] ?? `${targetMonthKey}-01`;
+  };
 
   const handleMonthChange = (direction: "prev" | "next") => {
     const newIndex = currentMonthIndex + (direction === "prev" ? -1 : 1);
     if (newIndex < 0 || newIndex >= MONTHS.length) return;
     const nextMonth = MONTHS[newIndex];
     const nextMonthKey = getMonthKey(nextMonth.year, nextMonth.month);
-    const nextSelection = selectionByMonth[nextMonthKey] ?? getFirstAvailableDateForMonth(nextMonthKey, sessionsByDate);
-    if (nextSelection) {
-      setSelectionByMonth((prev) => ({ ...prev, [nextMonthKey]: nextSelection }));
-    }
+    const storedSelection = selectionByMonth[nextMonthKey] ?? getFirstAvailableDateForMonth(nextMonthKey);
     setCurrentMonthIndex(newIndex);
+    setSelectedDateForMonth(storedSelection);
   };
 
   const handleDaySelect = (day: number | null) => {
     if (!day) return;
     const iso = `${monthKey}-${pad(day)}`;
-    setSelectionByMonth((prev) => ({ ...prev, [monthKey]: iso }));
+    setSelectedDateForMonth(iso);
   };
 
-  const handleJoinMeeting = (session: MentorSession) => {
-    console.info("[MenteeDashboard] Join meeting", session.sessionId);
+  const handleJoinMeeting = (sessionId: string) => {
+    console.info("[MenteeDashboard] Join meeting:", sessionId);
   };
 
-  const handleReschedule = (session: MentorSession) => {
-    console.info("[MenteeDashboard] Reschedule session", session.sessionId);
+  const handleReschedule = (sessionId: string) => {
+    console.info("[MenteeDashboard] Reschedule session:", sessionId);
   };
 
-  const handlePayNow = (session: MentorSession) => {
-    console.info("[MenteeDashboard] Pay session", session.sessionId);
+  const handlePayNow = (sessionId: string) => {
+    console.info("[MenteeDashboard] Pay now for session:", sessionId);
   };
 
-  const handleReviewCourse = (session: MentorSession) => {
-    console.info("[MenteeDashboard] Review session", session.sessionId);
+  const handleReviewCourse = (sessionId: string) => {
+    console.info("[MenteeDashboard] Review course for session:", sessionId);
   };
 
   const handleNewBooking = () => {
     void navigate(path.MENTOR_BROWSE);
   };
 
-  const handleCancelPending = async (session: MentorSession) => {
-    if (user?.role !== "Mentee") {
-      setFetchError("Please log in to cancel this session.");
-      return;
-    }
-
-    const menteeUser = user;
-
-    try {
-      await menteeApi.cancelSession(menteeUser.user_id, session.sessionId);
-      setSessionsByDate((prev) => {
-        const daySessions = prev[session.isoDate];
-        if (!daySessions) return prev;
-        const updatedDaySessions = daySessions.map((item) =>
-          item.sessionId === session.sessionId ? { ...item, status: "cancelled" as DashboardSessionStatus } : item
-        );
-        return { ...prev, [session.isoDate]: updatedDaySessions };
-      });
-    } catch (error) {
-      setFetchError(error instanceof Error ? error.message : "Could not cancel the session");
-    }
+  const handleCancelPending = (sessionId: string, dateKey: string) => {
+    setSessionsByDate((prev) => {
+      const daySessions = prev[dateKey] ?? [];
+      const updatedDaySessions = daySessions.map((session) =>
+        session.id === sessionId ? { ...session, status: "cancelled" as SessionStatus } : session
+      );
+      return { ...prev, [dateKey]: updatedDaySessions };
+    });
   };
 
   const renderActionButtons = (session: MentorSession) => {
@@ -526,18 +354,18 @@ function MenteeDashboard() {
           <>
             <button
               type='button'
-              className='rounded-xl bg-[#1bb17b] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-900/40 transition hover:bg-[#25c487]'
+              className='cursor-pointer rounded-xl bg-[#1bb17b] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-900/40 transition hover:bg-[#25c487]'
               onClick={() => {
-                handleJoinMeeting(session);
+                handleJoinMeeting(session.id);
               }}
             >
               Join Meeting
             </button>
             <button
               type='button'
-              className='rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
+              className='cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
               onClick={() => {
-                handleReschedule(session);
+                handleReschedule(session.id);
               }}
             >
               Reschedule
@@ -549,18 +377,18 @@ function MenteeDashboard() {
           <>
             <button
               type='button'
-              className='rounded-xl bg-[#fbbf24] px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-amber-800/30 transition hover:bg-[#facc15]'
+              className='cursor-pointer rounded-xl bg-[#fbbf24] px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-amber-800/30 transition hover:bg-[#facc15]'
               onClick={() => {
-                handlePayNow(session);
+                handlePayNow(session.id);
               }}
             >
               Pay Now
             </button>
             <button
               type='button'
-              className='rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
+              className='cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
               onClick={() => {
-                handleReschedule(session);
+                handleReschedule(session.id);
               }}
             >
               Reschedule
@@ -571,9 +399,9 @@ function MenteeDashboard() {
         return (
           <button
             type='button'
-            className='rounded-xl border border-rose-400/60 px-4 py-2 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10'
+            className='cursor-pointer rounded-xl border border-rose-400/60 px-4 py-2 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10'
             onClick={() => {
-              void handleCancelPending(session);
+              handleCancelPending(session.id, selectedDate);
             }}
           >
             Cancel
@@ -584,16 +412,16 @@ function MenteeDashboard() {
           <>
             <button
               type='button'
-              className='rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
+              className='cursor-pointer rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10'
               onClick={() => {
-                handleReviewCourse(session);
+                handleReviewCourse(session.id);
               }}
             >
               Review Course
             </button>
             <button
               type='button'
-              className='rounded-xl bg-[#8b3ffc] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-900/40 transition hover:bg-[#9b54ff]'
+              className='cursor-pointer rounded-xl bg-[#8b3ffc] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-900/40 transition hover:bg-[#9b54ff]'
               onClick={handleNewBooking}
             >
               New booking
@@ -604,7 +432,7 @@ function MenteeDashboard() {
         return (
           <button
             type='button'
-            className='rounded-xl bg-[#8b3ffc] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-900/40 transition hover:bg-[#9b54ff]'
+            className='cursor-pointer rounded-xl bg-[#8b3ffc] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-900/40 transition hover:bg-[#9b54ff]'
             onClick={handleNewBooking}
           >
             New booking
@@ -615,48 +443,6 @@ function MenteeDashboard() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className='flex min-h-[60vh] items-center justify-center bg-[#050915] text-white'>
-        Preparing your dashboard...
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className='flex min-h-[60vh] flex-col items-center justify-center gap-4 bg-[#050915] px-4 text-center text-white'>
-        <p className='text-lg font-semibold'>Please log in to view your mentee dashboard.</p>
-        <button
-          type='button'
-          className='rounded-full bg-[#8b3ffc] px-6 py-3 font-semibold shadow-lg shadow-purple-900/50 transition hover:bg-[#9b54ff]'
-          onClick={() => {
-            void navigate(path.LOGIN);
-          }}
-        >
-          Go to Login
-        </button>
-      </div>
-    );
-  }
-
-  if (user.role !== "Mentee") {
-    return (
-      <div className='flex min-h-[60vh] flex-col items-center justify-center gap-4 bg-[#050915] px-4 text-center text-white'>
-        <p className='text-lg font-semibold'>This page is available for mentee accounts only.</p>
-        <button
-          type='button'
-          className='rounded-full border border-white/30 px-6 py-3 font-semibold transition hover:bg-white/10'
-          onClick={() => {
-            void navigate(path.HOME);
-          }}
-        >
-          Return Home
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className='min-h-[calc(100vh-160px)] bg-[#050915] px-4 py-10 text-white'>
       <div className='mx-auto flex max-w-6xl flex-col gap-8 lg:flex-row'>
@@ -666,18 +452,6 @@ function MenteeDashboard() {
             <p className='text-sm text-white/70'>Manage your mentoring sessions and requests</p>
             <p className='text-xs tracking-wider text-white/50 uppercase'>Schedule for {selectedDateLabel}</p>
           </header>
-
-          {fetchError && (
-            <div className='rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100'>
-              {fetchError}
-            </div>
-          )}
-
-          {monthLoading && !isMonthLoaded && (
-            <div className='rounded-2xl border border-white/5 bg-[#0b1120] px-4 py-3 text-sm text-white/70'>
-              Loading your schedule for {monthLabel}...
-            </div>
-          )}
 
           {hasSessions ? (
             groupedSessions.map((group) => (
@@ -698,7 +472,7 @@ function MenteeDashboard() {
                 <div className='space-y-4'>
                   {group.sessions.map((session) => (
                     <div
-                      key={session.sessionId}
+                      key={session.id}
                       className='rounded-2xl border border-white/5 bg-[#0f1d33] p-5 transition hover:border-white/15'
                     >
                       <div className='flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
@@ -738,12 +512,12 @@ function MenteeDashboard() {
                             <span role='img' aria-label='time'>
                               🕑
                             </span>
-                            <span>{formatTimeRange(session.startTime, session.endTime)}</span>
+                            <span>{session.scheduledTime}</span>
                           </div>
                         </div>
                         <div className='text-right'>
                           <p className='text-xs tracking-wide text-white/50 uppercase'>Compensation</p>
-                          <p className='text-xl font-semibold text-[#1ba0e2]'>${session.sessionPrice.toFixed(2)}</p>
+                          <p className='text-xl font-semibold text-[#1ba0e2]'>${session.hourlyRate}</p>
                         </div>
                       </div>
 
@@ -762,7 +536,7 @@ function MenteeDashboard() {
               <p className='mt-2 text-base text-white/70'>There are no appointments scheduled</p>
               <button
                 type='button'
-                className='mt-8 w-full rounded-full bg-[#8b3ffc] px-6 py-3 text-base font-semibold shadow-lg shadow-purple-900/50 transition hover:bg-[#9b54ff]'
+                className='mt-8 w-full cursor-pointer rounded-full bg-[#8b3ffc] px-6 py-3 text-base font-semibold shadow-lg shadow-purple-900/50 transition hover:bg-[#9b54ff]'
                 onClick={handleNewBooking}
               >
                 Book a mentor
@@ -813,15 +587,16 @@ function MenteeDashboard() {
 
           <div className='mt-1 space-y-2'>
             {calendarWeeks.map((week, weekIndex) => (
-              <div key={`week-${String(weekIndex)}`} className='grid grid-cols-7 gap-1'>
+              <div key={`week-${weekIndex.toString()}`} className='grid grid-cols-7 gap-1'>
                 {week.map((day, idx) => {
                   if (!day) {
-                    return <span key={`empty-${String(weekIndex)}-${String(idx)}`} className='h-10 rounded-xl' />;
+                    return <span key={`empty-${weekIndex.toString()}-${idx.toString()}`} className='h-10 rounded-xl' />;
                   }
 
                   const iso = `${monthKey}-${pad(day)}`;
                   const isSelected = iso === selectedDate;
-                  const dayHasSessions = (sessionsByDate[iso]?.length ?? 0) > 0;
+                  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                  const dayHasSessions = (sessionsByDate[iso] || []).length > 0;
 
                   const buttonClass = isSelected
                     ? "bg-[#8b3ffc] text-white shadow-lg shadow-purple-900/50"
