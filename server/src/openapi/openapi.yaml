@@ -73,6 +73,8 @@ paths:
   # Search Endpoints
   /api/search/mentors:
     $ref: "./paths/search.yaml#/searchMentors"
+  /api/search/skills:
+    $ref: "./paths/search.yaml#/searchSkills"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

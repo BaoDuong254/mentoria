@@ -119,3 +119,50 @@ Category:
       type: string
       example: "Web Development"
       description: "Category name"
+
+# Search Skills Response schemas
+SearchSkillsResponse:
+  type: object
+  properties:
+    results:
+      type: array
+      items:
+        $ref: "#/SkillCategoryItem"
+      description: "Array of skills and categories matching the search criteria"
+    pagination:
+      $ref: "./mentor.yaml#/PaginationInfo"
+      description: "Pagination information for the search results"
+    searchInfo:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "Sales"
+          description: "The keyword used for searching"
+      description: "Information about the search query"
+
+SkillCategoryItem:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 49
+      description: "Unique identifier for the skill or category"
+    name:
+      type: string
+      example: "Sales"
+      description: "Name of the skill or category"
+    type:
+      type: string
+      enum: ["skill", "category"]
+      example: "category"
+      description: "Type indicating whether this is a skill or a category"
+    super_category_id:
+      type: integer
+      nullable: true
+      example: 38
+      description: "ID of the parent category (null for skills or top-level categories)"
+    mentor_count:
+      type: integer
+      example: 5
+      description: "Number of mentors who have this skill or teach in this category"

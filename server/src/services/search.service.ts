@@ -1,6 +1,12 @@
 import sql from "mssql";
 import { MentorListItem } from "@/types/mentor.type";
-import { SearchMentorsQuery, SearchMentorsResponse } from "@/types/search.type";
+import {
+  SearchMentorsQuery,
+  SearchMentorsResponse,
+  SearchSkillsQuery,
+  SearchSkillsResponse,
+  SkillCategoryItem,
+} from "@/types/search.type";
 import { getTotalFeedbackCountService, getAverageRatingService } from "@/services/mentor.service";
 import poolPromise from "@/config/database";
 
@@ -204,6 +210,121 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
     };
   } catch (error) {
     console.error("Error in searchMentorsService:", error);
+    throw error;
+  }
+};
+
+export const searchSkillsService = async (query: SearchSkillsQuery): Promise<SearchSkillsResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const { keyword } = query;
+
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Prepare the search pattern for SQL LIKE
+    const searchPattern = `%${keyword}%`;
+
+    // Query for skills with mentor counts
+    const skillsQuery = `
+      SELECT
+        s.skill_id as id,
+        s.skill_name as name,
+        'skill' as type,
+        NULL as super_category_id,
+        COUNT(DISTINCT ss.mentor_id) as mentor_count
+      FROM skills s
+      LEFT JOIN set_skill ss ON s.skill_id = ss.skill_id
+      WHERE s.skill_name LIKE @searchPattern
+      GROUP BY s.skill_id, s.skill_name
+    `;
+
+    // Query for categories with super_category_id not null and mentor counts
+    const categoriesQuery = `
+      SELECT
+        cat.category_id as id,
+        cat.category_name as name,
+        'category' as type,
+        cat.super_category_id,
+        COUNT(DISTINCT ss.mentor_id) as mentor_count
+      FROM categories cat
+      LEFT JOIN own_skill os ON cat.category_id = os.category_id
+      LEFT JOIN set_skill ss ON os.skill_id = ss.skill_id
+      WHERE cat.super_category_id IS NOT NULL
+        AND cat.category_name LIKE @searchPattern
+      GROUP BY cat.category_id, cat.category_name, cat.super_category_id
+    `;
+
+    // Get total count
+    const countQuery = `
+      WITH CombinedResults AS (
+        ${skillsQuery}
+        UNION ALL
+        ${categoriesQuery}
+      )
+      SELECT COUNT(*) as total FROM CombinedResults
+    `;
+
+    const countRequest = pool.request();
+    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    const countResult = await countRequest.query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      WITH CombinedResults AS (
+        ${skillsQuery}
+        UNION ALL
+        ${categoriesQuery}
+      )
+      SELECT * FROM CombinedResults
+      ORDER BY mentor_count DESC, name ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const results: SkillCategoryItem[] = result.recordset.map((row) => ({
+      id: row.id,
+      name: row.name,
+      type: row.type as "skill" | "category",
+      super_category_id: row.super_category_id,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message:
+        totalItems > 0
+          ? `Found ${totalItems} skill${totalItems !== 1 ? "s" : ""}/categor${totalItems !== 1 ? "ies" : "y"} matching "${keyword}"`
+          : `No skills or categories found matching "${keyword}"`,
+      data: {
+        results,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+        searchInfo: {
+          keyword,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in searchSkillsService:", error);
     throw error;
   }
 };

@@ -1135,6 +1135,134 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/search/skills:
+    get:
+      tags:
+        - search
+      summary: Search skills and categories
+      description: "Search for skills and categories by keyword. Returns skills and subcategories that match the search term, along with the count of mentors who have each skill/category. Useful for filtering and discovering available expertise areas."
+      operationId: searchSkills
+      parameters:
+        - name: keyword
+          in: query
+          required: true
+          description: Search keyword to match against skill names and category names
+          schema:
+            type: string
+            minLength: 1
+            example: Sales
+        - name: page
+          in: query
+          required: false
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          description: "Number of items per page (default 10, max 100)"
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        "200":
+          description: Search completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Found 3 skills/categories matching "Sales"
+                  data:
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 49
+                              description: Unique identifier for the skill or category
+                            name:
+                              type: string
+                              example: Sales
+                              description: Name of the skill or category
+                            type:
+                              type: string
+                              enum:
+                                - skill
+                                - category
+                              example: category
+                              description: Type indicating whether this is a skill or a category
+                            super_category_id:
+                              type: integer
+                              nullable: true
+                              example: 38
+                              description: ID of the parent category (null for skills or top-level categories)
+                            mentor_count:
+                              type: integer
+                              example: 5
+                              description: Number of mentors who have this skill or teach in this category
+                        description: Array of skills and categories matching the search criteria
+                      pagination:
+                        $ref: "#/components/schemas/PaginationInfo"
+                        description: Pagination information for the search results
+                      searchInfo:
+                        type: object
+                        properties:
+                          keyword:
+                            type: string
+                            example: Sales
+                            description: The keyword used for searching
+                        description: Information about the search query
+        "400":
+          description: Invalid query parameters or validation errors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                missingKeyword:
+                  value:
+                    success: false
+                    message: Keyword cannot be empty
+                    errors:
+                      - message: Keyword cannot be empty
+                        path:
+                          - keyword
+                invalidPage:
+                  value:
+                    success: false
+                    message: Page must be a positive integer
+                    errors:
+                      - message: Page must be a positive integer
+                        path:
+                          - page
+                invalidLimit:
+                  value:
+                    success: false
+                    message: Limit must be between 1 and 100
+                    errors:
+                      - message: Limit must be between 1 and 100
+                        path:
+                          - limit
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:

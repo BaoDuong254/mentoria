@@ -6,8 +6,8 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/server",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "debug"]
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["debug"]
     },
     {
       "name": "debug-chrome",

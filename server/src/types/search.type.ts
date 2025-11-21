@@ -25,3 +25,36 @@ export interface SearchMentorsResponse {
     };
   };
 }
+
+export interface SkillCategoryItem {
+  id: number;
+  name: string;
+  type: "skill" | "category";
+  super_category_id: number | null;
+  mentor_count: number;
+}
+
+export interface SearchSkillsQuery {
+  keyword: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface SearchSkillsResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    results: SkillCategoryItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    searchInfo: {
+      keyword: string;
+    };
+  };
+}
