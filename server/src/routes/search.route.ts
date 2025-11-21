@@ -1,9 +1,10 @@
-import { searchMentors, searchSkills } from "@/controllers/search.controller";
+import { searchMentors, searchSkills, searchCompanies } from "@/controllers/search.controller";
 import express, { Router } from "express";
 
 const router: Router = express.Router();
 
 router.get("/mentors", searchMentors);
 router.get("/skills", searchSkills);
+router.get("/companies", searchCompanies);
 
 export default router;

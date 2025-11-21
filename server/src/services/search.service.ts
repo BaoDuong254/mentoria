@@ -6,6 +6,9 @@ import {
   SearchSkillsQuery,
   SearchSkillsResponse,
   SkillCategoryItem,
+  SearchCompaniesQuery,
+  SearchCompaniesResponse,
+  CompanyItem,
 } from "@/types/search.type";
 import { getTotalFeedbackCountService, getAverageRatingService } from "@/services/mentor.service";
 import poolPromise from "@/config/database";
@@ -325,6 +328,94 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
     };
   } catch (error) {
     console.error("Error in searchSkillsService:", error);
+    throw error;
+  }
+};
+
+export const searchCompaniesService = async (query: SearchCompaniesQuery): Promise<SearchCompaniesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const { keyword } = query;
+
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Prepare the search pattern for SQL LIKE
+    const searchPattern = `%${keyword}%`;
+
+    // Query for companies with mentor counts
+    const companiesQuery = `
+      SELECT
+        c.company_id as id,
+        c.cname as name,
+        COUNT(DISTINCT wf.mentor_id) as mentor_count
+      FROM companies c
+      LEFT JOIN work_for wf ON c.company_id = wf.c_company_id
+      WHERE c.cname LIKE @searchPattern
+      GROUP BY c.company_id, c.cname
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${companiesQuery}
+      ) AS CountResult
+    `;
+
+    const countRequest = pool.request();
+    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    const countResult = await countRequest.query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${companiesQuery}
+      ORDER BY mentor_count DESC, name ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const results: CompanyItem[] = result.recordset.map((row) => ({
+      id: row.id,
+      name: row.name,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message:
+        totalItems > 0
+          ? `Found ${totalItems} compan${totalItems !== 1 ? "ies" : "y"} matching "${keyword}"`
+          : `No companies found matching "${keyword}"`,
+      data: {
+        results,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+        searchInfo: {
+          keyword,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in searchCompaniesService:", error);
     throw error;
   }
 };

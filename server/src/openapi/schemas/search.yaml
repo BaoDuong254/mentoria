@@ -166,3 +166,40 @@ SkillCategoryItem:
       type: integer
       example: 5
       description: "Number of mentors who have this skill or teach in this category"
+
+# Search Companies Response schemas
+SearchCompaniesResponse:
+  type: object
+  properties:
+    results:
+      type: array
+      items:
+        $ref: "#/CompanyItem"
+      description: "Array of companies matching the search criteria"
+    pagination:
+      $ref: "./mentor.yaml#/PaginationInfo"
+      description: "Pagination information for the search results"
+    searchInfo:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "Google"
+          description: "The keyword used for searching"
+      description: "Information about the search query"
+
+CompanyItem:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 1
+      description: "Unique identifier for the company"
+    name:
+      type: string
+      example: "Google"
+      description: "Name of the company"
+    mentor_count:
+      type: integer
+      example: 12
+      description: "Number of mentors who work or have worked at this company"

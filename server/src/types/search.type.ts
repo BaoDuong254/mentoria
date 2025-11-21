@@ -58,3 +58,34 @@ export interface SearchSkillsResponse {
     };
   };
 }
+
+export interface CompanyItem {
+  id: number;
+  name: string;
+  mentor_count: number;
+}
+
+export interface SearchCompaniesQuery {
+  keyword: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface SearchCompaniesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    results: CompanyItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    searchInfo: {
+      keyword: string;
+    };
+  };
+}
