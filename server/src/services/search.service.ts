@@ -9,6 +9,9 @@ import {
   SearchCompaniesQuery,
   SearchCompaniesResponse,
   CompanyItem,
+  SearchJobTitlesQuery,
+  SearchJobTitlesResponse,
+  JobTitleItem,
 } from "@/types/search.type";
 import { getTotalFeedbackCountService, getAverageRatingService } from "@/services/mentor.service";
 import poolPromise from "@/config/database";
@@ -416,6 +419,94 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
     };
   } catch (error) {
     console.error("Error in searchCompaniesService:", error);
+    throw error;
+  }
+};
+
+export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promise<SearchJobTitlesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const { keyword } = query;
+
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Prepare the search pattern for SQL LIKE
+    const searchPattern = `%${keyword}%`;
+
+    // Query for job titles with mentor counts
+    const jobTitlesQuery = `
+      SELECT
+        jt.job_title_id as id,
+        jt.job_name as name,
+        COUNT(DISTINCT wf.mentor_id) as mentor_count
+      FROM job_title jt
+      LEFT JOIN work_for wf ON jt.job_title_id = wf.current_job_title_id
+      WHERE jt.job_name LIKE @searchPattern
+      GROUP BY jt.job_title_id, jt.job_name
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${jobTitlesQuery}
+      ) AS CountResult
+    `;
+
+    const countRequest = pool.request();
+    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    const countResult = await countRequest.query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${jobTitlesQuery}
+      ORDER BY mentor_count DESC, name ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const results: JobTitleItem[] = result.recordset.map((row) => ({
+      id: row.id,
+      name: row.name,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message:
+        totalItems > 0
+          ? `Found ${totalItems} job title${totalItems !== 1 ? "s" : ""} matching "${keyword}"`
+          : `No job titles found matching "${keyword}"`,
+      data: {
+        results,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+        searchInfo: {
+          keyword,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in searchJobTitlesService:", error);
     throw error;
   }
 };

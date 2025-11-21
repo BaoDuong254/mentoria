@@ -203,3 +203,40 @@ CompanyItem:
       type: integer
       example: 12
       description: "Number of mentors who work or have worked at this company"
+
+# Search Job Titles Response schemas
+SearchJobTitlesResponse:
+  type: object
+  properties:
+    results:
+      type: array
+      items:
+        $ref: "#/JobTitleItem"
+      description: "Array of job titles matching the search criteria"
+    pagination:
+      $ref: "./mentor.yaml#/PaginationInfo"
+      description: "Pagination information for the search results"
+    searchInfo:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "Engineer"
+          description: "The keyword used for searching"
+      description: "Information about the search query"
+
+JobTitleItem:
+  type: object
+  properties:
+    id:
+      type: integer
+      example: 3
+      description: "Unique identifier for the job title"
+    name:
+      type: string
+      example: "Software Engineer"
+      description: "Name of the job title"
+    mentor_count:
+      type: integer
+      example: 8
+      description: "Number of mentors who hold or have held this job title"

@@ -89,3 +89,34 @@ export interface SearchCompaniesResponse {
     };
   };
 }
+
+export interface JobTitleItem {
+  id: number;
+  name: string;
+  mentor_count: number;
+}
+
+export interface SearchJobTitlesQuery {
+  keyword: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface SearchJobTitlesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    results: JobTitleItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+    searchInfo: {
+      keyword: string;
+    };
+  };
+}

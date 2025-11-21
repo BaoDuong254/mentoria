@@ -77,6 +77,8 @@ paths:
     $ref: "./paths/search.yaml#/searchSkills"
   /api/search/companies:
     $ref: "./paths/search.yaml#/searchCompanies"
+  /api/search/jobtitles:
+    $ref: "./paths/search.yaml#/searchJobTitles"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
