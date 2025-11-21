@@ -1,31 +1,42 @@
 import { MentorListItem } from "./mentor.type";
 
-export interface SearchMentorsQuery {
+// Base types for all search queries
+export interface BaseSearchQuery {
   keyword: string;
   page?: number;
   limit?: number;
 }
 
-export interface SearchMentorsResponse {
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface BaseSearchInfo {
+  keyword: string;
+}
+
+export interface BaseSearchResponse<T> {
   success: boolean;
   message: string;
   data?: {
-    mentors: MentorListItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-    };
-    searchInfo: {
-      keyword: string;
-      searchedFields: string[];
-    };
+    results: T[];
+    pagination: PaginationInfo;
+    searchInfo: BaseSearchInfo;
   };
 }
 
+// Specific query types (extending base)
+export type SearchMentorsQuery = BaseSearchQuery;
+export type SearchSkillsQuery = BaseSearchQuery;
+export type SearchCompaniesQuery = BaseSearchQuery;
+export type SearchJobTitlesQuery = BaseSearchQuery;
+
+// Result item types
 export interface SkillCategoryItem {
   id: number;
   name: string;
@@ -34,60 +45,10 @@ export interface SkillCategoryItem {
   mentor_count: number;
 }
 
-export interface SearchSkillsQuery {
-  keyword: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface SearchSkillsResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    results: SkillCategoryItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-    };
-    searchInfo: {
-      keyword: string;
-    };
-  };
-}
-
 export interface CompanyItem {
   id: number;
   name: string;
   mentor_count: number;
-}
-
-export interface SearchCompaniesQuery {
-  keyword: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface SearchCompaniesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    results: CompanyItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-    };
-    searchInfo: {
-      keyword: string;
-    };
-  };
 }
 
 export interface JobTitleItem {
@@ -96,27 +57,19 @@ export interface JobTitleItem {
   mentor_count: number;
 }
 
-export interface SearchJobTitlesQuery {
-  keyword: string;
-  page?: number;
-  limit?: number;
-}
-
-export interface SearchJobTitlesResponse {
+// Specific response types
+export interface SearchMentorsResponse {
   success: boolean;
   message: string;
   data?: {
-    results: JobTitleItem[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-    };
-    searchInfo: {
-      keyword: string;
+    mentors: MentorListItem[];
+    pagination: PaginationInfo;
+    searchInfo: BaseSearchInfo & {
+      searchedFields: string[];
     };
   };
 }
+
+export type SearchSkillsResponse = BaseSearchResponse<SkillCategoryItem>;
+export type SearchCompaniesResponse = BaseSearchResponse<CompanyItem>;
+export type SearchJobTitlesResponse = BaseSearchResponse<JobTitleItem>;
