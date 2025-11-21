@@ -27,6 +27,8 @@ tags:
     description: Mentee profile and mentorship management
   - name: user
     description: User profile and settings management
+  - name: search
+    description: Search functionality for mentors and content
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -68,6 +70,9 @@ paths:
     $ref: "./paths/user.yaml#/avatar"
   /api/users/change-password:
     $ref: "./paths/user.yaml#/change-password"
+  # Search Endpoints
+  /api/search/mentors:
+    $ref: "./paths/search.yaml#/searchMentors"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

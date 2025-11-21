@@ -1,20 +1,26 @@
 import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import { defineConfig, globalIgnores } from "eslint/config";
 import eslintPluginPrettier from "eslint-plugin-prettier";
 
-export default defineConfig([
-  globalIgnores(["dist", "node_modules"]),
+export default [
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    plugins: {
-      js,
-      prettier: eslintPluginPrettier,
-    },
-    extends: ["js/recommended"],
+    ignores: ["dist", "node_modules", "eslint.config.mjs"],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{js,ts}"],
     languageOptions: {
+      ecmaVersion: 2020,
       globals: globals.node,
+      parserOptions: {
+        project: ["./tsconfig.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    plugins: {
+      prettier: eslintPluginPrettier,
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
@@ -35,5 +41,4 @@ export default defineConfig([
       ],
     },
   },
-  tseslint.configs.recommended,
-]);
+];

@@ -51,3 +51,11 @@ UpdateMenteeProfileRequest:
   $ref: "./mentee.yaml#/UpdateMenteeProfileRequest"
 MenteeListItem:
   $ref: "./mentee.yaml#/MenteeListItem"
+
+# Search schemas
+SearchMentorsResponse:
+  $ref: "./search.yaml#/SearchMentorsResponse"
+SearchMentorListItem:
+  $ref: "./search.yaml#/SearchMentorListItem"
+Category:
+  $ref: "./search.yaml#/Category"

@@ -1,0 +1,121 @@
+# Search response schemas
+SearchMentorsResponse:
+  type: object
+  properties:
+    mentors:
+      type: array
+      items:
+        $ref: "#/SearchMentorListItem"
+      description: "Array of mentors matching the search criteria"
+    pagination:
+      $ref: "./mentor.yaml#/PaginationInfo"
+      description: "Pagination information for the search results"
+    searchInfo:
+      type: object
+      properties:
+        keyword:
+          type: string
+          example: "javascript"
+          description: "The keyword used for searching"
+        searchedFields:
+          type: array
+          items:
+            type: string
+          example:
+            - "first_name"
+            - "last_name"
+            - "full_name"
+            - "bio"
+            - "headline"
+            - "skills"
+            - "categories"
+            - "companies"
+            - "job_titles"
+            - "languages"
+          description: "List of fields that were searched"
+      description: "Information about the search query and scope"
+
+SearchMentorListItem:
+  type: object
+  properties:
+    user_id:
+      type: integer
+      example: 1
+      description: "Unique mentor identifier"
+    first_name:
+      type: string
+      example: "John"
+      description: "Mentor's first name"
+    last_name:
+      type: string
+      example: "Doe"
+      description: "Mentor's last name"
+    avatar_url:
+      type: string
+      nullable: true
+      format: uri
+      example: "https://example.com/avatars/mentor-john.jpg"
+      description: "URL to mentor's avatar image"
+    country:
+      type: string
+      nullable: true
+      example: "USA"
+      description: "Mentor's country of residence"
+    bio:
+      type: string
+      nullable: true
+      example: "Experienced JavaScript developer with 10+ years"
+      description: "Mentor's biography"
+    headline:
+      type: string
+      nullable: true
+      example: "Senior JavaScript Engineer at Tech Corp"
+      description: "Mentor's professional headline"
+    response_time:
+      type: string
+      example: "Within 24 hours"
+      description: "Average response time description"
+    total_feedbacks:
+      type: integer
+      example: 15
+      description: "Total number of feedback entries received"
+    average_rating:
+      type: number
+      nullable: true
+      format: float
+      example: 4.8
+      description: "Average rating calculated from all feedbacks"
+    lowest_plan_price:
+      type: number
+      nullable: true
+      format: decimal
+      example: 49.99
+      description: "Lowest price among all plans offered by the mentor"
+    skills:
+      type: array
+      items:
+        $ref: "./mentor.yaml#/Skill"
+      description: "Mentor's skills and areas of expertise"
+    languages:
+      type: array
+      items:
+        type: string
+      example: ["English", "Spanish"]
+      description: "Languages spoken by the mentor"
+    categories:
+      type: array
+      items:
+        $ref: "#/Category"
+      description: "Categories associated with the mentor's skills"
+
+Category:
+  type: object
+  properties:
+    category_id:
+      type: integer
+      example: 1
+      description: "Unique category identifier"
+    category_name:
+      type: string
+      example: "Web Development"
+      description: "Category name"
