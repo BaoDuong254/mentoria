@@ -82,6 +82,16 @@ export interface MentorListItem {
     skill_name: string;
   }>;
   languages: string[];
+  companies: Array<{
+    company_id: number;
+    company_name: string;
+    job_title_id: number;
+    job_name: string;
+  }>;
+  categories: Array<{
+    category_id: number;
+    category_name: string;
+  }>;
 }
 
 export interface GetMentorsQuery {

@@ -162,6 +162,25 @@ MentorListItem:
         type: string
       example: ["English", "Spanish"]
       description: "Languages spoken by the mentor"
+    companies:
+      type: array
+      items:
+        $ref: "#/Company"
+      description: "Companies where mentor works or has worked"
+    categories:
+      type: array
+      items:
+        type: object
+        properties:
+          category_id:
+            type: integer
+            example: 1
+            description: "Unique category identifier"
+          category_name:
+            type: string
+            example: "Web Development"
+            description: "Category name"
+      description: "Categories associated with the mentor's skills"
 
 PaginationInfo:
   type: object

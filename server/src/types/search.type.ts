@@ -18,6 +18,7 @@ export interface PaginationInfo {
 
 export interface BaseSearchInfo {
   keyword: string;
+  keywords: string[]; // Array of individual keywords
 }
 
 export interface BaseSearchResponse<T> {

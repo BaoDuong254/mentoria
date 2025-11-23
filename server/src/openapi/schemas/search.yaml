@@ -15,8 +15,14 @@ SearchMentorsResponse:
       properties:
         keyword:
           type: string
-          example: "javascript"
-          description: "The keyword used for searching"
+          example: "google senior javascript"
+          description: "The original keyword string used for searching"
+        keywords:
+          type: array
+          items:
+            type: string
+          example: ["google", "senior", "javascript"]
+          description: "Array of individual keywords parsed from the keyword string (space-separated)"
         searchedFields:
           type: array
           items:
@@ -102,6 +108,11 @@ SearchMentorListItem:
         type: string
       example: ["English", "Spanish"]
       description: "Languages spoken by the mentor"
+    companies:
+      type: array
+      items:
+        $ref: "./mentor.yaml#/Company"
+      description: "Companies where mentor works or has worked"
     categories:
       type: array
       items:
@@ -138,7 +149,13 @@ SearchSkillsResponse:
         keyword:
           type: string
           example: "Sales"
-          description: "The keyword used for searching"
+          description: "The original keyword string used for searching"
+        keywords:
+          type: array
+          items:
+            type: string
+          example: ["Sales"]
+          description: "Array of individual keywords parsed from the keyword string"
       description: "Information about the search query"
 
 SkillCategoryItem:
@@ -185,7 +202,13 @@ SearchCompaniesResponse:
         keyword:
           type: string
           example: "Google"
-          description: "The keyword used for searching"
+          description: "The original keyword string used for searching"
+        keywords:
+          type: array
+          items:
+            type: string
+          example: ["Google"]
+          description: "Array of individual keywords parsed from the keyword string"
       description: "Information about the search query"
 
 CompanyItem:
@@ -222,7 +245,13 @@ SearchJobTitlesResponse:
         keyword:
           type: string
           example: "Engineer"
-          description: "The keyword used for searching"
+          description: "The original keyword string used for searching"
+        keywords:
+          type: array
+          items:
+            type: string
+          example: ["Engineer"]
+          description: "Array of individual keywords parsed from the keyword string"
       description: "Information about the search query"
 
 JobTitleItem:

@@ -487,6 +487,24 @@ const getMentorsListService = async (
           WHERE mentor_id = @mentorId
         `);
 
+          // Get companies and job titles
+          const companiesResult = await pool.request().input("mentorId", mentor.user_id).query(`
+          SELECT c.company_id, c.cname as company_name, j.job_title_id, j.job_name
+          FROM work_for w
+          INNER JOIN companies c ON w.c_company_id = c.company_id
+          INNER JOIN job_title j ON w.current_job_title_id = j.job_title_id
+          WHERE w.mentor_id = @mentorId
+        `);
+
+          // Get categories for this mentor (through skills)
+          const categoriesResult = await pool.request().input("mentorId", mentor.user_id).query(`
+          SELECT DISTINCT cat.category_id, cat.category_name
+          FROM set_skill ss
+          INNER JOIN own_skill os ON ss.skill_id = os.skill_id
+          INNER JOIN categories cat ON os.category_id = cat.category_id
+          WHERE ss.mentor_id = @mentorId
+        `);
+
           // Get feedback stats for this mentor
           const totalFeedbacks = await getTotalFeedbackCountService(mentor.user_id);
           const averageRating = await getAverageRatingService(mentor.user_id);
@@ -508,6 +526,16 @@ const getMentorsListService = async (
               skill_name: s.skill_name,
             })),
             languages: languagesResult.recordset.map((l) => l.mentor_language),
+            companies: companiesResult.recordset.map((c) => ({
+              company_id: c.company_id,
+              company_name: c.company_name,
+              job_title_id: c.job_title_id,
+              job_name: c.job_name,
+            })),
+            categories: categoriesResult.recordset.map((c) => ({
+              category_id: c.category_id,
+              category_name: c.category_name,
+            })),
           };
         }
       )

@@ -1054,17 +1054,24 @@ paths:
       tags:
         - search
       summary: Search mentors
-      description: "Search for mentors by keyword across multiple fields including name, bio, headline, skills, categories, companies, job titles, and languages. Returns a paginated list of matching mentors."
+      description: |-
+        Search for mentors by keyword(s) across multiple fields including name, bio, headline, skills, categories, companies, job titles, and languages.
+        Supports multi-keyword search with space-separated keywords (e.g., "google senior javascript").
+        All keywords must match (AND logic) - each keyword must appear in at least one of the searchable fields.
+        Returns a paginated list of matching mentors with complete profile information.
       operationId: searchMentors
       parameters:
         - name: keyword
           in: query
           required: true
-          description: Search keyword to match against mentor profiles
+          description: |-
+            Search keyword(s) to match against mentor profiles.
+            Multiple keywords separated by spaces are supported (e.g., "google senior javascript").
+            All keywords must match across any of the searchable fields (AND logic).
           schema:
             type: string
             minLength: 1
-            example: javascript
+            example: google senior javascript
         - name: page
           in: query
           required: false
@@ -1224,7 +1231,14 @@ paths:
                           keyword:
                             type: string
                             example: Sales
-                            description: The keyword used for searching
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Sales
+                            description: Array of individual keywords parsed from the keyword string
                         description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
@@ -1340,7 +1354,14 @@ paths:
                           keyword:
                             type: string
                             example: Google
-                            description: The keyword used for searching
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Google
+                            description: Array of individual keywords parsed from the keyword string
                         description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
@@ -1456,7 +1477,14 @@ paths:
                           keyword:
                             type: string
                             example: Engineer
-                            description: The keyword used for searching
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Engineer
+                            description: Array of individual keywords parsed from the keyword string
                         description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
@@ -2100,6 +2128,25 @@ components:
             - English
             - Spanish
           description: Languages spoken by the mentor
+        companies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Company"
+          description: Companies where mentor works or has worked
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              category_id:
+                type: integer
+                example: 1
+                description: Unique category identifier
+              category_name:
+                type: string
+                example: Web Development
+                description: Category name
+          description: Categories associated with the mentor's skills
     MentorsListResponse:
       type: object
       properties:
@@ -2234,8 +2281,17 @@ components:
           properties:
             keyword:
               type: string
-              example: javascript
-              description: The keyword used for searching
+              example: google senior javascript
+              description: The original keyword string used for searching
+            keywords:
+              type: array
+              items:
+                type: string
+              example:
+                - google
+                - senior
+                - javascript
+              description: Array of individual keywords parsed from the keyword string (space-separated)
             searchedFields:
               type: array
               items:
@@ -2322,6 +2378,11 @@ components:
             - English
             - Spanish
           description: Languages spoken by the mentor
+        companies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Company"
+          description: Companies where mentor works or has worked
         categories:
           type: array
           items:

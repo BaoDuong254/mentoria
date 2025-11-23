@@ -28,8 +28,35 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
-    // Prepare the search pattern for SQL LIKE
-    const searchPattern = `%${keyword}%`;
+    // Split keywords by spaces and filter empty strings
+    const keywords = keyword
+      .trim()
+      .split(/\s+/)
+      .filter((k) => k.length > 0);
+
+    // Build dynamic WHERE conditions for multiple keywords
+    // Each keyword must match at least one field (AND logic between keywords)
+    const buildSearchConditions = (paramPrefix: string) => {
+      return keywords
+        .map((_, index) => {
+          const paramName = `${paramPrefix}${index}`;
+          return `(
+          u.first_name LIKE @${paramName}
+          OR u.last_name LIKE @${paramName}
+          OR CONCAT(u.first_name, ' ', u.last_name) LIKE @${paramName}
+          OR m.bio LIKE @${paramName}
+          OR m.headline LIKE @${paramName}
+          OR s.skill_name LIKE @${paramName}
+          OR cat.category_name LIKE @${paramName}
+          OR c.cname LIKE @${paramName}
+          OR jt.job_name LIKE @${paramName}
+          OR ml.mentor_language LIKE @${paramName}
+        )`;
+        })
+        .join(" AND ");
+    };
+
+    const searchConditions = buildSearchConditions("searchPattern");
 
     // Get total count of matching mentors
     const countQuery = `
@@ -46,22 +73,13 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
       LEFT JOIN mentor_languages ml ON u.user_id = ml.mentor_id
       WHERE u.role = N'Mentor'
         AND u.status = N'Active'
-        AND (
-          u.first_name LIKE @searchPattern
-          OR u.last_name LIKE @searchPattern
-          OR CONCAT(u.first_name, ' ', u.last_name) LIKE @searchPattern
-          OR m.bio LIKE @searchPattern
-          OR m.headline LIKE @searchPattern
-          OR s.skill_name LIKE @searchPattern
-          OR cat.category_name LIKE @searchPattern
-          OR c.cname LIKE @searchPattern
-          OR jt.job_name LIKE @searchPattern
-          OR ml.mentor_language LIKE @searchPattern
-        )
+        AND (${searchConditions})
     `;
 
     const countRequest = pool.request();
-    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      countRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     const countResult = await countRequest.query(countQuery);
     const totalItems = countResult.recordset[0].total;
     const totalPages = Math.ceil(totalItems / limit);
@@ -90,25 +108,16 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
       LEFT JOIN mentor_languages ml ON u.user_id = ml.mentor_id
       WHERE u.role = N'Mentor'
         AND u.status = N'Active'
-        AND (
-          u.first_name LIKE @searchPattern
-          OR u.last_name LIKE @searchPattern
-          OR CONCAT(u.first_name, ' ', u.last_name) LIKE @searchPattern
-          OR m.bio LIKE @searchPattern
-          OR m.headline LIKE @searchPattern
-          OR s.skill_name LIKE @searchPattern
-          OR cat.category_name LIKE @searchPattern
-          OR c.cname LIKE @searchPattern
-          OR jt.job_name LIKE @searchPattern
-          OR ml.mentor_language LIKE @searchPattern
-        )
+        AND (${searchConditions})
       ORDER BY u.user_id DESC
       OFFSET @offset ROWS
       FETCH NEXT @limit ROWS ONLY
     `;
 
     const mainRequest = pool.request();
-    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      mainRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     mainRequest.input("limit", sql.Int, limit);
     mainRequest.input("offset", sql.Int, offset);
     const mentorsResult = await mainRequest.query(mentorsQuery);
@@ -142,6 +151,15 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
             WHERE mentor_id = @mentorId
           `);
 
+          // Get companies and job titles for this mentor
+          const companiesResult = await pool.request().input("mentorId", sql.Int, mentor.user_id).query(`
+            SELECT c.company_id, c.cname as company_name, j.job_title_id, j.job_name
+            FROM work_for w
+            INNER JOIN companies c ON w.c_company_id = c.company_id
+            INNER JOIN job_title j ON w.current_job_title_id = j.job_title_id
+            WHERE w.mentor_id = @mentorId
+          `);
+
           // Get categories for this mentor (through skills)
           const categoriesResult = await pool.request().input("mentorId", sql.Int, mentor.user_id).query(`
             SELECT DISTINCT cat.category_id, cat.category_name
@@ -172,6 +190,12 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
               skill_name: s.skill_name,
             })),
             languages: languagesResult.recordset.map((l) => l.mentor_language),
+            companies: companiesResult.recordset.map((c) => ({
+              company_id: c.company_id,
+              company_name: c.company_name,
+              job_title_id: c.job_title_id,
+              job_name: c.job_name,
+            })),
             categories: categoriesResult.recordset.map((c) => ({
               category_id: c.category_id,
               category_name: c.category_name,
@@ -199,6 +223,7 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
         },
         searchInfo: {
           keyword,
+          keywords,
           searchedFields: [
             "first_name",
             "last_name",
@@ -232,8 +257,15 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
-    // Prepare the search pattern for SQL LIKE
-    const searchPattern = `%${keyword}%`;
+    // Split keywords by spaces and filter empty strings
+    const keywords = keyword
+      .trim()
+      .split(/\s+/)
+      .filter((k) => k.length > 0);
+
+    // Build dynamic WHERE conditions for skills
+    const skillConditions = keywords.map((_, index) => `s.skill_name LIKE @searchPattern${index}`).join(" OR ");
+    const categoryConditions = keywords.map((_, index) => `cat.category_name LIKE @searchPattern${index}`).join(" OR ");
 
     // Query for skills with mentor counts
     const skillsQuery = `
@@ -245,7 +277,7 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
         COUNT(DISTINCT ss.mentor_id) as mentor_count
       FROM skills s
       LEFT JOIN set_skill ss ON s.skill_id = ss.skill_id
-      WHERE s.skill_name LIKE @searchPattern
+      WHERE ${skillConditions}
       GROUP BY s.skill_id, s.skill_name
     `;
 
@@ -261,7 +293,7 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
       LEFT JOIN own_skill os ON cat.category_id = os.category_id
       LEFT JOIN set_skill ss ON os.skill_id = ss.skill_id
       WHERE cat.super_category_id IS NOT NULL
-        AND cat.category_name LIKE @searchPattern
+        AND (${categoryConditions})
       GROUP BY cat.category_id, cat.category_name, cat.super_category_id
     `;
 
@@ -276,7 +308,9 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
     `;
 
     const countRequest = pool.request();
-    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      countRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     const countResult = await countRequest.query(countQuery);
     const totalItems = countResult.recordset[0].total;
     const totalPages = Math.ceil(totalItems / limit);
@@ -295,7 +329,9 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
     `;
 
     const mainRequest = pool.request();
-    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      mainRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     mainRequest.input("limit", sql.Int, limit);
     mainRequest.input("offset", sql.Int, offset);
     const result = await mainRequest.query(paginatedQuery);
@@ -326,6 +362,7 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
         },
         searchInfo: {
           keyword,
+          keywords,
         },
       },
     };
@@ -347,8 +384,14 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
-    // Prepare the search pattern for SQL LIKE
-    const searchPattern = `%${keyword}%`;
+    // Split keywords by spaces and filter empty strings
+    const keywords = keyword
+      .trim()
+      .split(/\s+/)
+      .filter((k) => k.length > 0);
+
+    // Build dynamic WHERE conditions for companies
+    const companyConditions = keywords.map((_, index) => `c.cname LIKE @searchPattern${index}`).join(" OR ");
 
     // Query for companies with mentor counts
     const companiesQuery = `
@@ -358,7 +401,7 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
         COUNT(DISTINCT wf.mentor_id) as mentor_count
       FROM companies c
       LEFT JOIN work_for wf ON c.company_id = wf.c_company_id
-      WHERE c.cname LIKE @searchPattern
+      WHERE ${companyConditions}
       GROUP BY c.company_id, c.cname
     `;
 
@@ -371,7 +414,9 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
     `;
 
     const countRequest = pool.request();
-    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      countRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     const countResult = await countRequest.query(countQuery);
     const totalItems = countResult.recordset[0].total;
     const totalPages = Math.ceil(totalItems / limit);
@@ -385,7 +430,9 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
     `;
 
     const mainRequest = pool.request();
-    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      mainRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     mainRequest.input("limit", sql.Int, limit);
     mainRequest.input("offset", sql.Int, offset);
     const result = await mainRequest.query(paginatedQuery);
@@ -414,6 +461,7 @@ export const searchCompaniesService = async (query: SearchCompaniesQuery): Promi
         },
         searchInfo: {
           keyword,
+          keywords,
         },
       },
     };
@@ -435,8 +483,14 @@ export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promi
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
-    // Prepare the search pattern for SQL LIKE
-    const searchPattern = `%${keyword}%`;
+    // Split keywords by spaces and filter empty strings
+    const keywords = keyword
+      .trim()
+      .split(/\s+/)
+      .filter((k) => k.length > 0);
+
+    // Build dynamic WHERE conditions for job titles
+    const jobTitleConditions = keywords.map((_, index) => `jt.job_name LIKE @searchPattern${index}`).join(" OR ");
 
     // Query for job titles with mentor counts
     const jobTitlesQuery = `
@@ -446,7 +500,7 @@ export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promi
         COUNT(DISTINCT wf.mentor_id) as mentor_count
       FROM job_title jt
       LEFT JOIN work_for wf ON jt.job_title_id = wf.current_job_title_id
-      WHERE jt.job_name LIKE @searchPattern
+      WHERE ${jobTitleConditions}
       GROUP BY jt.job_title_id, jt.job_name
     `;
 
@@ -459,7 +513,9 @@ export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promi
     `;
 
     const countRequest = pool.request();
-    countRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      countRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     const countResult = await countRequest.query(countQuery);
     const totalItems = countResult.recordset[0].total;
     const totalPages = Math.ceil(totalItems / limit);
@@ -473,7 +529,9 @@ export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promi
     `;
 
     const mainRequest = pool.request();
-    mainRequest.input("searchPattern", sql.NVarChar, searchPattern);
+    keywords.forEach((kw, index) => {
+      mainRequest.input(`searchPattern${index}`, sql.NVarChar, `%${kw}%`);
+    });
     mainRequest.input("limit", sql.Int, limit);
     mainRequest.input("offset", sql.Int, offset);
     const result = await mainRequest.query(paginatedQuery);
@@ -502,6 +560,7 @@ export const searchJobTitlesService = async (query: SearchJobTitlesQuery): Promi
         },
         searchInfo: {
           keyword,
+          keywords,
         },
       },
     };
