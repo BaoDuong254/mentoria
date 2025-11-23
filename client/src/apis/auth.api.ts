@@ -1,5 +1,12 @@
 import axios from "axios";
-import type { LoginResponse, getMeResponse, logoutResponse, registerMenteeResponse, otpResponse } from "@/types";
+import type {
+  LoginResponse,
+  getMeResponse,
+  logoutResponse,
+  registerMenteeResponse,
+  otpResponse,
+  registerMentorResponse,
+} from "@/types";
 import envConfig from "@/lib/env";
 
 // const BASE_URL = "http://localhost:3000/api/auth";
@@ -52,6 +59,16 @@ export async function registerMentee(
       validateStatus: () => true,
     }
   );
+  return res.data;
+}
+
+//API mentorRegister
+export async function registerMentor(formData: FormData): Promise<registerMentorResponse> {
+  const res = await axios.post<registerMentorResponse>(`${BASE_URL}/mentor-register`, formData, {
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
   return res.data;
 }
 

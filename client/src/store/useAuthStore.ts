@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { login, getMe, logout, registerMentee, verify } from "@/apis/auth.api";
+import { login, getMe, logout, registerMentee, verify, registerMentor } from "@/apis/auth.api";
 import type { AuthState } from "@/types";
 
 export const useAuthStore = create<AuthState>()(
@@ -45,6 +45,17 @@ export const useAuthStore = create<AuthState>()(
 
       registerMentee: async (firstName, lastName, email, password) => {
         const res = await registerMentee(firstName, lastName, email, password);
+
+        if (!res.success) {
+          const errors = res.data?.errors?.join("\n") ?? "Unknown error";
+          throw new Error(errors);
+        }
+
+        return res;
+      },
+
+      registerMentor: async (formData) => {
+        const res = await registerMentor(formData);
 
         if (!res.success) {
           const errors = res.data?.errors?.join("\n") ?? "Unknown error";

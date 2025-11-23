@@ -2,16 +2,14 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, UploadCloud, CheckCircle2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Link, useNavigate } from "react-router-dom";
+import path from "@/constants/path";
 
 function MentorSignup() {
-  interface MentorRegisterResponse {
-    success: boolean;
-    message: string;
-    error?: string;
-  }
-
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
+  const { registerMentor } = useAuthStore();
 
   const [firstName, setFirstName] = useState(user?.first_name ?? "");
   const [lastName, setLastName] = useState(user?.last_name ?? "");
@@ -23,10 +21,13 @@ function MentorSignup() {
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [subscribeUpdates, setSubscribeUpdates] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // no-op; page is fully client interactive
-  }, []);
+    if (user) {
+      void navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   if (loading) return <p>Loading...</p>;
 
@@ -44,8 +45,10 @@ function MentorSignup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError(null);
+
     if (!cvFile) {
-      alert("Please upload your CV (PDF)");
+      setError("Please upload your CV (PDF)");
       return;
     }
 
@@ -57,23 +60,14 @@ function MentorSignup() {
     formData.append("cv", cvFile);
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/mentor-register", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-
-      const data = (await res.json()) as MentorRegisterResponse;
-
-      if (!res.ok) {
-        alert(data.message || "Registration failed");
-        return;
-      }
-
-      alert("Mentor registered successfully! Check your email for OTP verification.");
+      await registerMentor(formData);
+      void navigate("/");
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong. Please try again later.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Registration failed");
+      }
     }
   };
 
@@ -237,6 +231,8 @@ function MentorSignup() {
                   </label>
                 </div>
 
+                {error && <p className='text-red-500'>{error}</p>}
+
                 {/* Checkboxes */}
                 <div className='space-y-2 pt-2 text-xs text-(--text-grey)'>
                   <label className='flex cursor-pointer items-start gap-2'>
@@ -289,9 +285,9 @@ function MentorSignup() {
 
               <p className='mt-5 text-center text-xs text-(--text-grey)'>
                 Already have an account?{" "}
-                <a href='/login' className='text-(--primary) hover:underline'>
+                <Link to={path.LOGIN} className='text-(--primary) hover:underline'>
                   Sign in here
-                </a>
+                </Link>
               </p>
             </div>
           </motion.div>
