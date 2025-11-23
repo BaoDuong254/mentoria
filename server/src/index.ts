@@ -10,6 +10,7 @@ import mentorRoutes from "@/routes/mentor.route";
 import menteeRoutes from "@/routes/mentee.route";
 import userRoutes from "@/routes/user.route";
 import searchRoutes from "@/routes/search.route";
+import catalogRoutes from "@/routes/catalog.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import "@/config/passport";
@@ -55,6 +56,7 @@ app.use("/api/mentors", mentorRoutes);
 app.use("/api/mentees", menteeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
+app.use("/api/catalog", catalogRoutes);
 
 // Health check endpoint
 app.get("/", (_req, res) => {

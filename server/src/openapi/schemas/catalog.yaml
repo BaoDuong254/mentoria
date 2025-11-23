@@ -1,0 +1,71 @@
+SuperCategoryItem:
+  type: object
+  description: A super category with its ID, name, and the count of mentors who have skills in this category or its subcategories
+  properties:
+    category_id:
+      type: integer
+      description: Unique identifier for the category
+      example: 1
+    category_name:
+      type: string
+      description: Name of the super category
+      example: "Technology & Programming"
+    mentor_count:
+      type: integer
+      description: Total number of mentors who have skills in this category or any of its subcategories
+      example: 42
+  required:
+    - category_id
+    - category_name
+    - mentor_count
+
+PaginationInfo:
+  type: object
+  description: Pagination metadata for list responses
+  properties:
+    currentPage:
+      type: integer
+      description: Current page number
+      example: 1
+    totalPages:
+      type: integer
+      description: Total number of pages available
+      example: 5
+    totalItems:
+      type: integer
+      description: Total number of items across all pages
+      example: 42
+    itemsPerPage:
+      type: integer
+      description: Number of items per page
+      example: 10
+    hasNextPage:
+      type: boolean
+      description: Whether there is a next page available
+      example: true
+    hasPreviousPage:
+      type: boolean
+      description: Whether there is a previous page available
+      example: false
+  required:
+    - currentPage
+    - totalPages
+    - totalItems
+    - itemsPerPage
+    - hasNextPage
+    - hasPreviousPage
+
+SuperCategoriesData:
+  type: object
+  description: Data object containing super categories and pagination information
+  properties:
+    categories:
+      type: array
+      description: List of super categories
+      items:
+        $ref: "#/SuperCategoryItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - categories
+    - pagination
