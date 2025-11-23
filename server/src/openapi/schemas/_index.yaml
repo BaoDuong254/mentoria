@@ -59,3 +59,9 @@ SearchMentorListItem:
   $ref: "./search.yaml#/SearchMentorListItem"
 Category:
   $ref: "./search.yaml#/Category"
+
+# Catalog schemas
+SuperCategoryItem:
+  $ref: "./catalog.yaml#/SuperCategoryItem"
+SuperCategoriesData:
+  $ref: "./catalog.yaml#/SuperCategoriesData"

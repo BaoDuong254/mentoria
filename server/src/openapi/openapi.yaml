@@ -29,6 +29,8 @@ tags:
     description: User profile and settings management
   - name: search
     description: Search functionality for mentors and content
+  - name: catalog
+    description: Category catalog and taxonomy management
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -79,6 +81,9 @@ paths:
     $ref: "./paths/search.yaml#/searchCompanies"
   /api/search/jobtitles:
     $ref: "./paths/search.yaml#/searchJobTitles"
+  # Catalog Endpoints
+  /api/catalog/supercategories:
+    $ref: "./paths/catalog.yaml#/supercategories"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
