@@ -13,20 +13,23 @@ const DEFAULT_SKILLS: resultsSkills[] = [
 
 export const useSearchStore = create<SearchMentorState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       //initial state
       skills: [],
+      selectedSkills: [],
+      keywordSkills: "",
       isLoading: false,
 
-      searchSkills: async (keyword, limit) => {
-        if (!keyword || keyword.trim() === "") {
+      searchSkills: async (keywordInput, limit) => {
+        set({ keywordSkills: keywordInput });
+        if (!keywordInput || keywordInput.trim() === "") {
           // Không gọi API, lấy luôn dữ liệu mặc định đắp vào
           set({ skills: DEFAULT_SKILLS, isLoading: false });
           return; // Kết thúc hàm luôn
         }
         set({ isLoading: true });
         try {
-          const res = await searchSkills(keyword, limit);
+          const res = await searchSkills(keywordInput, limit);
           if (!res.success) {
             throw new Error(res.message);
           }
@@ -37,6 +40,21 @@ export const useSearchStore = create<SearchMentorState>()(
         } finally {
           set({ isLoading: false });
         }
+      },
+
+      toggleSkill: (skill) => {
+        const { selectedSkills } = get();
+        const isExist = selectedSkills.find((s) => s.id === skill.id);
+
+        if (isExist) {
+          set({ selectedSkills: selectedSkills.filter((s) => s.id !== skill.id) });
+        } else {
+          set({ selectedSkills: [...selectedSkills, skill] });
+        }
+      },
+
+      resetSearch: () => {
+        set({ keywordSkills: "", skills: DEFAULT_SKILLS, isLoading: false });
       },
     }),
     {

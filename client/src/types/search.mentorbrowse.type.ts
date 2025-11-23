@@ -1,9 +1,13 @@
 export interface SearchMentorState {
   //state
   skills: resultsSkills[];
+  selectedSkills: resultsSkills[];
+  keywordSkills: string;
   isLoading: boolean;
   //actions
   searchSkills: (keyword: string, limit: number) => Promise<void>;
+  toggleSkill: (skill: resultsSkills) => void;
+  resetSearch: () => void;
 }
 
 export interface pagination {
