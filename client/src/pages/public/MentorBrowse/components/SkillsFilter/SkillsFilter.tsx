@@ -5,7 +5,8 @@ import type { SearchBoxItem } from "../SearchBox/SearchBox";
 import type { resultsSkills } from "@/types";
 
 export default function SkillsFilter() {
-  const { skills, isLoading, selectedSkills, keywordSkills, toggleSkill, resetSearch, searchSkills } = useSearchStore();
+  const { skills, isLoading, selectedSkills, keywordSkills, toggleSkill, resetSkillSearch, searchSkills } =
+    useSearchStore();
   useEffect(() => {
     void searchSkills("", 5);
   }, [searchSkills]);
@@ -24,7 +25,7 @@ export default function SkillsFilter() {
     });
 
     if (keywordSkills.length > 0) {
-      resetSearch();
+      resetSkillSearch();
     }
   };
   const displayItems = useMemo(() => {

@@ -2,14 +2,18 @@ import Filter from "./components/Filter";
 import Card from "./components/Card";
 import { Search } from "lucide-react";
 import SkillsFilter from "./components/SkillsFilter";
+import JobTitlesFilter from "./components/JobTitlesFilter";
+import CompaniesFilter from "./components/CompaniesFilter";
 function MentorBrowse() {
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary)'>
         <div className='my-20 flex w-10/12 justify-between text-white'>
           {/* Search Box */}
-          <div className='flex w-1/4 flex-col'>
+          <div className='flex w-1/4 flex-col gap-10'>
             <SkillsFilter />
+            <JobTitlesFilter />
+            <CompaniesFilter />
           </div>
           {/* The right side */}
           <div className='flex w-3/4 flex-col'>
