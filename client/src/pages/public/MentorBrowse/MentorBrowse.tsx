@@ -1,7 +1,7 @@
-import SearchBox from "./components/SearchBox";
 import Filter from "./components/Filter";
 import Card from "./components/Card";
 import { Search } from "lucide-react";
+import SkillsFilter from "./components/SkillsFilter";
 function MentorBrowse() {
   return (
     <>
@@ -9,7 +9,7 @@ function MentorBrowse() {
         <div className='my-20 flex w-10/12 justify-between text-white'>
           {/* Search Box */}
           <div className='flex w-1/4 flex-col'>
-            <SearchBox />
+            <SkillsFilter />
           </div>
           {/* The right side */}
           <div className='flex w-3/4 flex-col'>
