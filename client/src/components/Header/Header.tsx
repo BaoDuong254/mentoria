@@ -24,14 +24,33 @@ export default function Header() {
           <nav className='hidden justify-center space-x-8 text-base md:flex'>
             {user?.role === "Mentor" ? (
               <>
-                <Link to={path.HOME}>Home</Link>
-                <Link to={`${path.MENTOR}/${path.MENTOR_DASHBOARD}`}>Dashboard</Link>
+                <Link to={path.HOME} className='cursor-pointer transition hover:underline hover:decoration-white'>
+                  Home
+                </Link>
+                <Link
+                  to={`${path.MENTOR}/${path.MENTOR_DASHBOARD}`}
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  Dashboard
+                </Link>
               </>
             ) : (
               <>
-                <Link to={path.HOME}>Home</Link>
-                <Link to={path.MENTOR_BROWSE}>Browse Mentor</Link>
-                <Link to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}>Dashboard</Link>
+                <Link to={path.HOME} className='cursor-pointer transition hover:underline hover:decoration-white'>
+                  Home
+                </Link>
+                <Link
+                  to={path.MENTOR_BROWSE}
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  Browse Mentor
+                </Link>
+                <Link
+                  to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  Dashboard
+                </Link>
               </>
             )}
           </nav>
@@ -46,10 +65,14 @@ export default function Header() {
             {!user ? (
               <>
                 <Link to={path.LOGIN}>
-                  <button className='rounded-full bg-(--dark-grey) px-4 py-2'>Login</button>
+                  <button className='cursor-pointer rounded-full bg-(--dark-grey) px-4 py-2 transition duration-200 hover:scale-[1.03] hover:brightness-110'>
+                    Login
+                  </button>
                 </Link>
                 <Link to={path.REGISTER_MENTEE}>
-                  <button className='rounded-full bg-(--primary) px-5 py-2'>Register</button>
+                  <button className='cursor-pointer rounded-full bg-(--primary) px-5 py-2 transition duration-200 hover:scale-[1.03] hover:brightness-110'>
+                    Register
+                  </button>
                 </Link>
               </>
             ) : (
