@@ -1828,6 +1828,109 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/catalog/jobtitles:
+    get:
+      tags:
+        - catalog
+      summary: Get job titles
+      description: |-
+        Retrieve a paginated list of job titles with mentor counts.
+        Each job title includes the total number of mentors who hold that job title.
+        Results are ordered by mentor count (descending) and then by job title name (ascending).
+      operationId: getJobTitles
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          description: "Number of items per page (default 10, max 100)"
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        "200":
+          description: Job titles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Found 30 job titles
+                  data:
+                    type: object
+                    description: Data object containing job titles and pagination information
+                    properties:
+                      jobTitles:
+                        type: array
+                        description: List of job titles
+                        items:
+                          type: object
+                          description: "A job title with its ID, name, and the count of mentors who hold this job title"
+                          properties:
+                            job_title_id:
+                              type: integer
+                              description: Unique identifier for the job title
+                              example: 8
+                            job_title_name:
+                              type: string
+                              description: Name of the job title
+                              example: Senior Software Engineer
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who hold this job title
+                              example: 12
+                          required:
+                            - job_title_id
+                            - job_title_name
+                            - mentor_count
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - jobTitles
+                      - pagination
+        "400":
+          description: Invalid query parameters or validation errors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                invalidPage:
+                  value:
+                    success: false
+                    message: Page must be a positive integer
+                    errors:
+                      - message: Page must be a positive integer
+                        path:
+                          - page
+                invalidLimit:
+                  value:
+                    success: false
+                    message: Limit must be between 1 and 100
+                    errors:
+                      - message: Limit must be between 1 and 100
+                        path:
+                          - limit
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:

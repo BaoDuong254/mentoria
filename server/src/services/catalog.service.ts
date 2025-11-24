@@ -9,6 +9,9 @@ import {
   CompaniesQuery,
   CompaniesResponse,
   CompanyItem,
+  JobTitlesQuery,
+  JobTitlesResponse,
+  JobTitleItem,
 } from "@/types/catalog.type";
 import poolPromise from "@/config/database";
 
@@ -245,6 +248,79 @@ export const getCompaniesService = async (query: CompaniesQuery): Promise<Compan
     };
   } catch (error) {
     console.error("Error in getCompaniesService:", error);
+    throw error;
+  }
+};
+
+export const getJobTitlesService = async (query: JobTitlesQuery): Promise<JobTitlesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Query for job titles with mentor counts
+    const jobTitlesQuery = `
+      SELECT
+        jt.job_title_id,
+        jt.job_name as job_title_name,
+        COUNT(DISTINCT wf.mentor_id) as mentor_count
+      FROM job_title jt
+      LEFT JOIN work_for wf ON jt.job_title_id = wf.current_job_title_id
+      GROUP BY jt.job_title_id, jt.job_name
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${jobTitlesQuery}
+      ) AS CountResult
+    `;
+
+    const countResult = await pool.request().query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${jobTitlesQuery}
+      ORDER BY mentor_count DESC, jt.job_name ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const jobTitles: JobTitleItem[] = result.recordset.map((row) => ({
+      job_title_id: row.job_title_id,
+      job_title_name: row.job_title_name,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message: totalItems > 0 ? `Found ${totalItems} job title${totalItems !== 1 ? "s" : ""}` : "No job titles found",
+      data: {
+        jobTitles,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getJobTitlesService:", error);
     throw error;
   }
 };
