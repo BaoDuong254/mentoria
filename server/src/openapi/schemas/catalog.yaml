@@ -129,3 +129,39 @@ SkillsData:
   required:
     - skills
     - pagination
+
+CompanyItem:
+  type: object
+  description: A company with its ID, name, and the count of mentors who work for this company
+  properties:
+    company_id:
+      type: integer
+      description: Unique identifier for the company
+      example: 10
+    company_name:
+      type: string
+      description: Name of the company
+      example: "Google"
+    mentor_count:
+      type: integer
+      description: Total number of mentors who work for this company
+      example: 15
+  required:
+    - company_id
+    - company_name
+    - mentor_count
+
+CompaniesData:
+  type: object
+  description: Data object containing companies and pagination information
+  properties:
+    companies:
+      type: array
+      description: List of companies
+      items:
+        $ref: "#/CompanyItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - companies
+    - pagination

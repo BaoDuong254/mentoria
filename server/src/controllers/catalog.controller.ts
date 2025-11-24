@@ -1,6 +1,6 @@
-import { getSuperCategoriesService, getSkillsService } from "@/services/catalog.service";
-import { SuperCategoriesQuery, SkillsQuery } from "@/types/catalog.type";
-import { SuperCategoriesSchema, SkillsSchema } from "@/validation/catalog.schema";
+import { getSuperCategoriesService, getSkillsService, getCompaniesService } from "@/services/catalog.service";
+import { SuperCategoriesQuery, SkillsQuery, CompaniesQuery } from "@/types/catalog.type";
+import { SuperCategoriesSchema, SkillsSchema, CompaniesSchema } from "@/validation/catalog.schema";
 import { Request, Response } from "express";
 import { ZodError } from "zod";
 
@@ -69,6 +69,42 @@ export const getSkills = async (req: Request, res: Response) => {
     }
 
     console.error("Error in getSkills controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCompanies = async (req: Request, res: Response) => {
+  try {
+    const validatedQuery = CompaniesSchema.parse(req.query);
+
+    // Build query object
+    const query: CompaniesQuery = {
+      ...(validatedQuery.page !== undefined && { page: validatedQuery.page }),
+      ...(validatedQuery.limit !== undefined && { limit: validatedQuery.limit }),
+    };
+
+    const result = await getCompaniesService(query);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof ZodError) {
+      const zodError = error as ZodError;
+      return res.status(400).json({
+        success: false,
+        message: zodError.issues[0]?.message || "Invalid query parameters",
+        errors: zodError.issues,
+      });
+    }
+
+    console.error("Error in getCompanies controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

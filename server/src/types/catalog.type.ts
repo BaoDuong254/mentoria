@@ -52,3 +52,24 @@ export interface SkillsResponse {
     pagination: PaginationInfo;
   };
 }
+
+// Companies query (pagination only, no keyword search)
+export interface CompaniesQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface CompanyItem {
+  company_id: number;
+  company_name: string;
+  mentor_count: number;
+}
+
+export interface CompaniesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    companies: CompanyItem[];
+    pagination: PaginationInfo;
+  };
+}
