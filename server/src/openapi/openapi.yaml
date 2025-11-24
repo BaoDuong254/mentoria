@@ -94,6 +94,9 @@ paths:
     $ref: "./paths/catalog.yaml#/countries"
   /api/catalog/languages:
     $ref: "./paths/catalog.yaml#/languages"
+  # Filter Endpoints
+  /api/filter/mentors:
+    $ref: "./paths/filter.yaml#/filterMentors"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
