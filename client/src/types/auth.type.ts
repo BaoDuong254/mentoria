@@ -17,6 +17,7 @@ export interface AuthState {
     email: string,
     password: string
   ) => Promise<registerMenteeResponse>;
+  registerMentor: (formData: FormData) => Promise<registerMentorResponse>;
   verify: (otp: string) => Promise<otpResponse>;
   //adding more feature soon...
 }
@@ -35,6 +36,20 @@ export interface logoutResponse {
 }
 
 export interface registerMenteeResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    errors?: string[];
+    oldData?: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      password?: string;
+    };
+  };
+}
+
+export interface registerMentorResponse {
   success: boolean;
   message: string;
   data?: {
