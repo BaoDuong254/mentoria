@@ -12,6 +12,9 @@ import {
   JobTitlesQuery,
   JobTitlesResponse,
   JobTitleItem,
+  CountriesQuery,
+  CountriesResponse,
+  CountryItem,
 } from "@/types/catalog.type";
 import poolPromise from "@/config/database";
 
@@ -321,6 +324,78 @@ export const getJobTitlesService = async (query: JobTitlesQuery): Promise<JobTit
     };
   } catch (error) {
     console.error("Error in getJobTitlesService:", error);
+    throw error;
+  }
+};
+
+export const getCountriesService = async (query: CountriesQuery): Promise<CountriesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Query for countries with mentor counts
+    const countriesQuery = `
+      SELECT
+        u.country,
+        COUNT(DISTINCT m.user_id) as mentor_count
+      FROM users u
+      INNER JOIN mentors m ON u.user_id = m.user_id
+      WHERE u.country IS NOT NULL
+      GROUP BY u.country
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${countriesQuery}
+      ) AS CountResult
+    `;
+
+    const countResult = await pool.request().query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${countriesQuery}
+      ORDER BY mentor_count DESC, u.country ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const countries: CountryItem[] = result.recordset.map((row) => ({
+      country: row.country,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message: totalItems > 0 ? `Found ${totalItems} countr${totalItems !== 1 ? "ies" : "y"}` : "No countries found",
+      data: {
+        countries,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getCountriesService:", error);
     throw error;
   }
 };
