@@ -73,3 +73,24 @@ export interface CompaniesResponse {
     pagination: PaginationInfo;
   };
 }
+
+// Job Titles query (pagination only, no keyword search)
+export interface JobTitlesQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface JobTitleItem {
+  job_title_id: number;
+  job_title_name: string;
+  mentor_count: number;
+}
+
+export interface JobTitlesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    jobTitles: JobTitleItem[];
+    pagination: PaginationInfo;
+  };
+}

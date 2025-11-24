@@ -1,6 +1,11 @@
-import { getSuperCategoriesService, getSkillsService, getCompaniesService } from "@/services/catalog.service";
-import { SuperCategoriesQuery, SkillsQuery, CompaniesQuery } from "@/types/catalog.type";
-import { SuperCategoriesSchema, SkillsSchema, CompaniesSchema } from "@/validation/catalog.schema";
+import {
+  getSuperCategoriesService,
+  getSkillsService,
+  getCompaniesService,
+  getJobTitlesService,
+} from "@/services/catalog.service";
+import { SuperCategoriesQuery, SkillsQuery, CompaniesQuery, JobTitlesQuery } from "@/types/catalog.type";
+import { SuperCategoriesSchema, SkillsSchema, CompaniesSchema, JobTitlesSchema } from "@/validation/catalog.schema";
 import { Request, Response } from "express";
 import { ZodError } from "zod";
 
@@ -105,6 +110,42 @@ export const getCompanies = async (req: Request, res: Response) => {
     }
 
     console.error("Error in getCompanies controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getJobTitles = async (req: Request, res: Response) => {
+  try {
+    const validatedQuery = JobTitlesSchema.parse(req.query);
+
+    // Build query object
+    const query: JobTitlesQuery = {
+      ...(validatedQuery.page !== undefined && { page: validatedQuery.page }),
+      ...(validatedQuery.limit !== undefined && { limit: validatedQuery.limit }),
+    };
+
+    const result = await getJobTitlesService(query);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof ZodError) {
+      const zodError = error as ZodError;
+      return res.status(400).json({
+        success: false,
+        message: zodError.issues[0]?.message || "Invalid query parameters",
+        errors: zodError.issues,
+      });
+    }
+
+    console.error("Error in getJobTitles controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
