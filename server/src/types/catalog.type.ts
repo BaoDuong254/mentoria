@@ -114,3 +114,23 @@ export interface CountriesResponse {
     pagination: PaginationInfo;
   };
 }
+
+// Languages query (pagination only, no keyword search)
+export interface LanguagesQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface LanguageItem {
+  language: string;
+  mentor_count: number;
+}
+
+export interface LanguagesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    languages: LanguageItem[];
+    pagination: PaginationInfo;
+  };
+}
