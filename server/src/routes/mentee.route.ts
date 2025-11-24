@@ -1,8 +1,8 @@
-import { getMenteeProfile, updateMenteeProfile, getMenteesList } from "@/controllers/mentee.controller";
-import { protectRoute } from "@/middlewares/auth.middleware";
-import express, { Router } from "express";
+import { Router } from "express";
+import { getMenteeProfile, updateMenteeProfile, getMenteesList } from "../controllers/mentee.controller";
+import { protectRoute } from "../middlewares/auth.middleware";
 
-const router: Router = express.Router();
+const router: Router = Router();
 
 router.get("/", getMenteesList);
 router.get("/:menteeId", getMenteeProfile);
