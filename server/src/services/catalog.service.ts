@@ -6,6 +6,9 @@ import {
   SkillsQuery,
   SkillsResponse,
   SkillItem,
+  CompaniesQuery,
+  CompaniesResponse,
+  CompanyItem,
 } from "@/types/catalog.type";
 import poolPromise from "@/config/database";
 
@@ -169,6 +172,79 @@ export const getSkillsService = async (query: SkillsQuery): Promise<SkillsRespon
     };
   } catch (error) {
     console.error("Error in getSkillsService:", error);
+    throw error;
+  }
+};
+
+export const getCompaniesService = async (query: CompaniesQuery): Promise<CompaniesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Query for companies with mentor counts
+    const companiesQuery = `
+      SELECT
+        c.company_id,
+        c.cname as company_name,
+        COUNT(DISTINCT wf.mentor_id) as mentor_count
+      FROM companies c
+      LEFT JOIN work_for wf ON c.company_id = wf.c_company_id
+      GROUP BY c.company_id, c.cname
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${companiesQuery}
+      ) AS CountResult
+    `;
+
+    const countResult = await pool.request().query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${companiesQuery}
+      ORDER BY mentor_count DESC, c.cname ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const companies: CompanyItem[] = result.recordset.map((row) => ({
+      company_id: row.company_id,
+      company_name: row.company_name,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message: totalItems > 0 ? `Found ${totalItems} compan${totalItems !== 1 ? "ies" : "y"}` : "No companies found",
+      data: {
+        companies,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getCompaniesService:", error);
     throw error;
   }
 };

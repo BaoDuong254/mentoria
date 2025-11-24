@@ -86,6 +86,8 @@ paths:
     $ref: "./paths/catalog.yaml#/supercategories"
   /api/catalog/skills:
     $ref: "./paths/catalog.yaml#/skills"
+  /api/catalog/companies:
+    $ref: "./paths/catalog.yaml#/companies"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
