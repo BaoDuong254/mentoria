@@ -1,0 +1,144 @@
+filterMentors:
+  get:
+    tags:
+      - filter
+    summary: Filter mentors
+    description: >
+      Filter mentors by skills, companies, job titles, countries, languages,
+      price range, and minimum star rating. All filters are optional and can
+      be combined together.
+    operationId: filterMentors
+    parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number (default 1)
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+
+      - name: limit
+        in: query
+        required: false
+        description: Number of items per page (max 100, default 10)
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+
+      - name: skillIds
+        in: query
+        required: false
+        description: >
+          List of skill IDs to filter by. Accepts comma-separated values,
+          e.g. `1,2,3`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+          example: [1, 2, 3]
+
+      - name: companyIds
+        in: query
+        required: false
+        description: >
+          List of company IDs to filter by. Accepts comma-separated values,
+          e.g. `10,11`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+          example: [10, 11]
+
+      - name: jobTitleIds
+        in: query
+        required: false
+        description: >
+          List of job title IDs to filter by. Accepts comma-separated values,
+          e.g. `5,6`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: integer
+            format: int64
+          example: [5, 6]
+
+      - name: countries
+        in: query
+        required: false
+        description: >
+          List of countries to filter by. Accepts comma-separated values,
+          e.g. `United States,Viet Nam`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+          example: ["Viet Nam", "United States"]
+
+      - name: languages
+        in: query
+        required: false
+        description: >
+          List of languages to filter by. Accepts comma-separated values,
+          e.g. `English,Vietnamese`.
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+          example: ["English", "Vietnamese"]
+
+      - name: minPrice
+        in: query
+        required: false
+        description: Minimum plan price (inclusive)
+        schema:
+          type: number
+          format: float
+          example: 10
+
+      - name: maxPrice
+        in: query
+        required: false
+        description: Maximum plan price (inclusive)
+        schema:
+          type: number
+          format: float
+          example: 100
+
+      - name: minRating
+        in: query
+        required: false
+        description: Minimum average star rating (inclusive)
+        schema:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+          example: 4
+    responses:
+      "200":
+        description: Filtered list of mentors
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/filter.yaml#/FilterMentorsResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"

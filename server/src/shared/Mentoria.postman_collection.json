@@ -265,9 +265,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/api/mentors/13",
+              "raw": "{{host}}/api/mentors/23",
               "host": ["{{host}}"],
-              "path": ["api", "mentors", "13"]
+              "path": ["api", "mentors", "23"]
             }
           },
           "response": []
@@ -313,6 +313,19 @@
                   "value": "5"
                 }
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get a stats of mentor",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/mentors/25/stats",
+              "host": ["{{host}}"],
+              "path": ["api", "mentors", "25", "stats"]
             }
           },
           "response": []
@@ -437,6 +450,256 @@
               "raw": "{{host}}/api/mentees/162",
               "host": ["{{host}}"],
               "path": ["api", "mentees", "162"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module search",
+      "item": [
+        {
+          "name": "Search keywords",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/search/mentors?keyword=google%20senior%20javascript&page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "search", "mentors"],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "google%20senior%20javascript"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search skills",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/search/skills?keyword=javascript",
+              "host": ["{{host}}"],
+              "path": ["api", "search", "skills"],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "javascript"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search companies",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/search/companies?keyword=google",
+              "host": ["{{host}}"],
+              "path": ["api", "search", "companies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "disabled": true
+                },
+                {
+                  "key": "keyword",
+                  "value": "google"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search job titles",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/search/jobtitles?keyword=software%20engineer",
+              "host": ["{{host}}"],
+              "path": ["api", "search", "jobtitles"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "disabled": true
+                },
+                {
+                  "key": "keyword",
+                  "value": "software%20engineer"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module catalog",
+      "item": [
+        {
+          "name": "Get categories list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/catalog/supercategories?page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "catalog", "supercategories"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get skills list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/catalog/skills?page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "catalog", "skills"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "module filter",
+      "item": [
+        {
+          "name": "Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/filter/mentors?page=1&limit=5",
+              "host": ["{{host}}"],
+              "path": ["api", "filter", "mentors"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "skillIds",
+                  "value": "116",
+                  "disabled": true
+                },
+                {
+                  "key": "companyIds",
+                  "value": "29",
+                  "disabled": true
+                },
+                {
+                  "key": "jobTitleIds",
+                  "value": "33",
+                  "disabled": true
+                },
+                {
+                  "key": "countries",
+                  "value": "South Korea",
+                  "disabled": true
+                },
+                {
+                  "key": "languages",
+                  "value": "English",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "70",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100",
+                  "disabled": true
+                },
+                {
+                  "key": "minRating",
+                  "value": "5",
+                  "disabled": true
+                }
+              ]
             }
           },
           "response": []

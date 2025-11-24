@@ -1,0 +1,32 @@
+FilterMentorsData:
+  type: object
+  description: Data payload for filtered mentors list
+  properties:
+    mentors:
+      type: array
+      description: List of mentors matching the filter criteria
+      items:
+        $ref: "./mentor.yaml#/MentorListItem"
+    pagination:
+      description: Pagination information for the result set
+      $ref: "./mentor.yaml#/PaginationInfo"
+  required:
+    - mentors
+    - pagination
+
+FilterMentorsResponse:
+  type: object
+  description: Response object for mentors filter API
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Found 3 mentor(s)"
+    data:
+      $ref: "#/FilterMentorsData"
+  required:
+    - success
+    - message
+    - data

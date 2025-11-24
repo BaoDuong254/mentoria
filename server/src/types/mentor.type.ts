@@ -105,3 +105,31 @@ export interface MentorStatsResponse {
   total_stars: number;
   average_rating: number | null;
 }
+
+export interface FilterMentorsQuery extends GetMentorsQuery {
+  skillIds?: number[];
+  companyIds?: number[];
+  jobTitleIds?: number[];
+  countries?: string[];
+  languages?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+}
+
+// Nếu muốn, có thể thêm type response:
+export interface FilterMentorsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    mentors: MentorListItem[];
+    pagination: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  };
+}

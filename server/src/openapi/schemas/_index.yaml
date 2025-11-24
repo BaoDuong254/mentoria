@@ -65,3 +65,8 @@ SuperCategoryItem:
   $ref: "./catalog.yaml#/SuperCategoryItem"
 SuperCategoriesData:
   $ref: "./catalog.yaml#/SuperCategoriesData"
+# Filter schemas
+FilterMentorsData:
+  $ref: "./filter.yaml#/FilterMentorsData"
+FilterMentorsResponse:
+  $ref: "./filter.yaml#/FilterMentorsResponse"
