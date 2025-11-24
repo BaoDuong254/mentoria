@@ -94,3 +94,23 @@ export interface JobTitlesResponse {
     pagination: PaginationInfo;
   };
 }
+
+// Countries query (pagination only, no keyword search)
+export interface CountriesQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface CountryItem {
+  country: string;
+  mentor_count: number;
+}
+
+export interface CountriesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    countries: CountryItem[];
+    pagination: PaginationInfo;
+  };
+}

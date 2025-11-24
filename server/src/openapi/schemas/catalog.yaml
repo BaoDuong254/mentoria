@@ -201,3 +201,34 @@ JobTitlesData:
   required:
     - jobTitles
     - pagination
+
+CountryItem:
+  type: object
+  description: A country with the count of mentors from that country
+  properties:
+    country:
+      type: string
+      description: Name of the country
+      example: "United States"
+    mentor_count:
+      type: integer
+      description: Total number of mentors from this country
+      example: 18
+  required:
+    - country
+    - mentor_count
+
+CountriesData:
+  type: object
+  description: Data object containing countries and pagination information
+  properties:
+    countries:
+      type: array
+      description: List of countries
+      items:
+        $ref: "#/CountryItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - countries
+    - pagination

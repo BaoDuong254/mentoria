@@ -3,9 +3,22 @@ import {
   getSkillsService,
   getCompaniesService,
   getJobTitlesService,
+  getCountriesService,
 } from "@/services/catalog.service";
-import { SuperCategoriesQuery, SkillsQuery, CompaniesQuery, JobTitlesQuery } from "@/types/catalog.type";
-import { SuperCategoriesSchema, SkillsSchema, CompaniesSchema, JobTitlesSchema } from "@/validation/catalog.schema";
+import {
+  SuperCategoriesQuery,
+  SkillsQuery,
+  CompaniesQuery,
+  JobTitlesQuery,
+  CountriesQuery,
+} from "@/types/catalog.type";
+import {
+  SuperCategoriesSchema,
+  SkillsSchema,
+  CompaniesSchema,
+  JobTitlesSchema,
+  CountriesSchema,
+} from "@/validation/catalog.schema";
 import { Request, Response } from "express";
 import { ZodError } from "zod";
 
@@ -146,6 +159,42 @@ export const getJobTitles = async (req: Request, res: Response) => {
     }
 
     console.error("Error in getJobTitles controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCountries = async (req: Request, res: Response) => {
+  try {
+    const validatedQuery = CountriesSchema.parse(req.query);
+
+    // Build query object
+    const query: CountriesQuery = {
+      ...(validatedQuery.page !== undefined && { page: validatedQuery.page }),
+      ...(validatedQuery.limit !== undefined && { limit: validatedQuery.limit }),
+    };
+
+    const result = await getCountriesService(query);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof ZodError) {
+      const zodError = error as ZodError;
+      return res.status(400).json({
+        success: false,
+        message: zodError.issues[0]?.message || "Invalid query parameters",
+        errors: zodError.issues,
+      });
+    }
+
+    console.error("Error in getCountries controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

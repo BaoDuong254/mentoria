@@ -90,6 +90,8 @@ paths:
     $ref: "./paths/catalog.yaml#/companies"
   /api/catalog/jobtitles:
     $ref: "./paths/catalog.yaml#/jobtitles"
+  /api/catalog/countries:
+    $ref: "./paths/catalog.yaml#/countries"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
