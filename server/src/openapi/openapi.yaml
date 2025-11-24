@@ -92,6 +92,8 @@ paths:
     $ref: "./paths/catalog.yaml#/jobtitles"
   /api/catalog/countries:
     $ref: "./paths/catalog.yaml#/countries"
+  /api/catalog/languages:
+    $ref: "./paths/catalog.yaml#/languages"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

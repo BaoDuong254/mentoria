@@ -4,6 +4,7 @@ import {
   getCompaniesService,
   getJobTitlesService,
   getCountriesService,
+  getLanguagesService,
 } from "@/services/catalog.service";
 import {
   SuperCategoriesQuery,
@@ -11,6 +12,7 @@ import {
   CompaniesQuery,
   JobTitlesQuery,
   CountriesQuery,
+  LanguagesQuery,
 } from "@/types/catalog.type";
 import {
   SuperCategoriesSchema,
@@ -18,6 +20,7 @@ import {
   CompaniesSchema,
   JobTitlesSchema,
   CountriesSchema,
+  LanguagesSchema,
 } from "@/validation/catalog.schema";
 import { Request, Response } from "express";
 import { ZodError } from "zod";
@@ -195,6 +198,42 @@ export const getCountries = async (req: Request, res: Response) => {
     }
 
     console.error("Error in getCountries controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getLanguages = async (req: Request, res: Response) => {
+  try {
+    const validatedQuery = LanguagesSchema.parse(req.query);
+
+    // Build query object
+    const query: LanguagesQuery = {
+      ...(validatedQuery.page !== undefined && { page: validatedQuery.page }),
+      ...(validatedQuery.limit !== undefined && { limit: validatedQuery.limit }),
+    };
+
+    const result = await getLanguagesService(query);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof ZodError) {
+      const zodError = error as ZodError;
+      return res.status(400).json({
+        success: false,
+        message: zodError.issues[0]?.message || "Invalid query parameters",
+        errors: zodError.issues,
+      });
+    }
+
+    console.error("Error in getLanguages controller:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

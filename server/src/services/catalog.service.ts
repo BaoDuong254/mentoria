@@ -15,6 +15,9 @@ import {
   CountriesQuery,
   CountriesResponse,
   CountryItem,
+  LanguagesQuery,
+  LanguagesResponse,
+  LanguageItem,
 } from "@/types/catalog.type";
 import poolPromise from "@/config/database";
 
@@ -396,6 +399,76 @@ export const getCountriesService = async (query: CountriesQuery): Promise<Countr
     };
   } catch (error) {
     console.error("Error in getCountriesService:", error);
+    throw error;
+  }
+};
+
+export const getLanguagesService = async (query: LanguagesQuery): Promise<LanguagesResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Set pagination defaults
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const offset = (page - 1) * limit;
+
+    // Query for languages with mentor counts
+    const languagesQuery = `
+      SELECT
+        ml.mentor_language as language,
+        COUNT(DISTINCT ml.mentor_id) as mentor_count
+      FROM mentor_languages ml
+      GROUP BY ml.mentor_language
+    `;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM (
+        ${languagesQuery}
+      ) AS CountResult
+    `;
+
+    const countResult = await pool.request().query(countQuery);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const paginatedQuery = `
+      ${languagesQuery}
+      ORDER BY mentor_count DESC, ml.mentor_language ASC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+
+    const mainRequest = pool.request();
+    mainRequest.input("limit", sql.Int, limit);
+    mainRequest.input("offset", sql.Int, offset);
+    const result = await mainRequest.query(paginatedQuery);
+
+    const languages: LanguageItem[] = result.recordset.map((row) => ({
+      language: row.language,
+      mentor_count: row.mentor_count,
+    }));
+
+    return {
+      success: true,
+      message: totalItems > 0 ? `Found ${totalItems} language${totalItems !== 1 ? "s" : ""}` : "No languages found",
+      data: {
+        languages,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getLanguagesService:", error);
     throw error;
   }
 };

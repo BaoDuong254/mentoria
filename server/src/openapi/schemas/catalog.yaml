@@ -232,3 +232,34 @@ CountriesData:
   required:
     - countries
     - pagination
+
+LanguageItem:
+  type: object
+  description: A language with the count of mentors who speak that language
+  properties:
+    language:
+      type: string
+      description: Name of the language
+      example: "English"
+    mentor_count:
+      type: integer
+      description: Total number of mentors who speak this language
+      example: 25
+  required:
+    - language
+    - mentor_count
+
+LanguagesData:
+  type: object
+  description: Data object containing languages and pagination information
+  properties:
+    languages:
+      type: array
+      description: List of languages
+      items:
+        $ref: "#/LanguageItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - languages
+    - pagination
