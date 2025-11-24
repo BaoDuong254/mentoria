@@ -7,11 +7,20 @@ export interface PaginationInfo {
   hasPreviousPage: boolean;
 }
 
-// Super categories query (pagination only, no keyword search)
-export interface SuperCategoriesQuery {
+// Reusable base interfaces
+export interface PaginationQuery {
   page?: number;
   limit?: number;
 }
+
+export interface BaseResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T & { pagination: PaginationInfo };
+}
+
+// Super categories
+export type SuperCategoriesQuery = PaginationQuery;
 
 export interface SuperCategoryItem {
   category_id: number;
@@ -19,20 +28,10 @@ export interface SuperCategoryItem {
   mentor_count: number;
 }
 
-export interface SuperCategoriesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    categories: SuperCategoryItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type SuperCategoriesResponse = BaseResponse<{ categories: SuperCategoryItem[] }>;
 
-// Skills query (pagination only, no keyword search)
-export interface SkillsQuery {
-  page?: number;
-  limit?: number;
-}
+// Skills
+export type SkillsQuery = PaginationQuery;
 
 export interface SkillItem {
   skill_id: number;
@@ -44,20 +43,10 @@ export interface SkillItem {
   super_category_name: string | null;
 }
 
-export interface SkillsResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    skills: SkillItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type SkillsResponse = BaseResponse<{ skills: SkillItem[] }>;
 
-// Companies query (pagination only, no keyword search)
-export interface CompaniesQuery {
-  page?: number;
-  limit?: number;
-}
+// Companies
+export type CompaniesQuery = PaginationQuery;
 
 export interface CompanyItem {
   company_id: number;
@@ -65,20 +54,10 @@ export interface CompanyItem {
   mentor_count: number;
 }
 
-export interface CompaniesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    companies: CompanyItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type CompaniesResponse = BaseResponse<{ companies: CompanyItem[] }>;
 
-// Job Titles query (pagination only, no keyword search)
-export interface JobTitlesQuery {
-  page?: number;
-  limit?: number;
-}
+// Job Titles
+export type JobTitlesQuery = PaginationQuery;
 
 export interface JobTitleItem {
   job_title_id: number;
@@ -86,51 +65,24 @@ export interface JobTitleItem {
   mentor_count: number;
 }
 
-export interface JobTitlesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    jobTitles: JobTitleItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type JobTitlesResponse = BaseResponse<{ jobTitles: JobTitleItem[] }>;
 
-// Countries query (pagination only, no keyword search)
-export interface CountriesQuery {
-  page?: number;
-  limit?: number;
-}
+// Countries
+export type CountriesQuery = PaginationQuery;
 
 export interface CountryItem {
   country: string;
   mentor_count: number;
 }
 
-export interface CountriesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    countries: CountryItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type CountriesResponse = BaseResponse<{ countries: CountryItem[] }>;
 
-// Languages query (pagination only, no keyword search)
-export interface LanguagesQuery {
-  page?: number;
-  limit?: number;
-}
+// Languages
+export type LanguagesQuery = PaginationQuery;
 
 export interface LanguageItem {
   language: string;
   mentor_count: number;
 }
 
-export interface LanguagesResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    languages: LanguageItem[];
-    pagination: PaginationInfo;
-  };
-}
+export type LanguagesResponse = BaseResponse<{ languages: LanguageItem[] }>;
