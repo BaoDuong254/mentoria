@@ -1598,6 +1598,133 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/catalog/skills:
+    get:
+      tags:
+        - catalog
+      summary: Get skills
+      description: |-
+        Retrieve a paginated list of skills with mentor counts, category, and supercategory information.
+        Each skill includes the total number of mentors who possess that skill, along with its associated category and supercategory details.
+        Results are ordered by mentor count (descending) and then by skill name (ascending).
+      operationId: getSkills
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number (default 1)
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          required: false
+          description: "Number of items per page (default 10, max 100)"
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        "200":
+          description: Skills retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Found 50 skills
+                  data:
+                    type: object
+                    description: Data object containing skills and pagination information
+                    properties:
+                      skills:
+                        type: array
+                        description: List of skills
+                        items:
+                          type: object
+                          description: "A skill with its ID, name, category information, and the count of mentors who possess this skill"
+                          properties:
+                            skill_id:
+                              type: integer
+                              description: Unique identifier for the skill
+                              example: 5
+                            skill_name:
+                              type: string
+                              description: Name of the skill
+                              example: JavaScript
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who possess this skill
+                              example: 28
+                            category_id:
+                              type: integer
+                              nullable: true
+                              description: Unique identifier for the category this skill belongs to
+                              example: 3
+                            category_name:
+                              type: string
+                              nullable: true
+                              description: Name of the category this skill belongs to
+                              example: Web Development
+                            super_category_id:
+                              type: integer
+                              nullable: true
+                              description: Unique identifier for the super category (parent category)
+                              example: 1
+                            super_category_name:
+                              type: string
+                              nullable: true
+                              description: Name of the super category (parent category)
+                              example: Technology & Programming
+                          required:
+                            - skill_id
+                            - skill_name
+                            - mentor_count
+                            - category_id
+                            - category_name
+                            - super_category_id
+                            - super_category_name
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - skills
+                      - pagination
+        "400":
+          description: Invalid query parameters or validation errors
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                invalidPage:
+                  value:
+                    success: false
+                    message: Page must be a positive integer
+                    errors:
+                      - message: Page must be a positive integer
+                        path:
+                          - page
+                invalidLimit:
+                  value:
+                    success: false
+                    message: Limit must be between 1 and 100
+                    errors:
+                      - message: Limit must be between 1 and 100
+                        path:
+                          - limit
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:
