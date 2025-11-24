@@ -27,3 +27,28 @@ export interface SuperCategoriesResponse {
     pagination: PaginationInfo;
   };
 }
+
+// Skills query (pagination only, no keyword search)
+export interface SkillsQuery {
+  page?: number;
+  limit?: number;
+}
+
+export interface SkillItem {
+  skill_id: number;
+  skill_name: string;
+  mentor_count: number;
+  category_id: number | null;
+  category_name: string | null;
+  super_category_id: number | null;
+  super_category_name: string | null;
+}
+
+export interface SkillsResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    skills: SkillItem[];
+    pagination: PaginationInfo;
+  };
+}

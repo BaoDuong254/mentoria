@@ -69,3 +69,63 @@ SuperCategoriesData:
   required:
     - categories
     - pagination
+
+SkillItem:
+  type: object
+  description: A skill with its ID, name, category information, and the count of mentors who possess this skill
+  properties:
+    skill_id:
+      type: integer
+      description: Unique identifier for the skill
+      example: 5
+    skill_name:
+      type: string
+      description: Name of the skill
+      example: "JavaScript"
+    mentor_count:
+      type: integer
+      description: Total number of mentors who possess this skill
+      example: 28
+    category_id:
+      type: integer
+      nullable: true
+      description: Unique identifier for the category this skill belongs to
+      example: 3
+    category_name:
+      type: string
+      nullable: true
+      description: Name of the category this skill belongs to
+      example: "Web Development"
+    super_category_id:
+      type: integer
+      nullable: true
+      description: Unique identifier for the super category (parent category)
+      example: 1
+    super_category_name:
+      type: string
+      nullable: true
+      description: Name of the super category (parent category)
+      example: "Technology & Programming"
+  required:
+    - skill_id
+    - skill_name
+    - mentor_count
+    - category_id
+    - category_name
+    - super_category_id
+    - super_category_name
+
+SkillsData:
+  type: object
+  description: Data object containing skills and pagination information
+  properties:
+    skills:
+      type: array
+      description: List of skills
+      items:
+        $ref: "#/SkillItem"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - skills
+    - pagination
