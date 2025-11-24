@@ -5,11 +5,11 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
 
-function MentorSignup() {
+function RegisterMentor() {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  // const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
-  const { registerMentor } = useAuthStore();
+  const { user, registerMentor } = useAuthStore();
 
   const [firstName, setFirstName] = useState(user?.first_name ?? "");
   const [lastName, setLastName] = useState(user?.last_name ?? "");
@@ -61,6 +61,7 @@ function MentorSignup() {
 
     try {
       await registerMentor(formData);
+      alert("Mentor registered successfully! Please wait for admin approval.");
       void navigate("/");
     } catch (err) {
       if (err instanceof Error) {
@@ -299,4 +300,4 @@ function MentorSignup() {
   );
 }
 
-export default MentorSignup;
+export default RegisterMentor;
