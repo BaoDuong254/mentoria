@@ -37,45 +37,4 @@ export interface GetMenteesQuery {
   limit?: number;
 }
 
-// Additional helpful domain types that mirror the DB tables related to mentees
-export interface InvoiceItem {
-  invoice_id: number;
-  mentee_id: number;
-  amount: number;
-  paid_time: string;
-}
-
-export type SessionStatus = "Scheduled" | "Completed" | "Cancelled";
-
-export interface SessionItem {
-  plan_id: number;
-  invoice_id: number;
-  mentee_id: number;
-  session_id: number;
-  session_status: SessionStatus;
-  session_location?: string | null;
-  discuss_info?: string | null;
-  start_time: string;
-  session_date: string;
-  mentor_id: number;
-}
-
-export type SentFrom = "Mentor" | "Mentee";
-
-export interface MessageItem {
-  mentee_id: number;
-  mentor_id: number;
-  content: string;
-  sent_time: string;
-  sent_from: SentFrom;
-}
-
-export interface FeedbackItem {
-  mentee_id: number;
-  mentor_id: number;
-  stars: number;
-  content: string;
-  sent_time: string;
-}
-
 export {};
