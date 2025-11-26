@@ -31,6 +31,8 @@ tags:
     description: Search functionality for mentors and content
   - name: catalog
     description: Category catalog and taxonomy management
+  - name: slot
+    description: Mentor availability slots management
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -97,6 +99,11 @@ paths:
   # Filter Endpoints
   /api/filter/mentors:
     $ref: "./paths/filter.yaml#/filterMentors"
+  # Slot Endpoints
+  /api/slots/plans/{planId}:
+    $ref: "./paths/slot.yaml#/slotsList"
+  /api/slots/plans/{planId}/slot:
+    $ref: "./paths/slot.yaml#/slotDetail"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

@@ -1,0 +1,96 @@
+# Request schemas
+CreateSlotRequest:
+  type: object
+  required:
+    - startTime
+    - endTime
+    - date
+  properties:
+    startTime:
+      type: string
+      format: date-time
+      example: "2025-12-01T10:00:00Z"
+      description: "Start time of the slot in ISO 8601 format"
+    endTime:
+      type: string
+      format: date-time
+      example: "2025-12-01T11:00:00Z"
+      description: "End time of the slot in ISO 8601 format"
+    date:
+      type: string
+      format: date
+      example: "2025-12-01"
+      description: "Date of the slot (YYYY-MM-DD or ISO 8601 format)"
+    status:
+      type: string
+      enum: ["Available", "Booked", "Cancelled"]
+      default: "Available"
+      example: "Available"
+      description: "Status of the slot"
+
+UpdateSlotRequest:
+  type: object
+  required:
+    - status
+  properties:
+    status:
+      type: string
+      enum: ["Available", "Booked", "Cancelled"]
+      example: "Booked"
+      description: "Updated status of the slot (only field that can be updated)"
+
+# Response schemas
+SlotsListResponse:
+  type: object
+  properties:
+    slots:
+      type: array
+      items:
+        $ref: "#/SlotWithPlanDetails"
+    pagination:
+      $ref: "../schemas/mentor.yaml#/PaginationInfo"
+
+SlotWithPlanDetails:
+  type: object
+  properties:
+    start_time:
+      type: string
+      format: date-time
+      example: "2025-12-01T10:00:00Z"
+      description: "Start time of the slot"
+    end_time:
+      type: string
+      format: date-time
+      example: "2025-12-01T11:00:00Z"
+      description: "End time of the slot"
+    date:
+      type: string
+      format: date
+      example: "2025-12-01"
+      description: "Date of the slot"
+    mentor_id:
+      type: integer
+      example: 1
+      description: "ID of the mentor who owns this slot"
+    status:
+      type: string
+      enum: ["Available", "Booked", "Cancelled"]
+      example: "Available"
+      description: "Current status of the slot"
+    plan_id:
+      type: integer
+      example: 3
+      description: "ID of the associated mentorship plan"
+    plan_description:
+      type: string
+      example: "1-hour career guidance session"
+      description: "Description of the mentorship plan"
+    plan_charge:
+      type: number
+      format: decimal
+      example: 99.99
+      description: "Cost of the mentorship plan"
+    plan_type:
+      type: string
+      example: "Session"
+      description: "Type of plan (Session or Mentorship)"

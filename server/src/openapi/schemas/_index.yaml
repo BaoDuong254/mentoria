@@ -70,3 +70,13 @@ FilterMentorsData:
   $ref: "./filter.yaml#/FilterMentorsData"
 FilterMentorsResponse:
   $ref: "./filter.yaml#/FilterMentorsResponse"
+
+# Slot schemas
+CreateSlotRequest:
+  $ref: "./slot.yaml#/CreateSlotRequest"
+UpdateSlotRequest:
+  $ref: "./slot.yaml#/UpdateSlotRequest"
+SlotWithPlanDetails:
+  $ref: "./slot.yaml#/SlotWithPlanDetails"
+SlotsListResponse:
+  $ref: "./slot.yaml#/SlotsListResponse"

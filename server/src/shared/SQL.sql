@@ -308,7 +308,7 @@ CREATE TABLE meetings(
     meeting_id INT IDENTITY(1,1) PRIMARY KEY,
     invoice_id INT NOT NULL,
     plan_registerations_id INT NOT NULL,
-    status NVARCHAR(20) CHECK (status IN (N'Scheduled', N'Completed', N'Cancelled')) DEFAULT N'Scheduled',
+    status NVARCHAR(20) CHECK (status IN (N'Pending',N'Scheduled', N'Completed', N'Cancelled')) DEFAULT N'Pending',
     location NVARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,

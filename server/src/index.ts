@@ -12,6 +12,7 @@ import userRoutes from "@/routes/user.route";
 import searchRoutes from "@/routes/search.route";
 import catalogRoutes from "@/routes/catalog.route";
 import filterRoutes from "@/routes/filter.route";
+import slotRoutes from "@/routes/slot.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import "@/config/passport";
@@ -59,6 +60,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/filter", filterRoutes);
+app.use("/api/slots", slotRoutes);
 
 // Health check endpoint
 app.get("/", (_req, res) => {
