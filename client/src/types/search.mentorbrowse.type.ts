@@ -1,3 +1,5 @@
+import type { MentorProfile, pagination } from ".";
+import type { Mentor } from ".";
 export interface SearchMentorState {
   //------------------SKILLS-------------------------
   //state
@@ -31,15 +33,21 @@ export interface SearchMentorState {
   searchCompanies: (keyword: string, limit: number) => Promise<void>;
   toggleCompany: (company: resultsCompanies) => void;
   resetCompanySearch: () => void;
-}
 
-export interface pagination {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+  //-------------------FETCH ALL MENTORS-------------------------
+  mentors: Mentor[];
+  pageMentor: pagination | null;
+  isFetchingMentors: boolean;
+
+  //actions
+  fetchMentors: (page?: number, limit?: number) => Promise<void>;
+
+  //-------------------FETCH MENTOR PROFILE------------------------
+  selectedMentor: MentorProfile | null;
+  isLoadingProfile: boolean;
+
+  //actions
+  fetchMentorById: (id: number | string) => Promise<void>;
 }
 
 export interface searchInfo {

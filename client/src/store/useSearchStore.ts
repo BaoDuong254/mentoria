@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { searchSkills, searchJobTitles, searchCompanies } from "@/apis/search.mentorbrowse.api";
 import type { SearchMentorState, resultsSkills, resultsJobTitles, resultsCompanies } from "@/types";
+import { getMentor, getMentorList } from "@/apis/mentor.api";
 
 const DEFAULT_SKILLS: resultsSkills[] = [
   { id: 101, name: "Python", type: "skill", super_category_id: null, mentor_count: 120 },
@@ -38,6 +39,13 @@ export const useSearchStore = create<SearchMentorState>()(
       companies: [],
       selectedCompanies: [],
       keywordCompanies: "",
+
+      mentors: [],
+      pageMentor: null,
+      isFetchingMentors: false,
+
+      selectedMentor: null,
+      isLoadingProfile: false,
 
       //----------------ACTION SKILLS-------------------
       searchSkills: async (keywordInput, limit) => {
@@ -140,6 +148,43 @@ export const useSearchStore = create<SearchMentorState>()(
       },
 
       resetCompanySearch: () => set({ keywordCompanies: "", companies: DEFAULT_JOBS }),
+
+      //-----------------MENTOR------------------------------
+      fetchMentors: async (page = 1, limit = 10) => {
+        set({ isFetchingMentors: true });
+        try {
+          const res = await getMentorList(page, limit);
+
+          if (res.success) {
+            set({
+              mentors: res.data?.mentors,
+              pageMentor: res.data?.pagination,
+            });
+          }
+        } catch (error) {
+          console.error("Failed to fetch mentors", error);
+          set({ mentors: [] });
+        } finally {
+          set({ isFetchingMentors: false });
+        }
+      },
+
+      fetchMentorById: async (id) => {
+        set({ isLoadingProfile: true });
+        try {
+          const res = await getMentor(id);
+
+          if (res.success) {
+            set({
+              selectedMentor: res.data,
+            });
+          }
+        } catch (error) {
+          console.log("Failed to fetch mentor by id", error);
+        } finally {
+          set({ isLoadingProfile: false });
+        }
+      },
     }),
     {
       name: "search-storage",

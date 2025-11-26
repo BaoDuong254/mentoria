@@ -1,19 +1,48 @@
 import { Star, Users, Clock, Check } from "lucide-react";
-import { FaLinkedinIn, FaTwitter, FaGithub, FaGlobe } from "react-icons/fa";
+import { FaLinkedinIn, FaTwitter, FaGithub, FaGlobe, FaFacebook, FaInstagram } from "react-icons/fa";
 import Review from "./Components/Review";
+import { useParams } from "react-router-dom";
+import { useSearchStore } from "@/store/useSearchStore";
+import { useEffect, useMemo } from "react";
 function MentorProfile() {
-  const skills = [
-    "Machine Learning",
-    "Deep Learning",
-    "Natural Language Processing",
-    "Computer Vision",
-    "Python",
-    "TensorFlow",
-    "PyTorch",
-    "Research",
-  ];
-  const about =
-    "I'm a Senior AI Engineer at Google DeepMind with over 10 years of experience in machine learning and artificial intelligence. I hold a PhD in Computer Science from Stanford University and have published over 50 research papers in top-tier conferences.\r\n My passion lies in making AI accessible and helping the next generation of engineers build impactful AI solutions. I specialize in deep learning, natural language processing, and computer vision, and I love sharing my knowledge through mentorship.";
+  const { id } = useParams();
+  const { selectedMentor, fetchMentorById } = useSearchStore();
+
+  useEffect(() => {
+    if (id) {
+      void fetchMentorById(id);
+    }
+  }, [id, fetchMentorById]);
+
+  const getSocialIcon = (platform: string) => {
+    const p = platform.toLowerCase();
+
+    switch (p) {
+      case "github":
+        return <FaGithub className='h-4 w-4 text-gray-200' />;
+      case "linkedin":
+        return <FaLinkedinIn className='h-4 w-4 text-[#0A66C2]' />;
+      case "twitter":
+      case "x":
+        return <FaTwitter className='h-4 w-4 text-[#1DA1F2]' />;
+      case "website":
+      case "portfolio":
+        return <FaGlobe className='h-4 w-4 text-teal-400' />;
+      case "facebook":
+        return <FaFacebook className='h-4 w-4 text-[#1877F2]' />;
+      case "instagram":
+        return <FaInstagram className='h-4 w-4 text-[#E4405F]' />;
+      default:
+        // Icon mặc định nếu platform lạ
+        return <FaGlobe className='h-4 w-4 text-gray-400' />;
+    }
+  };
+  const featurePlan = useMemo(() => {
+    if (!selectedMentor?.plans) return null;
+
+    return selectedMentor.plans.find((p) => p.benefits && p.benefits.length > 0);
+  }, [selectedMentor]);
+  const displayPlan = featurePlan ?? selectedMentor?.plans[0];
   const review = {
     avt: "https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     name: "Alex Johnson",
@@ -21,7 +50,6 @@ function MentorProfile() {
     review:
       "Sarah's guidance was invaluable in helping me transition from web development to AI. Her practical approach and industry insights made complex concepts easy to understand.",
   };
-  const benefits = ["1-on-1 video call", "Personalized guidance", "Follow-up resources", "Career roadmap"];
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary) py-15'>
@@ -33,46 +61,58 @@ function MentorProfile() {
                 <div className='flex'>
                   {/* Avt */}
                   <div className='flex w-2/12 justify-center'>
-                    <div className='h-20 w-20 rounded-full bg-red-200 ring-3 ring-(--primary)'></div>
+                    <div className='h-20 w-20 rounded-full bg-red-200 ring-3 ring-(--primary)'>
+                      <img
+                        src={selectedMentor?.avatar_url}
+                        alt={`Avt of ${String(selectedMentor?.first_name)}`}
+                        className='rounded-full'
+                      />
+                    </div>
                   </div>
                   {/* Info */}
                   <div className='flex w-10/12 flex-col gap-4'>
-                    <div className='text-2xl font-bold text-white'> Dr. Alex Chen</div>
-                    <span className='text-gray-300'>Senior AI Engineer at Google DeepMind</span>
+                    <div className='text-2xl font-bold text-white'>
+                      {selectedMentor?.sex.toLowerCase() === "male" ? "Dr. " : "Ms. "}
+                      {selectedMentor?.first_name} {selectedMentor?.last_name}
+                    </div>
+                    <span className='text-gray-300'>
+                      {selectedMentor?.companies[0].job_name} at {selectedMentor?.companies[0].company_name}
+                    </span>
                     <span className='text-[-16px] text-gray-400'>
                       10+ years in Machine Learning & AI | PhD in Computer Science | Published 50+ research papers
                     </span>
                     <div className='flex gap-5'>
                       <div className='flex gap-2'>
                         <Star className='h-4 w-4 fill-yellow-400 stroke-yellow-400' />
-                        <span className='font-bold text-white'>4.9</span>
-                        <span className='text-gray-400'>(127 reviews)</span>
+                        <span className='font-bold text-white'>{(selectedMentor?.average_rating ?? 0).toFixed(1)}</span>
+                        <span className='text-gray-400'>({selectedMentor?.total_feedbacks} reviews)</span>
                       </div>
                       <div className='flex gap-2'>
                         <Users className='h-4 w-4 fill-(--green) stroke-(--green)' />
-                        <span className='text-gray-300'>450+ mentees</span>
+                        <span className='text-gray-300'>{selectedMentor?.total_mentees}+ mentees</span>
                       </div>
                       <div className='flex gap-2'>
                         <Clock className='h-4 w-4 rounded-full bg-purple-400 stroke-black' />
-                        <span className='text-gray-300'>Usually responds in 2 hours</span>
+                        <span className='text-gray-300'>
+                          Usually responds {String(selectedMentor?.response_time).toLowerCase()}
+                        </span>
                       </div>
                     </div>
                     <div className='flex gap-3'>
-                      <div className='cursor-pointer rounded-xl bg-[#374151] p-2'>
-                        <FaLinkedinIn className='h-4 w-4 text-[#60A5FA]' />
-                      </div>
-
-                      <div className='cursor-pointer rounded-xl bg-[#374151] p-2'>
-                        <FaTwitter className='h-4 w-4 text-[#60A5FA]' />
-                      </div>
-
-                      <div className='cursor-pointer rounded-xl bg-[#374151] p-2'>
-                        <FaGithub className='h-4 w-4 text-gray-200' />
-                      </div>
-
-                      <div className='cursor-pointer rounded-xl bg-[#374151] p-2'>
-                        <FaGlobe className='h-4 w-4 text-teal-400' />
-                      </div>
+                      {selectedMentor?.social_links && selectedMentor.social_links.length > 0
+                        ? selectedMentor.social_links.map((social, index) => (
+                            <a
+                              href={social.link}
+                              key={index}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              className='cursor-pointer rounded-lg bg-[#374151] p-2 transition-colors hover:bg-gray-600'
+                              title={social.platform}
+                            >
+                              {getSocialIcon(social.platform)}
+                            </a>
+                          ))
+                        : null}
                     </div>
                   </div>
                 </div>
@@ -81,9 +121,12 @@ function MentorProfile() {
               <div className='rounded-xl bg-gray-800 px-7 py-7'>
                 <span className='text-2xl font-bold text-white'>Skills & Expertise</span>
                 <div className='mt-4 flex flex-wrap gap-3 font-normal text-white'>
-                  {skills.map((skill) => (
-                    <span key={skill} className='inline-block rounded-full bg-(--primary) px-2 py-2 whitespace-nowrap'>
-                      {skill}
+                  {selectedMentor?.skills.map((skill) => (
+                    <span
+                      key={skill.skill_id}
+                      className='inline-block rounded-full bg-(--primary) px-4 py-2 whitespace-nowrap'
+                    >
+                      {skill.skill_name}
                     </span>
                   ))}
                 </div>
@@ -91,7 +134,7 @@ function MentorProfile() {
               {/* Third component About */}
               <div className='rounded-xl bg-gray-800 px-7 py-7'>
                 <span className='text-2xl font-bold text-white'>About</span>
-                <div className='mt-4 text-gray-400'>{about}</div>
+                <div className='mt-4 text-gray-400'>{selectedMentor?.bio}</div>
               </div>
               {/* Fourth component Mentee Reviews */}
               <div className='rounded-xl bg-gray-800 px-7 py-7'>
@@ -106,16 +149,21 @@ function MentorProfile() {
             <div className='flex flex-col items-center justify-between gap-7 rounded-xl border border-(--primary) bg-gray-800 py-7'>
               <div className='flex w-full flex-col items-center justify-between gap-2'>
                 <span>
-                  <strong className='text-3xl text-white'>$75</strong>/session
+                  <strong className='text-3xl text-white'>${displayPlan?.plan_charge}</strong>/plan
                 </span>
-                <span>60-minute mentoring session</span>
+                <span className='w-10/12 text-center'>{displayPlan?.plan_description}</span>
               </div>
               <div className='flex w-10/12 flex-col gap-4'>
-                {benefits.map((benefit) => (
-                  <span className='flex gap-3' key={benefit}>
-                    <Check className='h-5 w-5 text-(--green)' /> {benefit}
-                  </span>
-                ))}
+                {displayPlan?.benefits && displayPlan.benefits.length > 0 ? (
+                  displayPlan.benefits.map((benefit, index) => (
+                    <span className='flex items-start gap-3' key={index}>
+                      <Check className='mt-0.5 h-5 w-5 shrink-0 text-(--green)' />
+                      <span>{benefit}</span>
+                    </span>
+                  ))
+                ) : (
+                  <span className='text-center text-sm text-gray-500'>Basic session without extra benefits</span>
+                )}
               </div>
               <button className='flex w-10/12 cursor-pointer items-center justify-center rounded-lg bg-(--primary) py-3 text-white'>
                 Book a Session

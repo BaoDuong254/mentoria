@@ -4,7 +4,14 @@ import { Search } from "lucide-react";
 import SkillsFilter from "./components/SkillsFilter";
 import JobTitlesFilter from "./components/JobTitlesFilter";
 import CompaniesFilter from "./components/CompaniesFilter";
+import { useSearchStore } from "@/store/useSearchStore";
+import { useEffect } from "react";
 function MentorBrowse() {
+  const { mentors, fetchMentors, isFetchingMentors } = useSearchStore();
+
+  useEffect(() => {
+    void fetchMentors(1, 10);
+  }, []);
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary)'>
@@ -48,12 +55,36 @@ function MentorBrowse() {
                 <p className='cursor-pointer text-(--green)'>Reset All</p>
               </div>
               <div>
-                <h2 className='text-2xl font-bold'>1256 Mentors Available for Mentoring</h2>
+                <h2 className='text-2xl font-bold'>{mentors.length} Mentors Available for Mentoring</h2>
               </div>
             </div>
             {/* List of mentor card */}
             <div>
-              <Card />
+              {isFetchingMentors ? (
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div
+                      key={i}
+                      className='h-[380px] w-full animate-pulse rounded-xl border border-gray-800 bg-gray-800/50'
+                    ></div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {mentors.length > 0 ? (
+                    <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                      {mentors.map((mentor) => (
+                        <Card key={mentor.user_id} mentor={mentor} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className='flex h-60 w-full flex-col items-center justify-center rounded-xl border border-gray-800 bg-[--secondary] text-gray-400'>
+                      <p className='text-lg'>No mentors found matching your criteria.</p>
+                      <p className='text-sm'>Try adjusting your filters.</p>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
