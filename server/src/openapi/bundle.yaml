@@ -2612,6 +2612,60 @@ components:
           format: float
           example: 4.8
           description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
+        feedbacks:
+          type: array
+          items:
+            type: object
+            properties:
+              mentee_id:
+                type: integer
+                example: 5
+                description: Unique mentee identifier
+              mentee_first_name:
+                type: string
+                example: Jane
+                description: Mentee's first name
+              mentee_last_name:
+                type: string
+                example: Smith
+                description: Mentee's last name
+              stars:
+                type: integer
+                minimum: 1
+                maximum: 5
+                example: 5
+                description: Star rating given by the mentee (1-5)
+              content:
+                type: string
+                example: Excellent mentor! Very helpful and knowledgeable.
+                description: Feedback content/review text
+              sent_time:
+                type: string
+                format: date-time
+                example: "2025-11-20T14:30:00Z"
+                description: Timestamp when feedback was submitted
+              plan_id:
+                type: integer
+                nullable: true
+                example: 3
+                description: ID of the plan/package the mentee registered for
+              plan_type:
+                type: string
+                nullable: true
+                example: Session
+                description: Type of plan (Session or Mentorship)
+              plan_description:
+                type: string
+                nullable: true
+                example: 1-hour career guidance session
+                description: Description of the mentorship plan
+              plan_charge:
+                type: number
+                nullable: true
+                format: decimal
+                example: 99.99
+                description: Cost of the plan the mentee registered for
+          description: Feedback reviews from mentees with plan information
     MentorStatsResponse:
       type: object
       properties:

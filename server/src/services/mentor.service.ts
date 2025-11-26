@@ -72,6 +72,27 @@ const getMentorProfileService = async (
         WHERE mentor_id = @mentorId
       `);
 
+    // Get feedbacks with mentee information and plan details
+    const feedbacksResult = await pool.request().input("mentorId", mentorId).query(`
+        SELECT
+          f.mentee_id,
+          u.first_name as mentee_first_name,
+          u.last_name as mentee_last_name,
+          f.stars,
+          f.content,
+          f.sent_time,
+          p.plan_id,
+          p.plan_type,
+          p.plan_description,
+          p.plan_charge
+        FROM feedbacks f
+        INNER JOIN users u ON f.mentee_id = u.user_id
+        LEFT JOIN bookings b ON f.mentee_id = b.mentee_id
+        LEFT JOIN plans p ON b.plan_id = p.plan_id AND p.mentor_id = @mentorId
+        WHERE f.mentor_id = @mentorId
+        ORDER BY f.sent_time DESC
+      `);
+
     // Get plans
     const plansResult = await pool.request().input("mentorId", mentorId).query(`
         SELECT plan_id, plan_description, plan_charge, plan_type
@@ -158,6 +179,18 @@ const getMentorProfileService = async (
       total_feedbacks: totalFeedbacks,
       total_stars: totalStars,
       average_rating: averageRating,
+      feedbacks: feedbacksResult.recordset.map((f) => ({
+        mentee_id: f.mentee_id,
+        mentee_first_name: f.mentee_first_name,
+        mentee_last_name: f.mentee_last_name,
+        stars: f.stars,
+        content: f.content,
+        sent_time: f.sent_time,
+        plan_id: f.plan_id,
+        plan_type: f.plan_type,
+        plan_description: f.plan_description,
+        plan_charge: f.plan_charge,
+      })),
     };
 
     return {

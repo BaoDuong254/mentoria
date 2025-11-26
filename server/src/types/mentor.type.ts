@@ -41,6 +41,19 @@ export interface MentorProfile {
   total_feedbacks: number;
   total_stars: number;
   average_rating: number | null;
+  // Feedbacks from mentees
+  feedbacks: Array<{
+    mentee_id: number;
+    mentee_first_name: string;
+    mentee_last_name: string;
+    stars: number;
+    content: string;
+    sent_time: Date;
+    plan_id: number | null;
+    plan_type: string | null;
+    plan_description: string | null;
+    plan_charge: number | null;
+  }>;
 }
 
 export interface UpdateMentorProfileRequest {
