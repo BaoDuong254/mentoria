@@ -1,1126 +1,1223 @@
 {
-  "info": {
-    "_postman_id": "8d57056d-1e34-4250-90f5-6e19e2058be3",
-    "name": "Mentoria",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "41961051",
-    "_collection_link": "https://mentoria-7549.postman.co/workspace/f3a7e870-327a-42de-adaa-8d9badaca01c/collection/41961051-8d57056d-1e34-4250-90f5-6e19e2058be3?action=share&source=collection_link&creator=41961051"
-  },
-  "item": [
-    {
-      "name": "module auth",
-      "item": [
-        {
-          "name": "Register",
-          "id": "b1a3bb27-ec78-422a-9bfa-4d048d04394b",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "firstName",
-                  "value": "duong",
-                  "type": "text"
-                },
-                {
-                  "key": "lastName",
-                  "value": "bao",
-                  "type": "text"
-                },
-                {
-                  "key": "email",
-                  "value": "testss@gmail.com",
-                  "type": "text"
-                },
-                {
-                  "key": "password",
-                  "value": "123456789",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/register",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Verify OTP",
-          "id": "5f12a502-d01c-4c1b-ba0c-2b2592c7b19d",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "otp",
-                  "value": "954635",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/verify-otp",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "verify-otp"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login",
-          "id": "5e93c9a8-9ec4-4280-bf21-23aacc1c7e10",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "email",
-                  "value": "john.doe@example.com",
-                  "type": "text"
-                },
-                {
-                  "key": "password",
-                  "value": "Password123!",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/login",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout",
-          "id": "a692ff6d-a042-42cc-b08c-af4bdce26e3d",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": []
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/logout",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Forgot password",
-          "id": "962e4b03-307a-455b-805a-d2d403cc419b",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "email",
-                  "value": "duonggiabao254@gmail.com",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/forgot-password",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "forgot-password"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Reset password",
-          "id": "a048171d-51dc-4df1-aaae-ad8796230803",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "newPassword",
-                  "value": "123456",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/reset-password/d8857764-8d99-4db6-8fad-041b03cdee0e",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "reset-password",
-                "d8857764-8d99-4db6-8fad-041b03cdee0e"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login with google",
-          "id": "f8aea980-07a0-4c38-9f90-a1b33fb4074b",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/auth/google",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "google"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get me",
-          "id": "19b91f0a-f524-4050-bdab-69278397569e",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/auth/me",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "me"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mentor register",
-          "id": "2620a7ef-1477-4880-929e-e93e4e868fa7",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "firstName",
-                  "value": "bao",
-                  "type": "text"
-                },
-                {
-                  "key": "lastName",
-                  "value": "duong",
-                  "type": "text"
-                },
-                {
-                  "key": "email",
-                  "value": "duonggiabaod251453122@gmail.com",
-                  "type": "text"
-                },
-                {
-                  "key": "password",
-                  "value": "123456789",
-                  "type": "text"
-                },
-                {
-                  "key": "cv",
-                  "type": "file",
-                  "src": "/C:/Users/Admin/Downloads/SE251__ProjectDesc__Tutor_v1 (3) (2).pdf"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/mentor-register",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "mentor-register"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Resend OTP",
-          "id": "2f73d389-ceb4-485e-a32c-a5b514ddadec",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "email",
-                  "value": "test@gmail.com",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/auth/resend-otp",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "resend-otp"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "1abc5501-3b06-47e7-85db-187de37b38ed"
-    },
-    {
-      "name": "module mentors",
-      "item": [
-        {
-          "name": "Mentor profile",
-          "id": "2c9401bb-832a-4b1a-823f-0dab67c34c74",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/mentors/23",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentors",
-                "23"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update mentor profile",
-          "id": "236fa7da-6e49-48bf-8d20-3728003e1dcf",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"firstName\": \"DuongGia\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{host}}/api/mentors/13",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentors",
-                "13"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mentors list",
-          "id": "e8e8dcbc-444b-43ca-a90c-9ff679e8ca57",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/mentors?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentors"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get a stats of mentor",
-          "id": "7aa7e627-8fac-4456-877c-7ac812e9fe79",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/mentors/25/stats",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentors",
-                "25",
-                "stats"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "23e255db-1ade-424b-9e51-c827f7952bbe"
-    },
-    {
-      "name": "module users",
-      "item": [
-        {
-          "name": "Upload avatar",
-          "id": "35c47b0c-fe59-4070-a355-4f4bceb6c2d0",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "avatar",
-                  "type": "file",
-                  "src": []
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/users/avatar",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "avatar"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "change password",
-          "id": "a0566e83-ddcc-49ce-9d0a-69a4fe60cbe2",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "oldPassword",
-                  "value": "123456789",
-                  "type": "text"
-                },
-                {
-                  "key": "newPassword",
-                  "value": "1234567890",
-                  "type": "text"
-                },
-                {
-                  "key": "confirmPassword",
-                  "value": "1234567890",
-                  "type": "text"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{host}}/api/users/change-password",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "users",
-                "change-password"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "26bed888-e7a4-4085-8074-f28496cf3fe4"
-    },
-    {
-      "name": "module mentees",
-      "item": [
-        {
-          "name": "Mentee profile",
-          "id": "de643646-c229-4424-a567-bc2783c1d1ec",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/mentees/162",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentees",
-                "162"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Mentee list",
-          "id": "f0152fc1-ce11-4e03-a138-0186dcb43f65",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/mentees?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentees"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update mentee profile",
-          "id": "e4858c05-d366-474c-9523-a26fd779c4fb",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"goal\": \"Learn React and Node.js to become a full-stack developer\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{host}}/api/mentees/162",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "mentees",
-                "162"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "519c684c-50c6-4bc6-b7e1-8f21266ec016"
-    },
-    {
-      "name": "module search",
-      "item": [
-        {
-          "name": "Search keywords",
-          "id": "971e46ad-2e5b-435a-82ae-9b9080c05681",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/search/mentors?keyword=google%20senior%20javascript&page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "search",
-                "mentors"
-              ],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "google%20senior%20javascript"
-                },
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Search skills",
-          "id": "fa5d0d09-fe5b-4555-8a9e-ff7a4f7855db",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/search/skills?keyword=javascript",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "search",
-                "skills"
-              ],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "javascript"
-                },
-                {
-                  "key": "page",
-                  "value": "1",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "5",
-                  "disabled": true
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Search companies",
-          "id": "6ddf0126-d21b-455e-963d-7916c5125da2",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/search/companies?keyword=google",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "search",
-                "companies"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "5",
-                  "disabled": true
-                },
-                {
-                  "key": "keyword",
-                  "value": "google"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Search job titles",
-          "id": "2216b85d-8f3d-46f9-899a-e00357722a97",
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/search/jobtitles?keyword=software%20engineer",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "search",
-                "jobtitles"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "5",
-                  "disabled": true
-                },
-                {
-                  "key": "keyword",
-                  "value": "software%20engineer"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "53ebc94d-c17c-4187-9496-3380b9eee3ce"
-    },
-    {
-      "name": "module catalog",
-      "item": [
-        {
-          "name": "Get categories list",
-          "id": "a61d6f71-7b9b-43d9-954e-df1680ac56d9",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/supercategories?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "supercategories"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get skills list",
-          "id": "ddc0f799-8ea9-433c-986f-4133293f6060",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/skills?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "skills"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get companies list",
-          "id": "8e8896ee-a7d4-43f3-b8d9-b8632db32f33",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/companies?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "companies"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get job title list",
-          "id": "d2fe1485-c692-4547-b6cc-1a592ce93810",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/jobtitles?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "jobtitles"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get countries list",
-          "id": "77577573-5766-4403-ba6c-02bacca38f1f",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/countries?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "countries"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get languages list",
-          "id": "35f3286d-cbea-4d1c-af80-5502164cdae7",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/catalog/languages?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "catalog",
-                "languages"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "38cb3463-dee9-41c1-b78b-94a389e33cb1"
-    },
-    {
-      "name": "module filter",
-      "item": [
-        {
-          "name": "Filter",
-          "id": "066b7087-4045-44d6-bfb1-c37df41ac2b5",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/filter/mentors?page=1&limit=5",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "filter",
-                "mentors"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "5"
-                },
-                {
-                  "key": "skillIds",
-                  "value": "116",
-                  "disabled": true
-                },
-                {
-                  "key": "companyIds",
-                  "value": "29",
-                  "disabled": true
-                },
-                {
-                  "key": "jobTitleIds",
-                  "value": "33",
-                  "disabled": true
-                },
-                {
-                  "key": "countries",
-                  "value": "South Korea",
-                  "disabled": true
-                },
-                {
-                  "key": "languages",
-                  "value": "English",
-                  "disabled": true
-                },
-                {
-                  "key": "minPrice",
-                  "value": "70",
-                  "disabled": true
-                },
-                {
-                  "key": "maxPrice",
-                  "value": "100",
-                  "disabled": true
-                },
-                {
-                  "key": "minRating",
-                  "value": "5",
-                  "disabled": true
-                }
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "15756ae7-6ad7-46ef-99f1-4c7c3bfc007c"
-    },
-    {
-      "name": "module slot",
-      "item": [
-        {
-          "name": "Get all slots for a specific plan",
-          "id": "06837d40-1284-4cfb-98da-e5625ec2ff0f",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/slots/plans/35?page=1&limit=10&status=Available",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "slots",
-                "plans",
-                "35"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "10"
-                },
-                {
-                  "key": "status",
-                  "value": "Available"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get a specific slot for a plan",
-          "id": "b48c2124-672f-4d86-b077-7eb4422eef4e",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{host}}/api/slots/plans/35/slot?startTime=2025-11-20T02:00:00.000Z&endTime=2025-11-20T03:00:00.000Z&date=2025-11-20T00:00:00.000Z",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "slots",
-                "plans",
-                "35",
-                "slot"
-              ],
-              "query": [
-                {
-                  "key": "startTime",
-                  "value": "2025-11-20T02:00:00.000Z"
-                },
-                {
-                  "key": "endTime",
-                  "value": "2025-11-20T03:00:00.000Z"
-                },
-                {
-                  "key": "date",
-                  "value": "2025-11-20T00:00:00.000Z"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create a new slot for a specific plan",
-          "id": "cb7bad33-25e8-4c9d-998f-486c109ba967",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"startTime\": \"2025-12-01T10:00:00Z\",\r\n  \"endTime\": \"2025-12-01T11:00:00Z\",\r\n  \"date\": \"2025-12-01\",\r\n  \"status\": \"Available\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{host}}/api/slots/plans/35",
-              "host": [
-                "{{host}}"
-              ],
-              "path": [
-                "api",
-                "slots",
-                "plans",
-                "35"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "id": "afc144d2-d15a-44d1-ae5d-e4dab210d1ae"
-    }
-  ]
+	"info": {
+		"_postman_id": "30d8fb3b-ba85-4177-9d4a-59ffce63c54a",
+		"name": "Mentoria",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41961051",
+		"_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/49766515-30d8fb3b-ba85-4177-9d4a-59ffce63c54a?action=share&source=collection_link&creator=41961051"
+	},
+	"item": [
+		{
+			"name": "module auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "firstName",
+									"value": "duong",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "bao",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "duonggiabao254@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456789",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "otp",
+									"value": "612376",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/verify-otp",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"verify-otp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "duonggiabao254@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456789",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/logout",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "duonggiabao254@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/forgot-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "newPassword",
+									"value": "123456",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/reset-password/d8857764-8d99-4db6-8fad-041b03cdee0e",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"reset-password",
+								"d8857764-8d99-4db6-8fad-041b03cdee0e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login with google",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/auth/google",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"google"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/auth/me",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mentor register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "firstName",
+									"value": "bao",
+									"type": "text"
+								},
+								{
+									"key": "lastName",
+									"value": "duong",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "duonggiabaod251453122@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "123456789",
+									"type": "text"
+								},
+								{
+									"key": "cv",
+									"type": "file",
+									"src": "/C:/Users/Admin/Downloads/SE251__ProjectDesc__Tutor_v1 (3) (2).pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/mentor-register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"mentor-register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "test@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/auth/resend-otp",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"resend-otp"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module mentors",
+			"item": [
+				{
+					"name": "Mentor profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors/23",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"23"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update mentor profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"DuongGia\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/mentors/13",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"13"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mentors list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a stats of mentor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors/25/stats",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"25",
+								"stats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module users",
+			"item": [
+				{
+					"name": "Upload avatar",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/users/avatar",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"avatar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change password",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "oldPassword",
+									"value": "123456789",
+									"type": "text"
+								},
+								{
+									"key": "newPassword",
+									"value": "1234567890",
+									"type": "text"
+								},
+								{
+									"key": "confirmPassword",
+									"value": "1234567890",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/users/change-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module mentees",
+			"item": [
+				{
+					"name": "Mentee profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentees/162",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentees",
+								"162"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mentee list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentees?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentees"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update mentee profile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"goal\": \"Learn React and Node.js to become a full-stack developer\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/mentees/162",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentees",
+								"162"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module search",
+			"item": [
+				{
+					"name": "Search keywords",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/search/mentors?keyword=google%20senior%20javascript&page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"search",
+								"mentors"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "google%20senior%20javascript"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search skills",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/search/skills?keyword=javascript",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"search",
+								"skills"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "javascript"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search companies",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/search/companies?keyword=google",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"search",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "keyword",
+									"value": "google"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search job titles",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/search/jobtitles?keyword=software%20engineer",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"search",
+								"jobtitles"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "5",
+									"disabled": true
+								},
+								{
+									"key": "keyword",
+									"value": "software%20engineer"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module catalog",
+			"item": [
+				{
+					"name": "Get categories list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/supercategories?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"supercategories"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get skills list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/skills?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"skills"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get companies list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/companies?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get job title list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/jobtitles?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"jobtitles"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get countries list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/countries?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"countries"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get languages list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/catalog/languages?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"catalog",
+								"languages"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module filter",
+			"item": [
+				{
+					"name": "Filter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/filter/mentors?page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"filter",
+								"mentors"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "skillIds",
+									"value": "116",
+									"disabled": true
+								},
+								{
+									"key": "companyIds",
+									"value": "29",
+									"disabled": true
+								},
+								{
+									"key": "jobTitleIds",
+									"value": "33",
+									"disabled": true
+								},
+								{
+									"key": "countries",
+									"value": "South Korea",
+									"disabled": true
+								},
+								{
+									"key": "languages",
+									"value": "English",
+									"disabled": true
+								},
+								{
+									"key": "minPrice",
+									"value": "70",
+									"disabled": true
+								},
+								{
+									"key": "maxPrice",
+									"value": "100",
+									"disabled": true
+								},
+								{
+									"key": "minRating",
+									"value": "5",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module slot",
+			"item": [
+				{
+					"name": "Get all slots for a specific plan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/slots/plans/1?page=1&limit=10&status=Available",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"plans",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "Available"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a specific slot for a plan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/slots/plans/1/slot?startTime=2025-11-20T02:00:00.000Z&endTime=2025-11-20T03:00:00.000Z&date=2025-11-20T00:00:00.000Z",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"plans",
+								"1",
+								"slot"
+							],
+							"query": [
+								{
+									"key": "startTime",
+									"value": "2025-11-20T02:00:00.000Z"
+								},
+								{
+									"key": "endTime",
+									"value": "2025-11-20T03:00:00.000Z"
+								},
+								{
+									"key": "date",
+									"value": "2025-11-20T00:00:00.000Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a new slot for a specific plan",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startTime\": \"2025-12-01T10:00:00Z\",\r\n  \"endTime\": \"2025-12-01T11:00:00Z\",\r\n  \"date\": \"2025-12-01\",\r\n  \"status\": \"Available\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/slots/plans/35",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"plans",
+								"35"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module messages",
+			"item": [
+				{
+					"name": "Get Users for Sidebar",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/messages/users",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"users"
+							]
+						},
+						"description": "Lấy danh sách tất cả users (trừ mình) để hiển thị trong sidebar"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Conversations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/messages/conversations",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								"conversations"
+							]
+						},
+						"description": "Lấy danh sách tất cả conversations của user hiện tại"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Messages with User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/messages/:userId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"messages",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "2",
+									"description": "ID của user muốn xem tin nhắn"
+								}
+							]
+						},
+						"description": "Lấy danh sách tin nhắn giữa user hiện tại và user có userId"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"receiver_id\": 2,\n  \"content\": \"Hello, this is a test message!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/messages",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"messages"
+							]
+						},
+						"description": "Gửi tin nhắn mới đến một user"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module payment",
+			"item": [
+				{
+					"name": "Create a Stripe checkout session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"menteeId\": 14,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-11-27T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-11-27T09:00:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"FIXED20\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/pay/checkout-session",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"pay",
+								"checkout-session"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
 }

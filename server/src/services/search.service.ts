@@ -337,7 +337,7 @@ export const searchSkillsService = async (query: SearchSkillsQuery): Promise<Sea
     const result = await mainRequest.query(paginatedQuery);
 
     const results: SkillCategoryItem[] = result.recordset.map((row) => ({
-      skill_id: row.id,
+      id: row.id,
       name: row.name,
       type: row.type as "skill" | "category",
       super_category_id: row.super_category_id,

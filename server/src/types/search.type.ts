@@ -39,7 +39,7 @@ export type SearchJobTitlesQuery = BaseSearchQuery;
 
 // Result item types
 export interface SkillCategoryItem {
-  skill_id: number;
+  id: number;
   name: string;
   type: "skill" | "category";
   super_category_id: number | null;
