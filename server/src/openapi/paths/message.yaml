@@ -1,0 +1,192 @@
+# Messages API endpoints
+
+getUsersForSidebar:
+  get:
+    tags:
+      - messages
+    summary: Get users for sidebar
+    description: |
+      Retrieve a list of all users (excluding current user) for the chat sidebar.
+      Returns basic user information to display conversation list.
+    operationId: getUsersForSidebar
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Users retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: array
+                  items:
+                    $ref: "../schemas/message.yaml#/UserForSidebar"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getConversations:
+  get:
+    tags:
+      - messages
+    summary: Get user conversations
+    description: |
+      Retrieve all conversations for the current user with latest message preview.
+      Each conversation includes the other user's info and the most recent message.
+      Results are ordered by most recent message first.
+    operationId: getConversations
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Conversations retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: array
+                  items:
+                    $ref: "../schemas/message.yaml#/Conversation"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+messagesByUserId:
+  get:
+    tags:
+      - messages
+    summary: Get messages with specific user
+    description: |
+      Retrieve all messages exchanged between the current user and another user.
+      Returns messages in chronological order (oldest first).
+      Used to display full chat history when opening a conversation.
+    operationId: getMessagesByUserId
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        description: ID of the other user in the conversation
+        schema:
+          type: integer
+          example: 2
+    responses:
+      "200":
+        description: Messages retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: array
+                  items:
+                    $ref: "../schemas/message.yaml#/Message"
+      "400":
+        description: Invalid user ID
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+sendMessage:
+  post:
+    tags:
+      - messages
+    summary: Send a message
+    description: |
+      Send a new message to another user. The message is saved to the database
+      and if the receiver is online (connected via Socket.IO), they will receive
+      the message in realtime via the 'newMessage' event.
+
+      **WebSocket Integration:**
+      - When receiver is online: Message delivered instantly via Socket.IO
+      - When receiver is offline: Message stored in DB, delivered when they reconnect
+
+      **Socket.IO Events:**
+      - Emits: `newMessage` event to receiver's socket (if online)
+      - Event payload: Complete message object with sender/receiver info
+    operationId: sendMessage
+    security:
+      - cookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/message.yaml#/SendMessageRequest"
+    responses:
+      "201":
+        description: Message sent successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  $ref: "../schemas/message.yaml#/Message"
+      "400":
+        description: Invalid request - missing receiver_id or content
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
