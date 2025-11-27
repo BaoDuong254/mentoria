@@ -82,7 +82,7 @@ export default function Card({ mentor }: CardProps) {
             </span>
             <button
               onClick={handleViewProfile}
-              className='flex flex-1 items-center justify-center rounded-lg bg-(--primary) text-[18px] text-white'
+              className='flex flex-1 cursor-pointer items-center justify-center rounded-lg bg-(--primary) text-[18px] text-white'
             >
               Book Session
             </button>
