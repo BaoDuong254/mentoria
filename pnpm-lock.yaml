@@ -228,6 +228,9 @@ importers:
       passport-google-oauth20:
         specifier: ^2.0.0
         version: 2.0.0
+      socket.io:
+        specifier: 4.8.1
+        version: 4.8.1
       stripe:
         specifier: 20.0.0
         version: 20.0.0(@types/node@24.10.1)

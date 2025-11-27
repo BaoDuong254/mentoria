@@ -35,6 +35,8 @@ tags:
     description: Mentor availability slots management
   - name: payment
     description: Payment processing with Stripe integration
+  - name: messages
+    description: Real-time messaging between users with WebSocket integration
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -111,6 +113,15 @@ paths:
     $ref: "./paths/pay.yaml#/checkout-session"
   /api/pay/webhook:
     $ref: "./paths/pay.yaml#/webhook"
+  # Messages Endpoints
+  /api/messages/users:
+    $ref: "./paths/message.yaml#/getUsersForSidebar"
+  /api/messages/conversations:
+    $ref: "./paths/message.yaml#/getConversations"
+  /api/messages/{userId}:
+    $ref: "./paths/message.yaml#/messagesByUserId"
+  /api/messages:
+    $ref: "./paths/message.yaml#/sendMessage"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

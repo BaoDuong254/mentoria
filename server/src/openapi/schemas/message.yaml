@@ -1,0 +1,131 @@
+UserForSidebar:
+  type: object
+  description: Basic user information for chat sidebar display
+  properties:
+    user_id:
+      type: integer
+      example: 2
+      description: Unique user identifier
+    first_name:
+      type: string
+      example: "Alice"
+      description: User's first name
+    last_name:
+      type: string
+      example: "Smith"
+      description: User's last name
+    avatar_url:
+      type: string
+      format: uri
+      example: "https://i.pravatar.cc/150?img=20"
+      nullable: true
+      description: URL to user's avatar image
+    role:
+      type: string
+      enum: [Mentor, Mentee, Admin]
+      example: "Mentee"
+      description: User's role in the platform
+  required:
+    - user_id
+    - first_name
+    - last_name
+    - role
+
+Message:
+  type: object
+  description: A chat message between two users
+  properties:
+    message_id:
+      type: integer
+      example: 123
+      description: Unique message identifier
+    sender_id:
+      type: integer
+      example: 1
+      description: ID of the user who sent the message
+    receiver_id:
+      type: integer
+      example: 2
+      description: ID of the user who receives the message
+    content:
+      type: string
+      example: "Hello! How can I help you today?"
+      description: Message text content
+    sent_time:
+      type: string
+      format: date-time
+      example: "2025-11-27T12:30:45.000Z"
+      description: Timestamp when message was sent
+  required:
+    - message_id
+    - sender_id
+    - receiver_id
+    - content
+    - sent_time
+
+Conversation:
+  type: object
+  description: A conversation with another user including latest message
+  properties:
+    other_user_id:
+      type: integer
+      example: 2
+      description: ID of the other user in the conversation
+    other_user_first_name:
+      type: string
+      example: "Alice"
+      description: Other user's first name
+    other_user_last_name:
+      type: string
+      example: "Smith"
+      description: Other user's last name
+    other_user_avatar_url:
+      type: string
+      format: uri
+      example: "https://i.pravatar.cc/150?img=20"
+      nullable: true
+      description: URL to other user's avatar image
+    other_user_role:
+      type: string
+      enum: [Mentor, Mentee, Admin]
+      example: "Mentee"
+      description: Other user's role
+    latest_message_content:
+      type: string
+      example: "Thanks for your help!"
+      description: Content of the most recent message
+    latest_message_time:
+      type: string
+      format: date-time
+      example: "2025-11-27T15:20:30.000Z"
+      description: Timestamp of the most recent message
+    latest_message_sender_id:
+      type: integer
+      example: 2
+      description: ID of who sent the latest message (current user or other user)
+  required:
+    - other_user_id
+    - other_user_first_name
+    - other_user_last_name
+    - other_user_role
+    - latest_message_content
+    - latest_message_time
+    - latest_message_sender_id
+
+SendMessageRequest:
+  type: object
+  description: Request body for sending a new message
+  properties:
+    receiver_id:
+      type: integer
+      example: 2
+      description: ID of the user who will receive the message
+    content:
+      type: string
+      example: "Hello! I'd like to schedule a session."
+      minLength: 1
+      maxLength: 5000
+      description: Message text content (1-5000 characters)
+  required:
+    - receiver_id
+    - content

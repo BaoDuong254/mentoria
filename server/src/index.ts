@@ -1,6 +1,7 @@
 import fs from "fs";
 import logger from "@/utils/logger";
 import express from "express";
+import { createServer } from "http";
 import morgan from "morgan";
 import cors from "cors";
 import poolPromise from "@/config/database";
@@ -14,6 +15,7 @@ import catalogRoutes from "@/routes/catalog.route";
 import filterRoutes from "@/routes/filter.route";
 import slotRoutes from "@/routes/slot.route";
 import payRoutes from "@/routes/pay.route";
+import messageRoutes from "@/routes/message.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import "@/config/passport";
@@ -21,8 +23,10 @@ import passport from "passport";
 import YAML from "yaml";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
+import { setupSocketIO } from "@/socket/index";
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = envConfig.PORT || 3000;
 
 // Stripe webhook requires raw body, so we handle it before JSON parsing
@@ -66,6 +70,7 @@ app.use("/api/catalog", catalogRoutes);
 app.use("/api/filter", filterRoutes);
 app.use("/api/slots", slotRoutes);
 app.use("/api/pay", payRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Health check endpoint
 app.get("/", (_req, res) => {
@@ -80,7 +85,10 @@ const file = fs.readFileSync(path.resolve(__dirname, "./openapi/bundle.yaml"), "
 const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.listen(PORT, async () => {
+// Setup Socket.IO
+const io = setupSocketIO(httpServer);
+
+httpServer.listen(PORT, async () => {
   // Test database connection on server start
   const pool = await poolPromise;
   if (!pool) throw new Error("Failed to connect to the database");
@@ -88,4 +96,5 @@ app.listen(PORT, async () => {
   console.log("Database query result:", result.recordset);
   // Log server start
   console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Socket.IO server is ready`);
 });
