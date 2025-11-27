@@ -1,7 +1,6 @@
 import path from "@/constants/path";
 import type { Mentor } from "@/types";
 import { Star } from "lucide-react";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 interface CardProps {
@@ -63,7 +62,7 @@ export default function Card({ mentor }: CardProps) {
               </div>
             ))}
           </div>
-          <div className='text-[16px] tracking-wide text-gray-400'>Response {mentor.response_time}</div>
+          <div className='text-[16px] tracking-wide text-gray-400'>Response {mentor.response_time.toLowerCase()}</div>
           {/* Available */}
           <div>
             <span>Available languages:</span>

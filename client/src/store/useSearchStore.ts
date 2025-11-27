@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { searchSkills, searchJobTitles, searchCompanies } from "@/apis/search.mentorbrowse.api";
 import type { SearchMentorState, resultsSkills, resultsJobTitles, resultsCompanies } from "@/types";
 import { getMentor, getMentorList } from "@/apis/mentor.api";
+import { getCompaniesList, getJobTitlesList, getSkillsList } from "@/apis/catalog.api";
 
 const DEFAULT_SKILLS: resultsSkills[] = [
   { id: 101, name: "Python", type: "skill", super_category_id: null, mentor_count: 120 },
@@ -27,18 +28,21 @@ export const useSearchStore = create<SearchMentorState>()(
   persist(
     (set, get) => ({
       //initial state
-      skills: [],
+      skills: [] as resultsSkills[],
       selectedSkills: [],
       keywordSkills: "",
       isLoading: false,
+      defaultSkills: [],
 
       jobTitles: [],
       selectedJobTitles: [],
       keywordJobTitles: "",
+      defaultJobTitles: [],
 
       companies: [],
       selectedCompanies: [],
       keywordCompanies: "",
+      defaultCompanies: [],
 
       mentors: [],
       pageMentor: null,
@@ -147,7 +151,7 @@ export const useSearchStore = create<SearchMentorState>()(
         }
       },
 
-      resetCompanySearch: () => set({ keywordCompanies: "", companies: DEFAULT_JOBS }),
+      resetCompanySearch: () => set({ keywordCompanies: "", companies: DEFAULT_COMPANIES }),
 
       //-----------------MENTOR------------------------------
       fetchMentors: async (page = 1, limit = 10) => {
@@ -183,6 +187,34 @@ export const useSearchStore = create<SearchMentorState>()(
           console.log("Failed to fetch mentor by id", error);
         } finally {
           set({ isLoadingProfile: false });
+        }
+      },
+
+      fetchInitialFilterData: async () => {
+        const { defaultSkills, defaultJobTitles, defaultCompanies } = get();
+        if (defaultSkills.length > 0 && defaultJobTitles.length > 0 && defaultCompanies.length > 0) {
+          return;
+        }
+
+        set({ isLoading: true });
+        try {
+          const resSkills = await getSkillsList(1, 5);
+          const resJobTitles = await getJobTitlesList(1, 5);
+          const resCompanies = await getCompaniesList(1, 5);
+
+          set({
+            defaultSkills: resSkills.success ? (resSkills.data?.skills ?? []) : [],
+            defaultJobTitles: resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [],
+            defaultCompanies: resCompanies.success ? (resCompanies.data?.companies ?? []) : [],
+
+            // skills: resSkills.success ? (resSkills.data?.skills ?? []) : [],
+            // jobTitles: resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [],
+            // companies: resCompanies.success ? (resCompanies.data?.companies ?? []) : [],
+          });
+        } catch (error) {
+          console.log("Error fetching initial filter data:", error);
+        } finally {
+          set({ isLoading: false });
         }
       },
     }),

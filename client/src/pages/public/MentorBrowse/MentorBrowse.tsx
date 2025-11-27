@@ -7,9 +7,10 @@ import CompaniesFilter from "./components/CompaniesFilter";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useEffect } from "react";
 function MentorBrowse() {
-  const { mentors, fetchMentors, isFetchingMentors } = useSearchStore();
+  const { mentors, fetchMentors, isFetchingMentors, fetchInitialFilterData } = useSearchStore();
 
   useEffect(() => {
+    void fetchInitialFilterData();
     void fetchMentors(1, 10);
   }, []);
   return (

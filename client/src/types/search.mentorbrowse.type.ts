@@ -7,6 +7,7 @@ export interface SearchMentorState {
   selectedSkills: resultsSkills[];
   keywordSkills: string;
   isLoading: boolean;
+  defaultSkills: resultsSkills[];
   //actions
   searchSkills: (keyword: string, limit: number) => Promise<void>;
   toggleSkill: (skill: resultsSkills) => void;
@@ -17,6 +18,7 @@ export interface SearchMentorState {
   jobTitles: resultsJobTitles[];
   selectedJobTitles: resultsJobTitles[];
   keywordJobTitles: string;
+  defaultJobTitles: resultsJobTitles[];
 
   //actions
   searchJobTitles: (keyword: string, limit: number) => Promise<void>;
@@ -28,6 +30,7 @@ export interface SearchMentorState {
   companies: resultsCompanies[];
   selectedCompanies: resultsCompanies[];
   keywordCompanies: string;
+  defaultCompanies: resultsCompanies[];
 
   //actions
   searchCompanies: (keyword: string, limit: number) => Promise<void>;
@@ -48,6 +51,8 @@ export interface SearchMentorState {
 
   //actions
   fetchMentorById: (id: number | string) => Promise<void>;
+
+  fetchInitialFilterData: () => Promise<void>;
 }
 
 export interface searchInfo {
@@ -112,4 +117,34 @@ export interface searchCompaniesResponse {
     searchInfo?: searchInfo;
   };
   error?: error[];
+}
+
+export interface getSkillsListResponse {
+  success: boolean;
+  message: string;
+  errors?: error[];
+  data?: {
+    skills: resultsSkills[];
+    pagination: pagination;
+  };
+}
+
+export interface getCompaniesListResponse {
+  success: boolean;
+  message: string;
+  error?: error[];
+  data?: {
+    companies: resultsCompanies[];
+    pagination: pagination;
+  };
+}
+
+export interface getJobTitlesListResponse {
+  success: boolean;
+  message: string;
+  error?: error[];
+  data?: {
+    jobTitles: resultsJobTitles[];
+    pagination: pagination;
+  };
 }

@@ -9,6 +9,7 @@ function MentorProfile() {
   const { selectedMentor, fetchMentorById } = useSearchStore();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (id) {
       void fetchMentorById(id);
     }
