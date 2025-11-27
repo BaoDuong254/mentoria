@@ -130,12 +130,6 @@ The project uses Turbo for monorepo management. Run both client and server simul
 pnpm dev
 ```
 
-To test Stripe webhook in localhost, please install Stripe CLI and run:
-
-```bash
-stripe listen --forward-to localhost:3000/api/pay/webhook
-```
-
 Or run them separately:
 
 ```bash
@@ -165,6 +159,48 @@ pnpm start       # Preview production build
 cd server
 pnpm build
 pnpm start       # Start production server
+```
+
+Dưới đây là đoạn **README** được viết lại rõ ràng, chuyên nghiệp và bổ sung thông tin về Stripe CLI để test webhook trên localhost:
+
+## 🔧 Testing Stripe Webhooks on Localhost
+
+To test Stripe webhooks in your local development environment, you need to install the **Stripe CLI** and forward incoming webhook events to your local API endpoint.
+
+### Install Stripe CLI
+
+Download and install Stripe CLI from:
+[https://stripe.com/docs/stripe-cli](https://stripe.com/docs/stripe-cli)
+
+### Start Listening for Webhooks
+
+Run the following command to forward all Stripe webhook events to your local server:
+
+```bash
+stripe listen --forward-to localhost:3000/api/pay/webhook
+```
+
+After running this command, Stripe CLI will generate a **Webhook Signing Secret**, which you must set in your environment variables:
+
+```bash
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
+```
+
+### Test Checkout using Stripe Test Card
+
+Use the following **Stripe test card** to simulate a successful payment inside Stripe Checkout:
+
+| Card Number             | Expiry          | CVC          | ZIP |
+| ----------------------- | --------------- | ------------ | --- |
+| **4242 4242 4242 4242** | Any future date | Any 3 digits | Any |
+
+Example:
+
+```bash
+Card number: 4242 4242 4242 4242
+Expiry: 12/34
+CVC: 123
+ZIP: 10000
 ```
 
 ## 🔄 Git Workflow
