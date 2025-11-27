@@ -130,6 +130,12 @@ The project uses Turbo for monorepo management. Run both client and server simul
 pnpm dev
 ```
 
+To test Stripe webhook in localhost, please install Stripe CLI and run:
+
+```bash
+stripe listen --forward-to localhost:3000/api/pay/webhook
+```
+
 Or run them separately:
 
 ```bash

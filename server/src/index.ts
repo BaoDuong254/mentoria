@@ -13,6 +13,7 @@ import searchRoutes from "@/routes/search.route";
 import catalogRoutes from "@/routes/catalog.route";
 import filterRoutes from "@/routes/filter.route";
 import slotRoutes from "@/routes/slot.route";
+import payRoutes from "@/routes/pay.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import "@/config/passport";
@@ -23,6 +24,9 @@ import path from "path";
 
 const app = express();
 const PORT = envConfig.PORT || 3000;
+
+// Stripe webhook requires raw body, so we handle it before JSON parsing
+app.use("/api/pay/webhook", express.raw({ type: "application/json" }));
 
 // parse request to body
 app.use(express.json());
@@ -61,6 +65,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/filter", filterRoutes);
 app.use("/api/slots", slotRoutes);
+app.use("/api/pay", payRoutes);
 
 // Health check endpoint
 app.get("/", (_req, res) => {

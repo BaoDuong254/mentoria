@@ -31,6 +31,8 @@ tags:
     description: Category catalog and taxonomy management
   - name: slot
     description: Mentor availability slots management
+  - name: payment
+    description: Payment processing with Stripe integration
 paths:
   /api/auth/register:
     post:
@@ -2668,6 +2670,178 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/pay/checkout-session:
+    post:
+      tags:
+        - payment
+      summary: Create Stripe Checkout Session
+      description: Creates a Stripe Checkout Session for booking a mentor's slot with an optional discount code
+      operationId: createCheckoutSession
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - menteeId
+                - mentorId
+                - planId
+                - slotStartTime
+                - slotEndTime
+                - message
+              properties:
+                menteeId:
+                  type: integer
+                  description: ID of the mentee making the booking
+                  example: 1
+                mentorId:
+                  type: integer
+                  description: ID of the mentor being booked
+                  example: 5
+                planId:
+                  type: integer
+                  description: ID of the selected plan
+                  example: 3
+                slotStartTime:
+                  type: string
+                  format: date-time
+                  description: Start date and time of the slot in ISO 8601 format
+                  example: "2024-01-15T14:00:00.000Z"
+                slotEndTime:
+                  type: string
+                  format: date-time
+                  description: End date and time of the slot in ISO 8601 format
+                  example: "2024-01-15T15:00:00.000Z"
+                message:
+                  type: string
+                  description: Message from mentee to mentor (discussion content)
+                  minLength: 1
+                  maxLength: 1000
+                  example: I would like to discuss career transition strategies.
+                discountCode:
+                  type: string
+                  description: Optional discount code to apply
+                  example: SUMMER2024
+      responses:
+        "200":
+          description: Checkout session created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Checkout session created successfully
+                  data:
+                    type: object
+                    properties:
+                      sessionId:
+                        type: string
+                        description: Stripe Checkout Session ID
+                        example: cs_test_a1b2c3d4e5f6g7h8i9j0
+                      sessionUrl:
+                        type: string
+                        description: URL to redirect user for payment
+                        example: "https://checkout.stripe.com/pay/cs_test_a1b2c3d4e5f6g7h8i9j0"
+        "400":
+          description: Validation error or invalid booking request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Slot is not available
+        "401":
+          description: Unauthorized - user not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Unauthorized - No Token Provided
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Internal server error
+  /api/pay/webhook:
+    post:
+      tags:
+        - payment
+      summary: Stripe Webhook Endpoint
+      description: |
+        Handles Stripe webhook events. This endpoint is called by Stripe directly and should not be called by clients.
+        Currently handles: checkout.session.completed
+      operationId: handleStripeWebhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe webhook event payload
+      responses:
+        "200":
+          description: Webhook received and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Webhook received
+        "400":
+          description: Invalid webhook signature or missing header
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Missing stripe-signature header
+        "500":
+          description: Error processing webhook
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Error processing webhook
 components:
   schemas:
     RegisterRequest:

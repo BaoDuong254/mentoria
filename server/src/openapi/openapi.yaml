@@ -33,6 +33,8 @@ tags:
     description: Category catalog and taxonomy management
   - name: slot
     description: Mentor availability slots management
+  - name: payment
+    description: Payment processing with Stripe integration
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -104,6 +106,11 @@ paths:
     $ref: "./paths/slot.yaml#/slotsList"
   /api/slots/plans/{planId}/slot:
     $ref: "./paths/slot.yaml#/slotDetail"
+  # Payment Endpoints
+  /api/pay/checkout-session:
+    $ref: "./paths/pay.yaml#/checkout-session"
+  /api/pay/webhook:
+    $ref: "./paths/pay.yaml#/webhook"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"
