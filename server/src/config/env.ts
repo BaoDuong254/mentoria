@@ -31,7 +31,7 @@ const configSchema = z.object({
   JWT_SECRET: z.string(),
   MAIL_USER: z.string(),
   MAIL_PASS: z.string(),
-  MAIL_VERIFY_INITIAL: z
+  MAIL_SEND: z
     .string()
     .default("true")
     .transform((val) => val.toLowerCase() === "true"),

@@ -35,7 +35,7 @@ const registerUserService = async (
   if (!pool) throw new Error("Database connection not established");
 
   // Check if email verification is required
-  const isEmailVerifyRequired = envConfig.MAIL_VERIFY_INITIAL;
+  const isEmailVerifyRequired = envConfig.MAIL_SEND;
 
   let otp = null;
   let otp_expiration = null;
@@ -47,28 +47,43 @@ const registerUserService = async (
     otp_expiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
   }
 
-  // Insert user and get the inserted user data
-  const result = await pool
-    .request()
-    .input("firstName", firstName)
-    .input("lastName", lastName)
-    .input("email", email)
-    .input("password", passwordHash)
-    .input("otp", otp)
-    .input("otp_expiration", otp_expiration)
-    .input("provider", "Local")
-    .input("is_email_verified", is_email_verified)
-    .input("status", status)
-    .query(
-      `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider, is_email_verified, status)
-       OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
-              INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
-              INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
-              INSERTED.otp, INSERTED.otp_expiration, INSERTED.google_id, INSERTED.provider
-       VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider, @is_email_verified, @status)`
-    );
+  // Start transaction
+  const transaction = pool.transaction();
+  await transaction.begin();
 
-  return result.recordset[0];
+  try {
+    // Insert user and get the inserted user data
+    const result = await transaction
+      .request()
+      .input("firstName", firstName)
+      .input("lastName", lastName)
+      .input("email", email)
+      .input("password", passwordHash)
+      .input("otp", otp)
+      .input("otp_expiration", otp_expiration)
+      .input("provider", "Local")
+      .input("is_email_verified", is_email_verified)
+      .input("status", status)
+      .query(
+        `INSERT INTO users (first_name, last_name, email, password, otp, otp_expiration, provider, is_email_verified, status)
+         OUTPUT INSERTED.user_id, INSERTED.first_name, INSERTED.last_name, INSERTED.email,
+                INSERTED.created_at, INSERTED.updated_at, INSERTED.sex, INSERTED.avatar_url,
+                INSERTED.country, INSERTED.role, INSERTED.timezone, INSERTED.status, INSERTED.is_email_verified,
+                INSERTED.otp, INSERTED.otp_expiration, INSERTED.google_id, INSERTED.provider
+         VALUES (@firstName, @lastName, @email, @password, @otp, @otp_expiration, @provider, @is_email_verified, @status)`
+      );
+
+    const user = result.recordset[0];
+
+    // Insert into mentees table (default role is Mentee)
+    await transaction.request().input("userId", user.user_id).query(`INSERT INTO mentees (user_id) VALUES (@userId)`);
+
+    await transaction.commit();
+    return user;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 const registerMentorService = async (
@@ -83,7 +98,7 @@ const registerMentorService = async (
   if (!pool) throw new Error("Database connection not established");
 
   // Check if email verification is required
-  const isEmailVerifyRequired = envConfig.MAIL_VERIFY_INITIAL;
+  const isEmailVerifyRequired = envConfig.MAIL_SEND;
 
   let otp = null;
   let otp_expiration = null;
@@ -126,12 +141,13 @@ const registerMentorService = async (
 
     const user = userResult.recordset[0];
 
-    // Insert into mentors table
+    // Insert into mentors table with required response_time field
     await transaction
       .request()
       .input("userId", user.user_id)
       .input("cvUrl", cvUrl)
-      .query(`INSERT INTO mentors (user_id, cv_url) VALUES (@userId, @cvUrl)`);
+      .input("responseTime", "Within 24 hours") // Default response time
+      .query(`INSERT INTO mentors (user_id, cv_url, response_time) VALUES (@userId, @cvUrl, @responseTime)`);
 
     await transaction.commit();
     return user;
@@ -274,7 +290,7 @@ const loginUserService = async (
   }
 
   // Check if email is verified (only if email verification is enabled)
-  if (envConfig.MAIL_VERIFY_INITIAL && !user.is_email_verified) {
+  if (envConfig.MAIL_SEND && !user.is_email_verified) {
     // Generate new OTP for unverified user
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     const newOtpExpiration = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now

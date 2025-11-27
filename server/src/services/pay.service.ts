@@ -12,6 +12,8 @@ import {
   PlanDetails,
   SlotDetails,
 } from "@/types/pay.type";
+import { sendBookingConfirmation } from "@/mailtrap/mailSend";
+import { BookingConfirmationData } from "@/types/mail.type";
 
 const stripe = new Stripe(envConfig.STRIPE_SECRET_KEY, {
   apiVersion: "2025-11-17.clover",
@@ -390,13 +392,32 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     // 1. Create plan registration first (required by invoice foreign key)
     const registrationId = await createPlanRegistrationService(message, discountId ? parseInt(discountId) : undefined);
 
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discountId && session.amount_total) {
+      const discountResult = await pool.request().input("discountId", parseInt(discountId)).query(`
+        SELECT discount_type, discount_value FROM discounts WHERE discount_id = @discountId
+      `);
+
+      if (discountResult.recordset.length > 0) {
+        const discount = discountResult.recordset[0];
+        const totalBeforeDiscount = (session.amount_total || 0) / 100;
+
+        if (discount.discount_type === "Percentage") {
+          discountAmount = (totalBeforeDiscount * discount.discount_value) / (100 - discount.discount_value);
+        } else {
+          discountAmount = discount.discount_value;
+        }
+      }
+    }
+
     // 2. Create invoice (requires registrationId)
     const invoiceId = await createInvoiceService(
       {
         sessionId: session.id,
         amountTotal: session.amount_total || 0,
         currency: session.currency || "usd",
-        discountAmount: 0,
+        discountAmount: discountAmount,
         finalAmount: (session.amount_total || 0) / 100,
         discountId: discountId ? parseInt(discountId) : undefined,
       },
@@ -434,6 +455,66 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     await transaction.commit();
 
     console.log(`Successfully processed checkout session: ${session.id}`);
+
+    // 7. Send booking confirmation email (after transaction commit)
+    if (envConfig.MAIL_SEND) {
+      try {
+        // Fetch user details for email
+        const userDetailsResult = await pool
+          .request()
+          .input("menteeId", parseInt(menteeId))
+          .input("mentorId", parseInt(mentorId))
+          .input("planId", parseInt(planId)).query(`
+          SELECT
+            mentee.first_name + ' ' + mentee.last_name AS menteeName,
+            mentee.email AS menteeEmail,
+            mentor.first_name + ' ' + mentor.last_name AS mentorName,
+            p.plan_type,
+            p.plan_description
+          FROM users mentee
+          INNER JOIN users mentor ON mentor.user_id = @mentorId
+          INNER JOIN plans p ON p.plan_id = @planId
+          WHERE mentee.user_id = @menteeId
+        `);
+
+        if (userDetailsResult.recordset.length > 0) {
+          const details = userDetailsResult.recordset[0];
+          const startDateTime = new Date(slotStartTime);
+          const endDateTime = new Date(slotEndTime);
+
+          const emailData: BookingConfirmationData = {
+            menteeName: details.menteeName,
+            mentorName: details.mentorName,
+            planType: details.plan_type,
+            planDescription: details.plan_description,
+            meetingDate: startDateTime.toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            startTime: startDateTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            endTime: endDateTime.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            amount: ((session.amount_total || 0) / 100).toFixed(2),
+            totalAmount: ((session.amount_total || 0) / 100).toFixed(2),
+            ...(discountAmount > 0 && { discountAmount: discountAmount.toFixed(2) }),
+            ...(message && { message }),
+          };
+
+          await sendBookingConfirmation(emailData, details.menteeEmail);
+          console.log(`Booking confirmation email sent to: ${details.menteeEmail}`);
+        }
+      } catch (emailError) {
+        // Log email error but don't fail the entire process
+        console.error("Error sending booking confirmation email:", emailError);
+      }
+    }
   } catch (error) {
     await transaction.rollback();
     console.error("Error processing checkout session:", error);

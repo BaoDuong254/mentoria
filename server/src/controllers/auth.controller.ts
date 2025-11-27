@@ -31,7 +31,7 @@ const registerUser = async (req: Request, res: Response) => {
 
     const user = await registerUserService(firstName, lastName, email, password);
 
-    if (envConfig.MAIL_VERIFY_INITIAL) {
+    if (envConfig.MAIL_SEND) {
       await verifyMail(user.otp!, user.email);
     } else {
       console.log("Email verification is disabled; skipping OTP email.");
@@ -96,7 +96,7 @@ const registerMentor = async (req: Request, res: Response) => {
     // Register mentor with CV URL
     const user = await registerMentorService(firstName, lastName, email, password, cvUrl);
 
-    if (envConfig.MAIL_VERIFY_INITIAL) {
+    if (envConfig.MAIL_SEND) {
       await verifyMail(user.otp!, user.email);
     } else {
       console.log("Email verification is disabled; skipping OTP email.");

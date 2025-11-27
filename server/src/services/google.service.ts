@@ -64,26 +64,40 @@ const findOrCreateGoogleUser = async (userData: GoogleUserData): Promise<GoogleU
     return updatedUser.recordset[0];
   }
 
-  // Create new user
-  const newUser = await pool
-    .request()
-    .input("firstName", firstName)
-    .input("lastName", lastName)
-    .input("email", email)
-    .input("googleId", googleId)
-    .input("avatarUrl", avatarUrl)
-    .input("provider", "google")
-    .input("isEmailVerified", true).query(`INSERT INTO users (
-        first_name, last_name, email, google_id,
-        avatar_url, provider, is_email_verified, status
-      )
-      OUTPUT INSERTED.*
-      VALUES (
-        @firstName, @lastName, @email, @googleId,
-        @avatarUrl, @provider, @isEmailVerified, 'Active'
-      )`);
+  // Create new user with transaction
+  const transaction = pool.transaction();
+  await transaction.begin();
 
-  return newUser.recordset[0];
+  try {
+    const newUser = await transaction
+      .request()
+      .input("firstName", firstName)
+      .input("lastName", lastName)
+      .input("email", email)
+      .input("googleId", googleId)
+      .input("avatarUrl", avatarUrl)
+      .input("provider", "google")
+      .input("isEmailVerified", true).query(`INSERT INTO users (
+          first_name, last_name, email, google_id,
+          avatar_url, provider, is_email_verified, status
+        )
+        OUTPUT INSERTED.*
+        VALUES (
+          @firstName, @lastName, @email, @googleId,
+          @avatarUrl, @provider, @isEmailVerified, 'Active'
+        )`);
+
+    const user = newUser.recordset[0];
+
+    // Insert into mentees table (default role is Mentee)
+    await transaction.request().input("userId", user.user_id).query(`INSERT INTO mentees (user_id) VALUES (@userId)`);
+
+    await transaction.commit();
+    return user;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 const findUserByGoogleId = async (googleId: string): Promise<GoogleUserResult | null> => {
