@@ -1,0 +1,88 @@
+import type { pagination } from ".";
+export interface Skill {
+  skill_id: number;
+  skill_name: string;
+}
+
+export interface Company {
+  company_id: number;
+  company_name: string;
+  job_title_id: number;
+  job_name: string;
+}
+
+export interface Category {
+  category_id: number;
+  category_name: string;
+}
+
+export interface SocialLink {
+  link: string;
+  platform: string;
+}
+
+export interface Plan {
+  plan_id: number;
+  plan_description: string;
+  plan_charge: number;
+  plan_type: string;
+  sessions_duration?: number;
+  benefits?: string[];
+}
+
+export interface Mentor {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url: string;
+  country: string;
+  bio: string;
+  headline: string;
+  response_time: string;
+  total_feedbacks: number;
+  average_rating: number | null;
+  lowest_plan_price: number;
+  skills: Skill[];
+  languages: string[];
+  companies: Company[];
+  categories: Category[];
+}
+
+export interface MentorProfile {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  sex: string;
+  avatar_url: string;
+  country: string;
+  timezone: string;
+  bio: string;
+  headline: string;
+  response_time: string;
+  cv_url: string;
+  social_links: SocialLink[];
+  companies: Company[];
+  skills: Skill[];
+  languages: string[];
+  plans: Plan[];
+  total_mentees: number;
+  total_feedbacks: number;
+  total_stars: number;
+  average_rating: number | null;
+}
+
+export interface MentorListResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    mentors: Mentor[];
+    pagination: pagination;
+  };
+}
+
+export interface getMentorProfileResponse {
+  success: boolean;
+  message: string;
+  data?: MentorProfile;
+}

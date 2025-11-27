@@ -29,7 +29,7 @@ export default function useRoutesConfig() {
         { path: path.REGISTER_MENTEE, element: <RegisterMentee /> },
         { path: path.REGISTER_MENTOR, element: <RegisterMentor /> },
         { path: path.MENTOR_BROWSE, element: <MentorBrowse /> },
-        { path: path.MENTOR_PROFILE, element: <MentorProfile /> },
+        { path: `${path.MENTOR_PROFILE}/:id`, element: <MentorProfile /> },
       ],
     },
     {
