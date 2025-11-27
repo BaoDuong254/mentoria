@@ -10,8 +10,6 @@ export async function getSkillsList(page: number, limit: number): Promise<getSki
     params: { page, limit },
     withCredentials: true,
   });
-
-  console.log(res.data);
   return res.data;
 }
 
@@ -21,8 +19,6 @@ export async function getJobTitlesList(page: number, limit: number): Promise<get
     params: { page, limit },
     withCredentials: true,
   });
-
-  console.log(res.data);
   return res.data;
 }
 
@@ -32,7 +28,5 @@ export async function getCompaniesList(page: number, limit: number): Promise<get
     params: { page, limit },
     withCredentials: true,
   });
-
-  console.log(res.data);
   return res.data;
 }

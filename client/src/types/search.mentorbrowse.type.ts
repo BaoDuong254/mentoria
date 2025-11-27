@@ -148,3 +148,9 @@ export interface getJobTitlesListResponse {
     pagination: pagination;
   };
 }
+
+export interface mappedSkills {
+  skill_id: number;
+  skill_name: string;
+  mentor_count: number;
+}

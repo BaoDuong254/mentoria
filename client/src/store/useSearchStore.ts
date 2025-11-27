@@ -1,34 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { searchSkills, searchJobTitles, searchCompanies } from "@/apis/search.mentorbrowse.api";
-import type { SearchMentorState, resultsSkills, resultsJobTitles, resultsCompanies } from "@/types";
-import { getMentor, getMentorList } from "@/apis/mentor.api";
+import type { SearchMentorState } from "@/types";
+import { getMentor } from "@/apis/mentor.api";
 import { getCompaniesList, getJobTitlesList, getSkillsList } from "@/apis/catalog.api";
+import { getFilteredMentors } from "@/apis/filter.api";
 
-const DEFAULT_SKILLS: resultsSkills[] = [
-  { id: 101, name: "Python", type: "skill", super_category_id: null, mentor_count: 120 },
-  { id: 102, name: "React", type: "skill", super_category_id: null, mentor_count: 402 },
-  { id: 103, name: "Java", type: "skill", super_category_id: null, mentor_count: 202 },
-  { id: 104, name: "JavaScript", type: "skill", super_category_id: null, mentor_count: 350 },
-  { id: 105, name: "GoLang", type: "skill", super_category_id: null, mentor_count: 80 },
-];
-
-const DEFAULT_JOBS: resultsJobTitles[] = [
-  { id: 201, name: "Senior Software Engineer", mentor_count: 50 },
-  { id: 202, name: "Product Manager", mentor_count: 30 },
-  { id: 203, name: "Data Scientist", mentor_count: 40 },
-];
-
-const DEFAULT_COMPANIES: resultsCompanies[] = [
-  { id: 301, name: "Google", mentor_count: 120 },
-  { id: 302, name: "Microsoft", mentor_count: 90 },
-  { id: 303, name: "Amazon", mentor_count: 85 },
-];
 export const useSearchStore = create<SearchMentorState>()(
   persist(
     (set, get) => ({
       //initial state
-      skills: [] as resultsSkills[],
+      skills: [],
       selectedSkills: [],
       keywordSkills: "",
       isLoading: false,
@@ -56,7 +38,7 @@ export const useSearchStore = create<SearchMentorState>()(
         set({ keywordSkills: keywordInput });
         if (!keywordInput || keywordInput.trim() === "") {
           // Không gọi API, lấy luôn dữ liệu mặc định đắp vào
-          set({ skills: DEFAULT_SKILLS, isLoading: false });
+          set({ skills: get().defaultSkills, isLoading: false });
           return; // Kết thúc hàm luôn
         }
         set({ isLoading: true });
@@ -86,14 +68,14 @@ export const useSearchStore = create<SearchMentorState>()(
       },
 
       resetSkillSearch: () => {
-        set({ keywordSkills: "", skills: DEFAULT_SKILLS, isLoading: false });
+        set({ keywordSkills: "", skills: get().defaultSkills, isLoading: false });
       },
 
       //----------------ACTION JOB TITLES-------------------
       searchJobTitles: async (keywordInput, limit) => {
         set({ keywordJobTitles: keywordInput });
         if (!keywordInput || keywordInput.trim() === "") {
-          set({ jobTitles: DEFAULT_JOBS });
+          set({ jobTitles: get().defaultJobTitles });
           return;
         }
 
@@ -119,13 +101,13 @@ export const useSearchStore = create<SearchMentorState>()(
         }
       },
 
-      resetJobSearch: () => set({ keywordJobTitles: "", jobTitles: DEFAULT_JOBS }),
+      resetJobSearch: () => set({ keywordJobTitles: "", jobTitles: get().defaultJobTitles }),
 
       //----------------ACTION COMPANIES-------------------
       searchCompanies: async (keywordInput, limit) => {
         set({ keywordCompanies: keywordInput });
         if (!keywordInput || keywordInput.trim() === "") {
-          set({ companies: DEFAULT_COMPANIES });
+          set({ companies: get().defaultCompanies });
           return;
         }
 
@@ -151,13 +133,25 @@ export const useSearchStore = create<SearchMentorState>()(
         }
       },
 
-      resetCompanySearch: () => set({ keywordCompanies: "", companies: DEFAULT_COMPANIES }),
+      resetCompanySearch: () => set({ keywordCompanies: "", companies: get().defaultCompanies }),
 
       //-----------------MENTOR------------------------------
       fetchMentors: async (page = 1, limit = 10) => {
         set({ isFetchingMentors: true });
+        const { selectedSkills, selectedJobTitles, selectedCompanies } = get();
+
+        const skillIds = selectedSkills.map((s) => s.id).join(",");
+        const jobTitleIds = selectedJobTitles.map((j) => j.id).join(",");
+        const companyIds = selectedCompanies.map((c) => c.id).join(",");
+
         try {
-          const res = await getMentorList(page, limit);
+          const res = await getFilteredMentors(
+            page,
+            limit,
+            skillIds.length > 0 ? skillIds : undefined,
+            jobTitleIds.length > 0 ? jobTitleIds : undefined,
+            companyIds.length > 0 ? companyIds : undefined
+          );
 
           if (res.success) {
             set({
@@ -202,14 +196,50 @@ export const useSearchStore = create<SearchMentorState>()(
           const resJobTitles = await getJobTitlesList(1, 5);
           const resCompanies = await getCompaniesList(1, 5);
 
-          set({
-            defaultSkills: resSkills.success ? (resSkills.data?.skills ?? []) : [],
-            defaultJobTitles: resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [],
-            defaultCompanies: resCompanies.success ? (resCompanies.data?.companies ?? []) : [],
+          const rawSkills = resSkills.success ? (resSkills.data?.skills ?? []) : [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedSkills = rawSkills.map((item: any) => ({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            id: item.skill_id ?? item.id,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            name: item.skill_name ?? item.name,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            mentor_count: item.mentor_count,
+            type: "skill",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            super_category_id: item.super_category_id,
+          }));
 
-            // skills: resSkills.success ? (resSkills.data?.skills ?? []) : [],
-            // jobTitles: resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [],
-            // companies: resCompanies.success ? (resCompanies.data?.companies ?? []) : [],
+          const rawJobTitles = resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedJobTitles = rawJobTitles.map((item: any) => ({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            id: item.job_title_id ?? item.id,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            name: item.job_title_name ?? item.name,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            mentor_count: item.mentor_count,
+          }));
+
+          const rawCompanies = resCompanies.success ? (resCompanies.data?.companies ?? []) : [];
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mappedCompanies = rawCompanies.map((item: any) => ({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            id: item.company_id ?? item.id,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            name: item.company_name ?? item.name,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            mentor_count: item.mentor_count,
+          }));
+
+          set({
+            defaultSkills: mappedSkills,
+            defaultJobTitles: mappedJobTitles,
+            defaultCompanies: mappedCompanies,
+
+            skills: mappedSkills,
+            jobTitles: mappedJobTitles,
+            companies: mappedCompanies,
           });
         } catch (error) {
           console.log("Error fetching initial filter data:", error);

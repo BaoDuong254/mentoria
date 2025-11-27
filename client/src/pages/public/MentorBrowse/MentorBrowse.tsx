@@ -7,12 +7,22 @@ import CompaniesFilter from "./components/CompaniesFilter";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useEffect } from "react";
 function MentorBrowse() {
-  const { mentors, fetchMentors, isFetchingMentors, fetchInitialFilterData } = useSearchStore();
+  const {
+    mentors,
+    fetchMentors,
+    isFetchingMentors,
+    fetchInitialFilterData,
+    selectedSkills,
+    selectedJobTitles,
+    selectedCompanies,
+  } = useSearchStore();
 
   useEffect(() => {
     void fetchInitialFilterData();
+  }, [fetchInitialFilterData]);
+  useEffect(() => {
     void fetchMentors(1, 10);
-  }, []);
+  }, [selectedSkills, selectedJobTitles, selectedCompanies, fetchMentors]);
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary)'>
