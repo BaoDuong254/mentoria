@@ -1,12 +1,17 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { Star, Users, Clock, Check } from "lucide-react";
 import { FaLinkedinIn, FaTwitter, FaGithub, FaGlobe, FaFacebook, FaInstagram } from "react-icons/fa";
 import Review from "./Components/Review";
 import { useParams } from "react-router-dom";
 import { useSearchStore } from "@/store/useSearchStore";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 function MentorProfile() {
   const { id } = useParams();
   const { selectedMentor, fetchMentorById } = useSearchStore();
+  //state for monthly plan or session
+  const [planType, setPlanType] = useState<"session" | "monthly">("monthly");
+  //state for selected plan id
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,12 +43,27 @@ function MentorProfile() {
         return <FaGlobe className='h-4 w-4 text-gray-400' />;
     }
   };
-  const featurePlan = useMemo(() => {
-    if (!selectedMentor?.plans) return null;
+  const { sessionPlans, monthlyPlans } = useMemo(() => {
+    if (!selectedMentor?.plans) return { sessionPlans: [], monthlyPlans: [] };
 
-    return selectedMentor.plans.find((p) => p.benefits && p.benefits.length > 0);
+    const sessions = selectedMentor.plans.filter((p) => p.sessions_duration && p.sessions_duration > 0);
+    const monthly = selectedMentor.plans.filter((p) => p.benefits && p.benefits.length > 0);
+
+    return { sessionPlans: sessions, monthlyPlans: monthly };
   }, [selectedMentor]);
-  const displayPlan = featurePlan ?? selectedMentor?.plans[0];
+
+  useEffect(() => {
+    if (selectedMentor) {
+      if (planType === "monthly" && monthlyPlans.length === 0 && sessionPlans.length > 0) {
+        setPlanType("session");
+      } else if (planType === "session" && sessionPlans.length === 0 && monthlyPlans.length > 0) {
+        setPlanType("monthly");
+      }
+    }
+  }, [selectedMentor, monthlyPlans, sessionPlans, planType]);
+
+  const activeList = planType === "monthly" ? monthlyPlans : sessionPlans;
+  const displayPlan = activeList.find((p) => p.plan_id === selectedPlanId) ?? activeList[0];
   const review = {
     avt: "https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
     name: "Alex Johnson",
@@ -146,29 +166,121 @@ function MentorProfile() {
               </div>
             </div>
           </div>
+          {/*---RIGHT SIDE BOOKING CARD --- */}
           <div className='h-full w-1/3 text-gray-400'>
-            <div className='flex flex-col items-center justify-between gap-7 rounded-xl border border-(--primary) bg-gray-800 py-7'>
-              <div className='flex w-full flex-col items-center justify-between gap-2'>
-                <span>
-                  <strong className='text-3xl text-white'>${displayPlan?.plan_charge}</strong>/plan
-                </span>
-                <span className='w-10/12 text-center'>{displayPlan?.plan_description}</span>
+            <div className='flex flex-col items-center justify-between gap-7 rounded-xl border border-(--primary) bg-gray-800 pb-7'>
+              <div className='flex w-full border-b border-(--light-purple)'>
+                <div className='h-[50px] w-1/2'>
+                  <button
+                    onClick={() => {
+                      setPlanType("monthly");
+                      if (monthlyPlans[0]) setSelectedPlanId(monthlyPlans[0].plan_id);
+                    }}
+                    disabled={monthlyPlans.length === 0}
+                    className={`h-full w-full cursor-pointer rounded rounded-tl-xl transition-all ${planType === "monthly" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"}`}
+                  >
+                    Mentorship plans
+                  </button>
+                </div>
+                <div className='h-[50px] w-1/2'>
+                  <button
+                    onClick={() => {
+                      setPlanType("session");
+                      if (sessionPlans[0]) setSelectedPlanId(sessionPlans[0].plan_id);
+                    }}
+                    disabled={sessionPlans.length === 0}
+                    className={`h-full w-full cursor-pointer rounded rounded-tr-xl transition-all ${planType === "session" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"}`}
+                  >
+                    Session
+                  </button>
+                </div>
               </div>
-              <div className='flex w-10/12 flex-col gap-4'>
-                {displayPlan?.benefits && displayPlan.benefits.length > 0 ? (
-                  displayPlan.benefits.map((benefit, index) => (
-                    <span className='flex items-start gap-3' key={index}>
-                      <Check className='mt-0.5 h-5 w-5 shrink-0 text-(--green)' />
-                      <span>{benefit}</span>
-                    </span>
-                  ))
+              {planType === "monthly" &&
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                (displayPlan ? (
+                  <div className='flex w-full flex-col gap-5 px-5'>
+                    {activeList.length > 1 && (
+                      <div className='flex w-full flex-wrap items-center justify-center gap-3'>
+                        {monthlyPlans.map((plan) => (
+                          <button
+                            key={plan.plan_id}
+                            onClick={() => {
+                              setSelectedPlanId(plan.plan_id);
+                            }}
+                            className={`cursor-pointer rounded-full border px-5 py-1 text-sm text-[20px] transition-all ${
+                              selectedPlanId === plan.plan_id
+                                ? "border-(--green) bg-(--green)/10 font-bold text-(--green)"
+                                : "border-gray-500 hover:border-gray-300"
+                            }`}
+                          >
+                            {plan.plan_type}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className='flex w-full flex-col items-center justify-between gap-2 border-b border-gray-700 pb-5'>
+                      <span>
+                        <strong className='text-4xl text-white'>${displayPlan.plan_charge}</strong>/month
+                      </span>
+                      <span className='w-10/12 text-center text-sm italic'>{displayPlan.plan_description}</span>
+                    </div>
+
+                    <div className='flex flex-col gap-4 pl-2'>
+                      {displayPlan.benefits?.map((benefit, index) => (
+                        <span className='flex items-start gap-3 text-sm text-gray-300' key={index}>
+                          <Check className='mt-0.5 h-4 w-4 shrink-0 text-(--green)' />
+                          <span>{benefit}</span>
+                        </span>
+                      ))}
+                    </div>
+
+                    <button className='w-full rounded-lg bg-(--primary) py-3 font-bold text-white transition hover:bg-purple-700'>
+                      Book Mentorship
+                    </button>
+                  </div>
                 ) : (
-                  <span className='text-center text-sm text-gray-500'>Basic session without extra benefits</span>
-                )}
-              </div>
-              <button className='flex w-10/12 cursor-pointer items-center justify-center rounded-lg bg-(--primary) py-3 text-white'>
-                Book a Session
-              </button>
+                  <div className='flex h-40 items-center justify-center'>No monthly plans available</div>
+                ))}
+              {planType === "session" && (
+                <div className='flex w-full flex-col items-center gap-3'>
+                  <div className='w-10/12 rounded-2xl border border-(--green)'>
+                    {activeList.map((p, index) => {
+                      const isSelected = selectedPlanId === p.plan_id;
+                      return (
+                        <div
+                          key={p.plan_id}
+                          onClick={() => {
+                            setSelectedPlanId(p.plan_id);
+                          }}
+                          className={`flex cursor-pointer gap-3 px-4 py-5 ${index !== 0 ? "border-t border-(--green)" : ""} `}
+                        >
+                          {/* Radio */}
+                          <div
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${isSelected ? "border-(--green)" : "border-gray-500"} `}
+                          >
+                            {isSelected && <div className='h-2.5 w-2.5 rounded-full bg-(--green)' />}
+                          </div>
+                          {/* Infor session */}
+                          <div className='flex flex-col gap-2'>
+                            <p>
+                              <strong className='text-white'>{p.plan_type}</strong> - {p.plan_description}
+                            </p>
+                            <p>
+                              {p.sessions_duration} minutes, ${p.plan_charge} per person
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className='flex w-full justify-center'>
+                    <button className='flex w-10/12 cursor-pointer items-center justify-center rounded-lg bg-(--primary) py-3 text-white'>
+                      Book a session
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
