@@ -1,6 +1,12 @@
 import poolPromise from "@/config/database";
 import { CreateSlotRequest, GetSlotsQuery, SlotWithPlanDetails, UpdateSlotRequest } from "@/types/slot.type";
 
+// Generate a unique slot_id from composite key for frontend mapping
+const generateSlotId = (mentorId: number, startTime: Date, endTime: Date, date: Date): string => {
+  const formatDate = (d: Date) => d.toISOString();
+  return `${mentorId}_${formatDate(startTime)}_${formatDate(endTime)}_${formatDate(date)}`;
+};
+
 const checkSlotOverlap = async (
   planId: number,
   startTime: Date,
@@ -231,6 +237,7 @@ const getSlotsService = async (
     const slotsResult = await mainRequest.query(slotsQuery);
 
     const slots: SlotWithPlanDetails[] = slotsResult.recordset.map((slot) => ({
+      slot_id: generateSlotId(slot.mentor_id, slot.start_time, slot.end_time, slot.date),
       start_time: slot.start_time,
       end_time: slot.end_time,
       date: slot.date,
@@ -325,6 +332,7 @@ const getSlotService = async (
       success: true,
       message: "Slot retrieved successfully",
       slot: {
+        slot_id: generateSlotId(slot.mentor_id, slot.start_time, slot.end_time, slot.date),
         start_time: slot.start_time,
         end_time: slot.end_time,
         date: slot.date,

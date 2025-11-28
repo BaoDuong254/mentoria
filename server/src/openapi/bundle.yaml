@@ -2,17 +2,17 @@ openapi: 3.0.0
 info:
   title: Mentoria API
   description: This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
-  termsOfService: http://localhost:5173/terms/
+  termsOfService: "http://localhost:5173/terms/"
   contact:
     email: duonggiabao254@gmail.com
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: "https://opensource.org/licenses/MIT"
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
+  - url: "http://localhost:3000"
     description: Development server
-  - url: https://api.mentoria.com
+  - url: "https://api.mentoria.com"
     description: Production server
 tags:
   - name: authentication
@@ -41,7 +41,7 @@ paths:
       tags:
         - authentication
       summary: Register a new user
-      description: Register a new user account. After registration, an OTP will be sent to the provided email for verification.
+      description: "Register a new user account. After registration, an OTP will be sent to the provided email for verification."
       operationId: registerUser
       requestBody:
         required: true
@@ -73,7 +73,7 @@ paths:
       tags:
         - authentication
       summary: Register a new mentor
-      description: Register a new mentor account with CV upload. After registration, an OTP will be sent to the provided email for verification. The account will be reviewed by the admin team before approval.
+      description: "Register a new mentor account with CV upload. After registration, an OTP will be sent to the provided email for verification. The account will be reviewed by the admin team before approval."
       operationId: registerMentor
       requestBody:
         required: true
@@ -127,7 +127,7 @@ paths:
                     type: string
                     example: Mentor registered successfully. Please verify your email. Your account will be reviewed by our team.
         "400":
-          description: Validation errors, email already exists, CV missing, or invalid file format
+          description: "Validation errors, email already exists, CV missing, or invalid file format"
           content:
             application/json:
               schema:
@@ -166,7 +166,7 @@ paths:
       tags:
         - authentication
       summary: Verify OTP
-      description: Verify the OTP sent to user's email after registration. Upon successful verification, user will be logged in automatically.
+      description: "Verify the OTP sent to user's email after registration. Upon successful verification, user will be logged in automatically."
       operationId: verifyOTP
       requestBody:
         required: true
@@ -343,7 +343,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/auth/reset-password/{token}:
+  "/api/auth/reset-password/{token}":
     post:
       tags:
         - authentication
@@ -481,7 +481,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -524,12 +524,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/mentors/{mentorId}/stats:
+  "/api/mentors/{mentorId}/stats":
     get:
       tags:
         - mentor
       summary: Get mentor statistics
-      description: Retrieve comprehensive statistics for a specific mentor including total unique mentees, total feedbacks, total stars, and average rating.
+      description: "Retrieve comprehensive statistics for a specific mentor including total unique mentees, total feedbacks, total stars, and average rating."
       operationId: getMentorStats
       parameters:
         - name: mentorId
@@ -587,12 +587,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/mentors/{mentorId}:
+  "/api/mentors/{mentorId}":
     get:
       tags:
         - mentor
       summary: Get mentor profile
-      description: Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews.
+      description: "Retrieve comprehensive profile information for a specific mentor including personal details, expertise, companies, languages, plans, and reviews."
       operationId: getMentorProfile
       parameters:
         - name: mentorId
@@ -646,7 +646,7 @@ paths:
       tags:
         - mentor
       summary: Update mentor profile
-      description: Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile.
+      description: "Update mentor profile information including personal details, bio, expertise, languages, and social links. Only the authenticated mentor can update their own profile."
       operationId: updateMentorProfile
       security:
         - cookieAuth: []
@@ -793,7 +793,7 @@ paths:
           description: Invalid parameters
         "500":
           description: Internal server error
-  /api/mentees/{menteeId}:
+  "/api/mentees/{menteeId}":
     get:
       tags:
         - mentee
@@ -906,7 +906,7 @@ paths:
                 avatar:
                   type: string
                   format: binary
-                  description: Avatar image file (JPEG, PNG, GIF, or WebP). Maximum size 2MB.
+                  description: "Avatar image file (JPEG, PNG, GIF, or WebP). Maximum size 2MB."
       responses:
         "200":
           description: Avatar updated successfully
@@ -927,7 +927,7 @@ paths:
                       avatar_url:
                         type: string
                         format: uri
-                        example: https://res.cloudinary.com/demo/image/upload/v1234567890/user_avatars/avatar_123_1234567890.jpg
+                        example: "https://res.cloudinary.com/demo/image/upload/v1234567890/user_avatars/avatar_123_1234567890.jpg"
                         description: Cloudinary URL of the uploaded avatar image
         "400":
           description: Bad request - Avatar file is required or invalid file type
@@ -943,7 +943,7 @@ paths:
                 invalidType:
                   value:
                     success: false
-                    message: Only image files (JPEG, PNG, GIF, WebP) are allowed
+                    message: "Only image files (JPEG, PNG, GIF, WebP) are allowed"
                 sizeTooLarge:
                   value:
                     success: false
@@ -1091,7 +1091,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1155,7 +1155,7 @@ paths:
       tags:
         - search
       summary: Search skills and categories
-      description: Search for skills and categories by keyword. Returns skills and subcategories that match the search term, along with the count of mentors who have each skill/category. Useful for filtering and discovering available expertise areas.
+      description: "Search for skills and categories by keyword. Returns skills and subcategories that match the search term, along with the count of mentors who have each skill/category. Useful for filtering and discovering available expertise areas."
       operationId: searchSkills
       parameters:
         - name: keyword
@@ -1177,7 +1177,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1198,7 +1198,56 @@ paths:
                     type: string
                     example: Found 3 skills/categories matching "Sales"
                   data:
-                    $ref: "#/components/schemas/SearchSkillsResponse"
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 49
+                              description: Unique identifier for the skill or category
+                            name:
+                              type: string
+                              example: Sales
+                              description: Name of the skill or category
+                            type:
+                              type: string
+                              enum:
+                                - skill
+                                - category
+                              example: category
+                              description: Type indicating whether this is a skill or a category
+                            super_category_id:
+                              type: integer
+                              nullable: true
+                              example: 38
+                              description: ID of the parent category (null for skills or top-level categories)
+                            mentor_count:
+                              type: integer
+                              example: 5
+                              description: Number of mentors who have this skill or teach in this category
+                        description: Array of skills and categories matching the search criteria
+                      pagination:
+                        $ref: "#/components/schemas/PaginationInfo"
+                        description: Pagination information for the search results
+                      searchInfo:
+                        type: object
+                        properties:
+                          keyword:
+                            type: string
+                            example: Sales
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Sales
+                            description: Array of individual keywords parsed from the keyword string
+                        description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1241,7 +1290,7 @@ paths:
       tags:
         - search
       summary: Search companies
-      description: Search for companies by keyword. Returns companies that match the search term, along with the count of mentors who work or have worked at each company. Useful for filtering mentors by company affiliation.
+      description: "Search for companies by keyword. Returns companies that match the search term, along with the count of mentors who work or have worked at each company. Useful for filtering mentors by company affiliation."
       operationId: searchCompanies
       parameters:
         - name: keyword
@@ -1263,7 +1312,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1284,7 +1333,44 @@ paths:
                     type: string
                     example: Found 2 companies matching "Google"
                   data:
-                    $ref: "#/components/schemas/SearchCompaniesResponse"
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                              description: Unique identifier for the company
+                            name:
+                              type: string
+                              example: Google
+                              description: Name of the company
+                            mentor_count:
+                              type: integer
+                              example: 12
+                              description: Number of mentors who work or have worked at this company
+                        description: Array of companies matching the search criteria
+                      pagination:
+                        $ref: "#/components/schemas/PaginationInfo"
+                        description: Pagination information for the search results
+                      searchInfo:
+                        type: object
+                        properties:
+                          keyword:
+                            type: string
+                            example: Google
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Google
+                            description: Array of individual keywords parsed from the keyword string
+                        description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1327,7 +1413,7 @@ paths:
       tags:
         - search
       summary: Search job titles
-      description: Search for job titles by keyword. Returns job titles that match the search term, along with the count of mentors who hold or have held each job title. Useful for filtering mentors by their professional roles.
+      description: "Search for job titles by keyword. Returns job titles that match the search term, along with the count of mentors who hold or have held each job title. Useful for filtering mentors by their professional roles."
       operationId: searchJobTitles
       parameters:
         - name: keyword
@@ -1349,7 +1435,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1370,7 +1456,44 @@ paths:
                     type: string
                     example: Found 5 job titles matching "Engineer"
                   data:
-                    $ref: "#/components/schemas/SearchJobTitlesResponse"
+                    type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 3
+                              description: Unique identifier for the job title
+                            name:
+                              type: string
+                              example: Software Engineer
+                              description: Name of the job title
+                            mentor_count:
+                              type: integer
+                              example: 8
+                              description: Number of mentors who hold or have held this job title
+                        description: Array of job titles matching the search criteria
+                      pagination:
+                        $ref: "#/components/schemas/PaginationInfo"
+                        description: Pagination information for the search results
+                      searchInfo:
+                        type: object
+                        properties:
+                          keyword:
+                            type: string
+                            example: Engineer
+                            description: The original keyword string used for searching
+                          keywords:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - Engineer
+                            description: Array of individual keywords parsed from the keyword string
+                        description: Information about the search query
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1430,7 +1553,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1503,7 +1626,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1524,7 +1647,61 @@ paths:
                     type: string
                     example: Found 50 skills
                   data:
-                    $ref: "#/components/schemas/SkillsData"
+                    type: object
+                    description: Data object containing skills and pagination information
+                    properties:
+                      skills:
+                        type: array
+                        description: List of skills
+                        items:
+                          type: object
+                          description: "A skill with its ID, name, category information, and the count of mentors who possess this skill"
+                          properties:
+                            skill_id:
+                              type: integer
+                              description: Unique identifier for the skill
+                              example: 5
+                            skill_name:
+                              type: string
+                              description: Name of the skill
+                              example: JavaScript
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who possess this skill
+                              example: 28
+                            category_id:
+                              type: integer
+                              nullable: true
+                              description: Unique identifier for the category this skill belongs to
+                              example: 3
+                            category_name:
+                              type: string
+                              nullable: true
+                              description: Name of the category this skill belongs to
+                              example: Web Development
+                            super_category_id:
+                              type: integer
+                              nullable: true
+                              description: Unique identifier for the super category (parent category)
+                              example: 1
+                            super_category_name:
+                              type: string
+                              nullable: true
+                              description: Name of the super category (parent category)
+                              example: Technology & Programming
+                          required:
+                            - skill_id
+                            - skill_name
+                            - mentor_count
+                            - category_id
+                            - category_name
+                            - super_category_id
+                            - super_category_name
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - skills
+                      - pagination
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1576,7 +1753,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1597,7 +1774,37 @@ paths:
                     type: string
                     example: Found 25 companies
                   data:
-                    $ref: "#/components/schemas/CompaniesData"
+                    type: object
+                    description: Data object containing companies and pagination information
+                    properties:
+                      companies:
+                        type: array
+                        description: List of companies
+                        items:
+                          type: object
+                          description: "A company with its ID, name, and the count of mentors who work for this company"
+                          properties:
+                            company_id:
+                              type: integer
+                              description: Unique identifier for the company
+                              example: 10
+                            company_name:
+                              type: string
+                              description: Name of the company
+                              example: Google
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who work for this company
+                              example: 15
+                          required:
+                            - company_id
+                            - company_name
+                            - mentor_count
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - companies
+                      - pagination
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1649,7 +1856,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1670,7 +1877,37 @@ paths:
                     type: string
                     example: Found 30 job titles
                   data:
-                    $ref: "#/components/schemas/JobTitlesData"
+                    type: object
+                    description: Data object containing job titles and pagination information
+                    properties:
+                      jobTitles:
+                        type: array
+                        description: List of job titles
+                        items:
+                          type: object
+                          description: "A job title with its ID, name, and the count of mentors who hold this job title"
+                          properties:
+                            job_title_id:
+                              type: integer
+                              description: Unique identifier for the job title
+                              example: 8
+                            job_title_name:
+                              type: string
+                              description: Name of the job title
+                              example: Senior Software Engineer
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who hold this job title
+                              example: 12
+                          required:
+                            - job_title_id
+                            - job_title_name
+                            - mentor_count
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - jobTitles
+                      - pagination
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1722,7 +1959,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1743,7 +1980,32 @@ paths:
                     type: string
                     example: Found 45 countries
                   data:
-                    $ref: "#/components/schemas/CountriesData"
+                    type: object
+                    description: Data object containing countries and pagination information
+                    properties:
+                      countries:
+                        type: array
+                        description: List of countries
+                        items:
+                          type: object
+                          description: A country with the count of mentors from that country
+                          properties:
+                            country:
+                              type: string
+                              description: Name of the country
+                              example: United States
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors from this country
+                              example: 18
+                          required:
+                            - country
+                            - mentor_count
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - countries
+                      - pagination
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1795,7 +2057,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -1816,7 +2078,32 @@ paths:
                     type: string
                     example: Found 20 languages
                   data:
-                    $ref: "#/components/schemas/LanguagesData"
+                    type: object
+                    description: Data object containing languages and pagination information
+                    properties:
+                      languages:
+                        type: array
+                        description: List of languages
+                        items:
+                          type: object
+                          description: A language with the count of mentors who speak that language
+                          properties:
+                            language:
+                              type: string
+                              description: Name of the language
+                              example: English
+                            mentor_count:
+                              type: integer
+                              description: Total number of mentors who speak this language
+                              example: 25
+                          required:
+                            - language
+                            - mentor_count
+                      pagination:
+                        $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
+                    required:
+                      - languages
+                      - pagination
         "400":
           description: Invalid query parameters or validation errors
           content:
@@ -1866,7 +2153,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (max 100, default 10)
+          description: "Number of items per page (max 100, default 10)"
           schema:
             type: integer
             minimum: 1
@@ -1985,7 +2272,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/slots/plans/{planId}:
+  "/api/slots/plans/{planId}":
     get:
       tags:
         - slot
@@ -2011,7 +2298,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Number of items per page (default 10, max 100)
+          description: "Number of items per page (default 10, max 100)"
           schema:
             type: integer
             minimum: 1
@@ -2134,12 +2421,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/slots/plans/{planId}/slot:
+  "/api/slots/plans/{planId}/slot":
     get:
       tags:
         - slot
       summary: Get a specific slot
-      description: Retrieve details of a specific time slot by its composite key (planId, startTime, endTime, date).
+      description: "Retrieve details of a specific time slot by its composite key (planId, startTime, endTime, date)."
       operationId: getSlot
       parameters:
         - name: planId
@@ -2280,7 +2567,7 @@ paths:
                 invalidStatus:
                   value:
                     success: false
-                    message: Invalid status. Must be 'Available', 'Booked', or 'Cancelled'
+                    message: "Invalid status. Must be 'Available', 'Booked', or 'Cancelled'"
         "401":
           description: Unauthorized - user not logged in
           content:
@@ -2464,7 +2751,7 @@ paths:
                       sessionUrl:
                         type: string
                         description: URL to redirect user for payment
-                        example: https://checkout.stripe.com/pay/cs_test_a1b2c3d4e5f6g7h8i9j0
+                        example: "https://checkout.stripe.com/pay/cs_test_a1b2c3d4e5f6g7h8i9j0"
         "400":
           description: Validation error or invalid booking request
           content:
@@ -2582,7 +2869,40 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/UserForSidebar"
+                      type: object
+                      description: Basic user information for chat sidebar display
+                      properties:
+                        user_id:
+                          type: integer
+                          example: 2
+                          description: Unique user identifier
+                        first_name:
+                          type: string
+                          example: Alice
+                          description: User's first name
+                        last_name:
+                          type: string
+                          example: Smith
+                          description: User's last name
+                        avatar_url:
+                          type: string
+                          format: uri
+                          example: "https://i.pravatar.cc/150?img=20"
+                          nullable: true
+                          description: URL to user's avatar image
+                        role:
+                          type: string
+                          enum:
+                            - Mentor
+                            - Mentee
+                            - Admin
+                          example: Mentee
+                          description: User's role in the platform
+                      required:
+                        - user_id
+                        - first_name
+                        - last_name
+                        - role
         "401":
           description: Unauthorized - user not logged in
           content:
@@ -2621,7 +2941,56 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Conversation"
+                      type: object
+                      description: A conversation with another user including latest message
+                      properties:
+                        other_user_id:
+                          type: integer
+                          example: 2
+                          description: ID of the other user in the conversation
+                        other_user_first_name:
+                          type: string
+                          example: Alice
+                          description: Other user's first name
+                        other_user_last_name:
+                          type: string
+                          example: Smith
+                          description: Other user's last name
+                        other_user_avatar_url:
+                          type: string
+                          format: uri
+                          example: "https://i.pravatar.cc/150?img=20"
+                          nullable: true
+                          description: URL to other user's avatar image
+                        other_user_role:
+                          type: string
+                          enum:
+                            - Mentor
+                            - Mentee
+                            - Admin
+                          example: Mentee
+                          description: Other user's role
+                        latest_message_content:
+                          type: string
+                          example: Thanks for your help!
+                          description: Content of the most recent message
+                        latest_message_time:
+                          type: string
+                          format: date-time
+                          example: "2025-11-27T15:20:30.000Z"
+                          description: Timestamp of the most recent message
+                        latest_message_sender_id:
+                          type: integer
+                          example: 2
+                          description: ID of who sent the latest message (current user or other user)
+                      required:
+                        - other_user_id
+                        - other_user_first_name
+                        - other_user_last_name
+                        - other_user_role
+                        - latest_message_content
+                        - latest_message_time
+                        - latest_message_sender_id
         "401":
           description: Unauthorized - user not logged in
           content:
@@ -2634,7 +3003,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /api/messages/{userId}:
+  "/api/messages/{userId}":
     get:
       tags:
         - messages
@@ -2668,7 +3037,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Message"
+                      $ref: "#/paths/~1api~1messages/post/responses/201/content/application~1json/schema/properties/data"
         "400":
           description: Invalid user ID
           content:
@@ -2712,7 +3081,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SendMessageRequest"
+              type: object
+              description: Request body for sending a new message
+              properties:
+                receiver_id:
+                  type: integer
+                  example: 2
+                  description: ID of the user who will receive the message
+                content:
+                  type: string
+                  example: Hello! I'd like to schedule a session.
+                  minLength: 1
+                  maxLength: 5000
+                  description: Message text content (1-5000 characters)
+              required:
+                - receiver_id
+                - content
       responses:
         "201":
           description: Message sent successfully
@@ -2725,7 +3109,36 @@ paths:
                     type: boolean
                     example: true
                   data:
-                    $ref: "#/components/schemas/Message"
+                    type: object
+                    description: A chat message between two users
+                    properties:
+                      message_id:
+                        type: integer
+                        example: 123
+                        description: Unique message identifier
+                      sender_id:
+                        type: integer
+                        example: 1
+                        description: ID of the user who sent the message
+                      receiver_id:
+                        type: integer
+                        example: 2
+                        description: ID of the user who receives the message
+                      content:
+                        type: string
+                        example: Hello! How can I help you today?
+                        description: Message text content
+                      sent_time:
+                        type: string
+                        format: date-time
+                        example: "2025-11-27T12:30:45.000Z"
+                        description: Timestamp when message was sent
+                    required:
+                      - message_id
+                      - sender_id
+                      - receiver_id
+                      - content
+                      - sent_time
         "400":
           description: Invalid request - missing receiver_id or content
           content:
@@ -2775,6 +3188,86 @@ components:
           maxLength: 20
           example: securepassword123
           description: User's password (8-20 characters)
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          description: User's email address
+        password:
+          type: string
+          example: securepassword123
+          description: User's password
+    OTPRequest:
+      type: object
+      required:
+        - otp
+      properties:
+        otp:
+          type: string
+          example: "123456"
+          description: 6-digit OTP code sent to user's email
+    ResendOTPRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          description: User's registered email address to resend OTP
+    ForgotPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+          description: User's registered email address
+    ResetPasswordRequest:
+      type: object
+      required:
+        - newPassword
+      properties:
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: newsecurepassword123
+          description: New password (8-20 characters)
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+        - confirmPassword
+      properties:
+        oldPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: currentpassword123
+          description: User's current password
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: newsecurepassword123
+          description: "New password (8-20 characters, must be different from old password)"
+        confirmPassword:
+          type: string
+          minLength: 8
+          maxLength: 20
+          example: newsecurepassword123
+          description: Confirmation of new password (must match newPassword)
     SuccessResponse:
       type: object
       properties:
@@ -2784,6 +3277,15 @@ components:
         message:
           type: string
           example: Operation completed successfully
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Error occurred
     ValidationErrorResponse:
       type: object
       properties:
@@ -2811,70 +3313,6 @@ components:
                 lastName: Doe
                 email: invalid-email
                 password: ""
-    ErrorResponse:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: Error occurred
-    OTPRequest:
-      type: object
-      required:
-        - otp
-      properties:
-        otp:
-          type: string
-          example: "123456"
-          description: 6-digit OTP code sent to user's email
-    ResendOTPRequest:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-          description: User's registered email address to resend OTP
-    LoginRequest:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-          description: User's email address
-        password:
-          type: string
-          example: securepassword123
-          description: User's password
-    ForgotPasswordRequest:
-      type: object
-      required:
-        - email
-      properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-          description: User's registered email address
-    ResetPasswordRequest:
-      type: object
-      required:
-        - newPassword
-      properties:
-        newPassword:
-          type: string
-          minLength: 8
-          maxLength: 20
-          example: newsecurepassword123
-          description: New password (8-20 characters)
     User:
       type: object
       properties:
@@ -2905,7 +3343,7 @@ components:
         avatar_url:
           type: string
           format: uri
-          example: https://example.com/avatars/johndoe.jpg
+          example: "https://example.com/avatars/johndoe.jpg"
           description: URL to user's avatar image
         country:
           type: string
@@ -2954,17 +3392,204 @@ components:
           format: date-time
           example: "2023-10-25T10:30:00Z"
           description: Last account update timestamp
-    Skill:
+    MentorProfileResponse:
       type: object
       properties:
-        skill_id:
+        user_id:
           type: integer
           example: 1
-          description: Unique skill identifier
-        skill_name:
+          description: Unique mentor identifier
+        first_name:
           type: string
-          example: JavaScript
-          description: Skill or area of expertise
+          example: John
+          description: Mentor's first name
+        last_name:
+          type: string
+          example: Doe
+          description: Mentor's last name
+        email:
+          type: string
+          format: email
+          example: john.mentor@example.com
+          description: Mentor's email address
+        sex:
+          type: string
+          nullable: true
+          enum:
+            - Male
+            - Female
+          example: Male
+          description: Mentor's gender
+        avatar_url:
+          type: string
+          nullable: true
+          format: uri
+          example: "https://example.com/avatars/mentor-john.jpg"
+          description: URL to mentor's avatar image
+        country:
+          type: string
+          nullable: true
+          example: USA
+          description: Mentor's country of residence
+        timezone:
+          type: string
+          nullable: true
+          example: America/New_York
+          description: Mentor's timezone
+        bio:
+          type: string
+          nullable: true
+          example: Experienced software engineer with 10+ years in web development
+          description: Mentor's biography
+        headline:
+          type: string
+          nullable: true
+          example: Senior Software Engineer at Tech Corp
+          description: Mentor's professional headline
+        response_time:
+          type: string
+          example: Within 24 hours
+          description: Average response time description
+        cv_url:
+          type: string
+          nullable: true
+          format: uri
+          example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
+          description: URL to mentor's CV (PDF)
+        social_links:
+          type: array
+          items:
+            $ref: "#/components/schemas/SocialLink"
+          description: Mentor's social media links
+        companies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Company"
+          description: Companies where mentor has worked
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Skill"
+          description: Skills and areas of expertise
+        languages:
+          type: array
+          items:
+            type: string
+          example:
+            - English
+            - Spanish
+            - French
+          description: Languages spoken by mentor
+        plans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Plan"
+          description: Mentorship plans offered by mentor
+        total_mentees:
+          type: integer
+          example: 25
+          description: Total number of unique mentees guided
+        total_feedbacks:
+          type: integer
+          example: 15
+          description: Total number of feedback entries received
+        total_stars:
+          type: integer
+          example: 72
+          description: Total cumulative star rating from all feedbacks
+        average_rating:
+          type: number
+          nullable: true
+          format: float
+          example: 4.8
+          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
+        feedbacks:
+          type: array
+          items:
+            type: object
+            properties:
+              mentee_id:
+                type: integer
+                example: 5
+                description: Unique mentee identifier
+              mentee_first_name:
+                type: string
+                example: Jane
+                description: Mentee's first name
+              mentee_last_name:
+                type: string
+                example: Smith
+                description: Mentee's last name
+              stars:
+                type: integer
+                minimum: 1
+                maximum: 5
+                example: 5
+                description: Star rating given by the mentee (1-5)
+              content:
+                type: string
+                example: Excellent mentor! Very helpful and knowledgeable.
+                description: Feedback content/review text
+              sent_time:
+                type: string
+                format: date-time
+                example: "2025-11-20T14:30:00Z"
+                description: Timestamp when feedback was submitted
+              plan_id:
+                type: integer
+                nullable: true
+                example: 3
+                description: ID of the plan/package the mentee registered for
+              plan_type:
+                type: string
+                nullable: true
+                example: Session
+                description: Type of plan (Session or Mentorship)
+              plan_description:
+                type: string
+                nullable: true
+                example: 1-hour career guidance session
+                description: Description of the mentorship plan
+              plan_charge:
+                type: number
+                nullable: true
+                format: decimal
+                example: 99.99
+                description: Cost of the plan the mentee registered for
+          description: Feedback reviews from mentees with plan information
+    MentorStatsResponse:
+      type: object
+      properties:
+        total_mentees:
+          type: integer
+          example: 25
+          description: Total number of unique mentees guided by the mentor
+        total_feedbacks:
+          type: integer
+          example: 15
+          description: Total number of feedback entries received by the mentor
+        total_stars:
+          type: integer
+          example: 72
+          description: Total cumulative star rating from all feedbacks
+        average_rating:
+          type: number
+          nullable: true
+          format: float
+          example: 4.8
+          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
+    SocialLink:
+      type: object
+      properties:
+        link:
+          type: string
+          format: uri
+          example: "https://linkedin.com/in/johndoe"
+          description: URL to social media profile
+        platform:
+          type: string
+          example: LinkedIn
+          description: Social media platform name
     Company:
       type: object
       properties:
@@ -2984,6 +3609,151 @@ components:
           type: string
           example: Senior Software Engineer
           description: Mentor's job title at the company
+    Skill:
+      type: object
+      properties:
+        skill_id:
+          type: integer
+          example: 1
+          description: Unique skill identifier
+        skill_name:
+          type: string
+          example: JavaScript
+          description: Skill or area of expertise
+    Plan:
+      type: object
+      properties:
+        plan_id:
+          type: integer
+          example: 1
+          description: Unique plan identifier
+        plan_description:
+          type: string
+          example: 1-hour mentorship session with personalized career guidance
+          description: Description of the mentorship plan
+        plan_charge:
+          type: number
+          format: decimal
+          example: 99.99
+          description: Cost of the plan
+        plan_type:
+          type: string
+          example: Session
+          description: Type of plan (Session or Mentorship)
+        sessions_duration:
+          type: integer
+          nullable: true
+          example: 60
+          description: Duration of session in minutes (only for Session type plans)
+        benefits:
+          type: array
+          nullable: true
+          items:
+            type: string
+          example:
+            - 1-on-1 video call
+            - Code review
+            - Career guidance
+          description: List of benefits included in the plan (only for Mentorship type plans)
+    UpdateMentorProfileRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          example: John
+          description: Mentor's first name
+        lastName:
+          type: string
+          minLength: 1
+          example: Doe
+          description: Mentor's last name
+        sex:
+          type: string
+          enum:
+            - Male
+            - Female
+          example: Male
+          description: Mentor's gender
+        country:
+          type: string
+          example: USA
+          description: Mentor's country of residence
+        timezone:
+          type: string
+          example: America/New_York
+          description: Mentor's timezone
+        bio:
+          type: string
+          example: Experienced software engineer with 10+ years in web development
+          description: Mentor's biography
+        headline:
+          type: string
+          example: Senior Software Engineer at Tech Corp
+          description: Mentor's professional headline
+        responseTime:
+          type: string
+          example: Within 24 hours
+          description: "Average response time description (e.g., 'Within 1 hour', '1-2 days')"
+        cvUrl:
+          type: string
+          format: uri
+          example: "https://cloudinary.com/cvs/mentor-john-cv.pdf"
+          description: URL to mentor's CV (PDF)
+        socialLinks:
+          type: array
+          items:
+            type: object
+            required:
+              - link
+              - platform
+            properties:
+              link:
+                type: string
+                format: uri
+                example: "https://linkedin.com/in/johndoe"
+              platform:
+                type: string
+                example: LinkedIn
+          description: Mentor's social media links
+        companies:
+          type: array
+          items:
+            type: object
+            required:
+              - companyName
+              - jobTitleName
+            properties:
+              companyName:
+                type: string
+                example: Tech Corp
+              jobTitleName:
+                type: string
+                example: Senior Software Engineer
+          example:
+            - companyName: Tech Corp
+              jobTitleName: Senior Software Engineer
+            - companyName: Web Solutions
+              jobTitleName: Frontend Developer
+          description: Companies where mentor has worked or is working
+        languages:
+          type: array
+          items:
+            type: string
+          example:
+            - English
+            - Spanish
+            - French
+          description: Languages spoken by mentor
+        skillIds:
+          type: array
+          items:
+            type: integer
+          example:
+            - 1
+            - 2
+            - 3
+          description: Array of skill IDs representing areas of expertise
     MentorListItem:
       type: object
       properties:
@@ -3000,7 +3770,7 @@ components:
           type: string
           nullable: true
           format: uri
-          example: https://example.com/avatars/mentor-john.jpg
+          example: "https://example.com/avatars/mentor-john.jpg"
         country:
           type: string
           nullable: true
@@ -3065,6 +3835,15 @@ components:
                 example: Web Development
                 description: Category name
           description: Categories associated with the mentor's skills
+    MentorsListResponse:
+      type: object
+      properties:
+        mentors:
+          type: array
+          items:
+            $ref: "#/components/schemas/MentorListItem"
+        pagination:
+          $ref: "#/components/schemas/PaginationInfo"
     PaginationInfo:
       type: object
       properties:
@@ -3086,373 +3865,6 @@ components:
         hasPreviousPage:
           type: boolean
           example: false
-    MentorsListResponse:
-      type: object
-      properties:
-        mentors:
-          type: array
-          items:
-            $ref: "#/components/schemas/MentorListItem"
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
-    MentorStatsResponse:
-      type: object
-      properties:
-        total_mentees:
-          type: integer
-          example: 25
-          description: Total number of unique mentees guided by the mentor
-        total_feedbacks:
-          type: integer
-          example: 15
-          description: Total number of feedback entries received by the mentor
-        total_stars:
-          type: integer
-          example: 72
-          description: Total cumulative star rating from all feedbacks
-        average_rating:
-          type: number
-          nullable: true
-          format: float
-          example: 4.8
-          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
-    SocialLink:
-      type: object
-      properties:
-        link:
-          type: string
-          format: uri
-          example: https://linkedin.com/in/johndoe
-          description: URL to social media profile
-        platform:
-          type: string
-          example: LinkedIn
-          description: Social media platform name
-    Plan:
-      type: object
-      properties:
-        plan_id:
-          type: integer
-          example: 1
-          description: Unique plan identifier
-        plan_description:
-          type: string
-          example: 1-hour mentorship session with personalized career guidance
-          description: Description of the mentorship plan
-        plan_charge:
-          type: number
-          format: decimal
-          example: 99.99
-          description: Cost of the plan
-        plan_type:
-          type: string
-          example: Session
-          description: Type of plan (Session or Mentorship)
-        sessions_duration:
-          type: integer
-          nullable: true
-          example: 60
-          description: Duration of session in minutes (only for Session type plans)
-        benefits:
-          type: array
-          nullable: true
-          items:
-            type: string
-          example:
-            - 1-on-1 video call
-            - Code review
-            - Career guidance
-          description: List of benefits included in the plan (only for Mentorship type plans)
-    Feedback:
-      type: object
-      properties:
-        mentee_id:
-          type: integer
-          example: 5
-          description: Unique mentee identifier
-        mentee_first_name:
-          type: string
-          example: Jane
-          description: Mentee's first name
-        mentee_last_name:
-          type: string
-          example: Smith
-          description: Mentee's last name
-        stars:
-          type: integer
-          minimum: 1
-          maximum: 5
-          example: 5
-          description: Star rating given by the mentee (1-5)
-        content:
-          type: string
-          example: Excellent mentor! Very helpful and knowledgeable.
-          description: Feedback content/review text
-        sent_time:
-          type: string
-          format: date-time
-          example: "2025-11-20T14:30:00Z"
-          description: Timestamp when feedback was submitted
-        plan_id:
-          type: integer
-          nullable: true
-          example: 3
-          description: ID of the plan/package the mentee registered for
-        plan_type:
-          type: string
-          nullable: true
-          example: Session
-          description: Type of plan (Session or Mentorship)
-        plan_description:
-          type: string
-          nullable: true
-          example: 1-hour career guidance session
-          description: Description of the mentorship plan
-        plan_charge:
-          type: number
-          nullable: true
-          format: decimal
-          example: 99.99
-          description: Cost of the plan the mentee registered for
-    MentorProfileResponse:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 1
-          description: Unique mentor identifier
-        first_name:
-          type: string
-          example: John
-          description: Mentor's first name
-        last_name:
-          type: string
-          example: Doe
-          description: Mentor's last name
-        email:
-          type: string
-          format: email
-          example: john.mentor@example.com
-          description: Mentor's email address
-        sex:
-          type: string
-          nullable: true
-          enum:
-            - Male
-            - Female
-          example: Male
-          description: Mentor's gender
-        avatar_url:
-          type: string
-          nullable: true
-          format: uri
-          example: https://example.com/avatars/mentor-john.jpg
-          description: URL to mentor's avatar image
-        country:
-          type: string
-          nullable: true
-          example: USA
-          description: Mentor's country of residence
-        timezone:
-          type: string
-          nullable: true
-          example: America/New_York
-          description: Mentor's timezone
-        bio:
-          type: string
-          nullable: true
-          example: Experienced software engineer with 10+ years in web development
-          description: Mentor's biography
-        headline:
-          type: string
-          nullable: true
-          example: Senior Software Engineer at Tech Corp
-          description: Mentor's professional headline
-        response_time:
-          type: string
-          example: Within 24 hours
-          description: Average response time description
-        cv_url:
-          type: string
-          nullable: true
-          format: uri
-          example: https://cloudinary.com/cvs/mentor-john-cv.pdf
-          description: URL to mentor's CV (PDF)
-        social_links:
-          type: array
-          items:
-            $ref: "#/components/schemas/SocialLink"
-          description: Mentor's social media links
-        companies:
-          type: array
-          items:
-            $ref: "#/components/schemas/Company"
-          description: Companies where mentor has worked
-        skills:
-          type: array
-          items:
-            $ref: "#/components/schemas/Skill"
-          description: Skills and areas of expertise
-        languages:
-          type: array
-          items:
-            type: string
-          example:
-            - English
-            - Spanish
-            - French
-          description: Languages spoken by mentor
-        plans:
-          type: array
-          items:
-            $ref: "#/components/schemas/Plan"
-          description: Mentorship plans offered by mentor
-        total_mentees:
-          type: integer
-          example: 25
-          description: Total number of unique mentees guided
-        total_feedbacks:
-          type: integer
-          example: 15
-          description: Total number of feedback entries received
-        total_stars:
-          type: integer
-          example: 72
-          description: Total cumulative star rating from all feedbacks
-        average_rating:
-          type: number
-          nullable: true
-          format: float
-          example: 4.8
-          description: Average rating calculated from feedbacks (total_stars / total_feedbacks)
-        feedbacks:
-          type: array
-          items:
-            $ref: "#/components/schemas/Feedback"
-          description: Feedback reviews from mentees with plan information
-    UpdateMentorProfileRequest:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 1
-          example: John
-          description: Mentor's first name
-        lastName:
-          type: string
-          minLength: 1
-          example: Doe
-          description: Mentor's last name
-        sex:
-          type: string
-          enum:
-            - Male
-            - Female
-          example: Male
-          description: Mentor's gender
-        country:
-          type: string
-          example: USA
-          description: Mentor's country of residence
-        timezone:
-          type: string
-          example: America/New_York
-          description: Mentor's timezone
-        bio:
-          type: string
-          example: Experienced software engineer with 10+ years in web development
-          description: Mentor's biography
-        headline:
-          type: string
-          example: Senior Software Engineer at Tech Corp
-          description: Mentor's professional headline
-        responseTime:
-          type: string
-          example: Within 24 hours
-          description: Average response time description (e.g., 'Within 1 hour', '1-2 days')
-        cvUrl:
-          type: string
-          format: uri
-          example: https://cloudinary.com/cvs/mentor-john-cv.pdf
-          description: URL to mentor's CV (PDF)
-        socialLinks:
-          type: array
-          items:
-            type: object
-            required:
-              - link
-              - platform
-            properties:
-              link:
-                type: string
-                format: uri
-                example: https://linkedin.com/in/johndoe
-              platform:
-                type: string
-                example: LinkedIn
-          description: Mentor's social media links
-        companies:
-          type: array
-          items:
-            type: object
-            required:
-              - companyName
-              - jobTitleName
-            properties:
-              companyName:
-                type: string
-                example: Tech Corp
-              jobTitleName:
-                type: string
-                example: Senior Software Engineer
-          example:
-            - companyName: Tech Corp
-              jobTitleName: Senior Software Engineer
-            - companyName: Web Solutions
-              jobTitleName: Frontend Developer
-          description: Companies where mentor has worked or is working
-        languages:
-          type: array
-          items:
-            type: string
-          example:
-            - English
-            - Spanish
-            - French
-          description: Languages spoken by mentor
-        skillIds:
-          type: array
-          items:
-            type: integer
-          example:
-            - 1
-            - 2
-            - 3
-          description: Array of skill IDs representing areas of expertise
-    MenteeListItem:
-      type: object
-      properties:
-        user_id:
-          type: integer
-          example: 1
-        first_name:
-          type: string
-          example: John
-        last_name:
-          type: string
-          example: Doe
-        avatar_url:
-          type: string
-          nullable: true
-        country:
-          type: string
-          nullable: true
-        goal:
-          type: string
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
     MenteeProfile:
       type: object
       properties:
@@ -3517,42 +3929,74 @@ components:
           type: string
         goal:
           type: string
-    ChangePasswordRequest:
-      type: object
-      required:
-        - oldPassword
-        - newPassword
-        - confirmPassword
-      properties:
-        oldPassword:
-          type: string
-          minLength: 8
-          maxLength: 20
-          example: currentpassword123
-          description: User's current password
-        newPassword:
-          type: string
-          minLength: 8
-          maxLength: 20
-          example: newsecurepassword123
-          description: New password (8-20 characters, must be different from old password)
-        confirmPassword:
-          type: string
-          minLength: 8
-          maxLength: 20
-          example: newsecurepassword123
-          description: Confirmation of new password (must match newPassword)
-    Category:
+    MenteeListItem:
       type: object
       properties:
-        category_id:
+        user_id:
           type: integer
           example: 1
-          description: Unique category identifier
-        category_name:
+        first_name:
           type: string
-          example: Web Development
-          description: Category name
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        avatar_url:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        goal:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    SearchMentorsResponse:
+      type: object
+      properties:
+        mentors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchMentorListItem"
+          description: Array of mentors matching the search criteria
+        pagination:
+          $ref: "#/components/schemas/PaginationInfo"
+          description: Pagination information for the search results
+        searchInfo:
+          type: object
+          properties:
+            keyword:
+              type: string
+              example: google senior javascript
+              description: The original keyword string used for searching
+            keywords:
+              type: array
+              items:
+                type: string
+              example:
+                - google
+                - senior
+                - javascript
+              description: Array of individual keywords parsed from the keyword string (space-separated)
+            searchedFields:
+              type: array
+              items:
+                type: string
+              example:
+                - first_name
+                - last_name
+                - full_name
+                - bio
+                - headline
+                - skills
+                - categories
+                - companies
+                - job_titles
+                - languages
+              description: List of fields that were searched
+          description: Information about the search query and scope
     SearchMentorListItem:
       type: object
       properties:
@@ -3572,7 +4016,7 @@ components:
           type: string
           nullable: true
           format: uri
-          example: https://example.com/avatars/mentor-john.jpg
+          example: "https://example.com/avatars/mentor-john.jpg"
           description: URL to mentor's avatar image
         country:
           type: string
@@ -3632,188 +4076,20 @@ components:
           items:
             $ref: "#/components/schemas/Category"
           description: Categories associated with the mentor's skills
-    SearchMentorsResponse:
+    Category:
       type: object
       properties:
-        mentors:
-          type: array
-          items:
-            $ref: "#/components/schemas/SearchMentorListItem"
-          description: Array of mentors matching the search criteria
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
-          description: Pagination information for the search results
-        searchInfo:
-          type: object
-          properties:
-            keyword:
-              type: string
-              example: google senior javascript
-              description: The original keyword string used for searching
-            keywords:
-              type: array
-              items:
-                type: string
-              example:
-                - google
-                - senior
-                - javascript
-              description: Array of individual keywords parsed from the keyword string (space-separated)
-            searchedFields:
-              type: array
-              items:
-                type: string
-              example:
-                - first_name
-                - last_name
-                - full_name
-                - bio
-                - headline
-                - skills
-                - categories
-                - companies
-                - job_titles
-                - languages
-              description: List of fields that were searched
-          description: Information about the search query and scope
-    SkillCategoryItem:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 49
-          description: Unique identifier for the skill or category
-        name:
-          type: string
-          example: Sales
-          description: Name of the skill or category
-        type:
-          type: string
-          enum:
-            - skill
-            - category
-          example: category
-          description: Type indicating whether this is a skill or a category
-        super_category_id:
-          type: integer
-          nullable: true
-          example: 38
-          description: ID of the parent category (null for skills or top-level categories)
-        mentor_count:
-          type: integer
-          example: 5
-          description: Number of mentors who have this skill or teach in this category
-    SearchSkillsResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            $ref: "#/components/schemas/SkillCategoryItem"
-          description: Array of skills and categories matching the search criteria
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
-          description: Pagination information for the search results
-        searchInfo:
-          type: object
-          properties:
-            keyword:
-              type: string
-              example: Sales
-              description: The original keyword string used for searching
-            keywords:
-              type: array
-              items:
-                type: string
-              example:
-                - Sales
-              description: Array of individual keywords parsed from the keyword string
-          description: Information about the search query
-    CompanyItem:
-      type: object
-      properties:
-        id:
+        category_id:
           type: integer
           example: 1
-          description: Unique identifier for the company
-        name:
+          description: Unique category identifier
+        category_name:
           type: string
-          example: Google
-          description: Name of the company
-        mentor_count:
-          type: integer
-          example: 12
-          description: Number of mentors who work or have worked at this company
-    SearchCompaniesResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            $ref: "#/components/schemas/CompanyItem"
-          description: Array of companies matching the search criteria
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
-          description: Pagination information for the search results
-        searchInfo:
-          type: object
-          properties:
-            keyword:
-              type: string
-              example: Google
-              description: The original keyword string used for searching
-            keywords:
-              type: array
-              items:
-                type: string
-              example:
-                - Google
-              description: Array of individual keywords parsed from the keyword string
-          description: Information about the search query
-    JobTitleItem:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 3
-          description: Unique identifier for the job title
-        name:
-          type: string
-          example: Software Engineer
-          description: Name of the job title
-        mentor_count:
-          type: integer
-          example: 8
-          description: Number of mentors who hold or have held this job title
-    SearchJobTitlesResponse:
-      type: object
-      properties:
-        results:
-          type: array
-          items:
-            $ref: "#/components/schemas/JobTitleItem"
-          description: Array of job titles matching the search criteria
-        pagination:
-          $ref: "#/components/schemas/PaginationInfo"
-          description: Pagination information for the search results
-        searchInfo:
-          type: object
-          properties:
-            keyword:
-              type: string
-              example: Engineer
-              description: The original keyword string used for searching
-            keywords:
-              type: array
-              items:
-                type: string
-              example:
-                - Engineer
-              description: Array of individual keywords parsed from the keyword string
-          description: Information about the search query
+          example: Web Development
+          description: Category name
     SuperCategoryItem:
       type: object
-      description: A super category with its ID, name, and the count of mentors who have skills in this category or its subcategories
+      description: "A super category with its ID, name, and the count of mentors who have skills in this category or its subcategories"
       properties:
         category_id:
           type: integer
@@ -3831,41 +4107,6 @@ components:
         - category_id
         - category_name
         - mentor_count
-    catalog_PaginationInfo:
-      type: object
-      description: Pagination metadata for list responses
-      properties:
-        currentPage:
-          type: integer
-          description: Current page number
-          example: 1
-        totalPages:
-          type: integer
-          description: Total number of pages available
-          example: 5
-        totalItems:
-          type: integer
-          description: Total number of items across all pages
-          example: 42
-        itemsPerPage:
-          type: integer
-          description: Number of items per page
-          example: 10
-        hasNextPage:
-          type: boolean
-          description: Whether there is a next page available
-          example: true
-        hasPreviousPage:
-          type: boolean
-          description: Whether there is a previous page available
-          example: false
-      required:
-        - currentPage
-        - totalPages
-        - totalItems
-        - itemsPerPage
-        - hasNextPage
-        - hasPreviousPage
     SuperCategoriesData:
       type: object
       description: Data object containing super categories and pagination information
@@ -3876,193 +4117,42 @@ components:
           items:
             $ref: "#/components/schemas/SuperCategoryItem"
         pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
+          type: object
+          description: Pagination metadata for list responses
+          properties:
+            currentPage:
+              type: integer
+              description: Current page number
+              example: 1
+            totalPages:
+              type: integer
+              description: Total number of pages available
+              example: 5
+            totalItems:
+              type: integer
+              description: Total number of items across all pages
+              example: 42
+            itemsPerPage:
+              type: integer
+              description: Number of items per page
+              example: 10
+            hasNextPage:
+              type: boolean
+              description: Whether there is a next page available
+              example: true
+            hasPreviousPage:
+              type: boolean
+              description: Whether there is a previous page available
+              example: false
+          required:
+            - currentPage
+            - totalPages
+            - totalItems
+            - itemsPerPage
+            - hasNextPage
+            - hasPreviousPage
       required:
         - categories
-        - pagination
-    SkillItem:
-      type: object
-      description: A skill with its ID, name, category information, and the count of mentors who possess this skill
-      properties:
-        skill_id:
-          type: integer
-          description: Unique identifier for the skill
-          example: 5
-        skill_name:
-          type: string
-          description: Name of the skill
-          example: JavaScript
-        mentor_count:
-          type: integer
-          description: Total number of mentors who possess this skill
-          example: 28
-        category_id:
-          type: integer
-          nullable: true
-          description: Unique identifier for the category this skill belongs to
-          example: 3
-        category_name:
-          type: string
-          nullable: true
-          description: Name of the category this skill belongs to
-          example: Web Development
-        super_category_id:
-          type: integer
-          nullable: true
-          description: Unique identifier for the super category (parent category)
-          example: 1
-        super_category_name:
-          type: string
-          nullable: true
-          description: Name of the super category (parent category)
-          example: Technology & Programming
-      required:
-        - skill_id
-        - skill_name
-        - mentor_count
-        - category_id
-        - category_name
-        - super_category_id
-        - super_category_name
-    SkillsData:
-      type: object
-      description: Data object containing skills and pagination information
-      properties:
-        skills:
-          type: array
-          description: List of skills
-          items:
-            $ref: "#/components/schemas/SkillItem"
-        pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
-      required:
-        - skills
-        - pagination
-    catalog_CompanyItem:
-      type: object
-      description: A company with its ID, name, and the count of mentors who work for this company
-      properties:
-        company_id:
-          type: integer
-          description: Unique identifier for the company
-          example: 10
-        company_name:
-          type: string
-          description: Name of the company
-          example: Google
-        mentor_count:
-          type: integer
-          description: Total number of mentors who work for this company
-          example: 15
-      required:
-        - company_id
-        - company_name
-        - mentor_count
-    CompaniesData:
-      type: object
-      description: Data object containing companies and pagination information
-      properties:
-        companies:
-          type: array
-          description: List of companies
-          items:
-            $ref: "#/components/schemas/catalog_CompanyItem"
-        pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
-      required:
-        - companies
-        - pagination
-    catalog_JobTitleItem:
-      type: object
-      description: A job title with its ID, name, and the count of mentors who hold this job title
-      properties:
-        job_title_id:
-          type: integer
-          description: Unique identifier for the job title
-          example: 8
-        job_title_name:
-          type: string
-          description: Name of the job title
-          example: Senior Software Engineer
-        mentor_count:
-          type: integer
-          description: Total number of mentors who hold this job title
-          example: 12
-      required:
-        - job_title_id
-        - job_title_name
-        - mentor_count
-    JobTitlesData:
-      type: object
-      description: Data object containing job titles and pagination information
-      properties:
-        jobTitles:
-          type: array
-          description: List of job titles
-          items:
-            $ref: "#/components/schemas/catalog_JobTitleItem"
-        pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
-      required:
-        - jobTitles
-        - pagination
-    CountryItem:
-      type: object
-      description: A country with the count of mentors from that country
-      properties:
-        country:
-          type: string
-          description: Name of the country
-          example: United States
-        mentor_count:
-          type: integer
-          description: Total number of mentors from this country
-          example: 18
-      required:
-        - country
-        - mentor_count
-    CountriesData:
-      type: object
-      description: Data object containing countries and pagination information
-      properties:
-        countries:
-          type: array
-          description: List of countries
-          items:
-            $ref: "#/components/schemas/CountryItem"
-        pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
-      required:
-        - countries
-        - pagination
-    LanguageItem:
-      type: object
-      description: A language with the count of mentors who speak that language
-      properties:
-        language:
-          type: string
-          description: Name of the language
-          example: English
-        mentor_count:
-          type: integer
-          description: Total number of mentors who speak this language
-          example: 25
-      required:
-        - language
-        - mentor_count
-    LanguagesData:
-      type: object
-      description: Data object containing languages and pagination information
-      properties:
-        languages:
-          type: array
-          description: List of languages
-          items:
-            $ref: "#/components/schemas/LanguageItem"
-        pagination:
-          $ref: "#/components/schemas/catalog_PaginationInfo"
-      required:
-        - languages
         - pagination
     FilterMentorsData:
       type: object
@@ -4095,9 +4185,57 @@ components:
         - success
         - message
         - data
+    CreateSlotRequest:
+      type: object
+      required:
+        - startTime
+        - endTime
+        - date
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: "2025-12-01T10:00:00Z"
+          description: Start time of the slot in ISO 8601 format
+        endTime:
+          type: string
+          format: date-time
+          example: "2025-12-01T11:00:00Z"
+          description: End time of the slot in ISO 8601 format
+        date:
+          type: string
+          format: date
+          example: "2025-12-01"
+          description: Date of the slot (YYYY-MM-DD or ISO 8601 format)
+        status:
+          type: string
+          enum:
+            - Available
+            - Booked
+            - Cancelled
+          default: Available
+          example: Available
+          description: Status of the slot
+    UpdateSlotRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - Available
+            - Booked
+            - Cancelled
+          example: Booked
+          description: Updated status of the slot (only field that can be updated)
     SlotWithPlanDetails:
       type: object
       properties:
+        slot_id:
+          type: string
+          example: "1_2025-12-01T10:00:00.000Z_2025-12-01T11:00:00.000Z_2025-12-01T00:00:00.000Z"
+          description: "Unique identifier computed from composite key (mentor_id, start_time, end_time, date) for frontend mapping"
         start_time:
           type: string
           format: date-time
@@ -4151,184 +4289,6 @@ components:
             $ref: "#/components/schemas/SlotWithPlanDetails"
         pagination:
           $ref: "#/components/schemas/PaginationInfo"
-    CreateSlotRequest:
-      type: object
-      required:
-        - startTime
-        - endTime
-        - date
-      properties:
-        startTime:
-          type: string
-          format: date-time
-          example: "2025-12-01T10:00:00Z"
-          description: Start time of the slot in ISO 8601 format
-        endTime:
-          type: string
-          format: date-time
-          example: "2025-12-01T11:00:00Z"
-          description: End time of the slot in ISO 8601 format
-        date:
-          type: string
-          format: date
-          example: "2025-12-01"
-          description: Date of the slot (YYYY-MM-DD or ISO 8601 format)
-        status:
-          type: string
-          enum:
-            - Available
-            - Booked
-            - Cancelled
-          default: Available
-          example: Available
-          description: Status of the slot
-    UpdateSlotRequest:
-      type: object
-      required:
-        - status
-      properties:
-        status:
-          type: string
-          enum:
-            - Available
-            - Booked
-            - Cancelled
-          example: Booked
-          description: Updated status of the slot (only field that can be updated)
-    UserForSidebar:
-      type: object
-      description: Basic user information for chat sidebar display
-      properties:
-        user_id:
-          type: integer
-          example: 2
-          description: Unique user identifier
-        first_name:
-          type: string
-          example: Alice
-          description: User's first name
-        last_name:
-          type: string
-          example: Smith
-          description: User's last name
-        avatar_url:
-          type: string
-          format: uri
-          example: https://i.pravatar.cc/150?img=20
-          nullable: true
-          description: URL to user's avatar image
-        role:
-          type: string
-          enum:
-            - Mentor
-            - Mentee
-            - Admin
-          example: Mentee
-          description: User's role in the platform
-      required:
-        - user_id
-        - first_name
-        - last_name
-        - role
-    Conversation:
-      type: object
-      description: A conversation with another user including latest message
-      properties:
-        other_user_id:
-          type: integer
-          example: 2
-          description: ID of the other user in the conversation
-        other_user_first_name:
-          type: string
-          example: Alice
-          description: Other user's first name
-        other_user_last_name:
-          type: string
-          example: Smith
-          description: Other user's last name
-        other_user_avatar_url:
-          type: string
-          format: uri
-          example: https://i.pravatar.cc/150?img=20
-          nullable: true
-          description: URL to other user's avatar image
-        other_user_role:
-          type: string
-          enum:
-            - Mentor
-            - Mentee
-            - Admin
-          example: Mentee
-          description: Other user's role
-        latest_message_content:
-          type: string
-          example: Thanks for your help!
-          description: Content of the most recent message
-        latest_message_time:
-          type: string
-          format: date-time
-          example: "2025-11-27T15:20:30.000Z"
-          description: Timestamp of the most recent message
-        latest_message_sender_id:
-          type: integer
-          example: 2
-          description: ID of who sent the latest message (current user or other user)
-      required:
-        - other_user_id
-        - other_user_first_name
-        - other_user_last_name
-        - other_user_role
-        - latest_message_content
-        - latest_message_time
-        - latest_message_sender_id
-    Message:
-      type: object
-      description: A chat message between two users
-      properties:
-        message_id:
-          type: integer
-          example: 123
-          description: Unique message identifier
-        sender_id:
-          type: integer
-          example: 1
-          description: ID of the user who sent the message
-        receiver_id:
-          type: integer
-          example: 2
-          description: ID of the user who receives the message
-        content:
-          type: string
-          example: Hello! How can I help you today?
-          description: Message text content
-        sent_time:
-          type: string
-          format: date-time
-          example: "2025-11-27T12:30:45.000Z"
-          description: Timestamp when message was sent
-      required:
-        - message_id
-        - sender_id
-        - receiver_id
-        - content
-        - sent_time
-    SendMessageRequest:
-      type: object
-      description: Request body for sending a new message
-      properties:
-        receiver_id:
-          type: integer
-          example: 2
-          description: ID of the user who will receive the message
-        content:
-          type: string
-          example: Hello! I'd like to schedule a session.
-          minLength: 1
-          maxLength: 5000
-          description: Message text content (1-5000 characters)
-      required:
-        - receiver_id
-        - content
   securitySchemes:
     cookieAuth:
       type: apiKey
