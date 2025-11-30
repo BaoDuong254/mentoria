@@ -2,11 +2,12 @@
 import { Star, Users, Clock, Check } from "lucide-react";
 import { FaLinkedinIn, FaTwitter, FaGithub, FaGlobe, FaFacebook, FaInstagram } from "react-icons/fa";
 import Review from "./Components/Review";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useEffect, useMemo, useState } from "react";
 function MentorProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { selectedMentor, fetchMentorById } = useSearchStore();
   //state for monthly plan or session
   const [planType, setPlanType] = useState<"session" | "monthly">("monthly");
@@ -70,6 +71,11 @@ function MentorProfile() {
     star: 4,
     review:
       "Sarah's guidance was invaluable in helping me transition from web development to AI. Her practical approach and industry insights made complex concepts easy to understand.",
+  };
+  const handleBookSession = () => {
+    if (selectedPlanId) {
+      void navigate(`/mentee/booking/${String(selectedPlanId)}`);
+    }
   };
   return (
     <>
@@ -275,7 +281,10 @@ function MentorProfile() {
                     })}
                   </div>
                   <div className='flex w-full justify-center'>
-                    <button className='flex w-10/12 cursor-pointer items-center justify-center rounded-lg bg-(--primary) py-3 text-white'>
+                    <button
+                      className='flex w-10/12 cursor-pointer items-center justify-center rounded-lg bg-(--primary) py-3 text-white'
+                      onClick={handleBookSession}
+                    >
                       Book a session
                     </button>
                   </div>
