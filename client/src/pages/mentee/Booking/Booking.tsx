@@ -7,6 +7,7 @@ import type { Slot } from "@/types/booking.type";
 import Calendar from "react-calendar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSearchStore } from "@/store/useSearchStore";
+import { createCheckoutSession } from "@/apis/payment.api";
 
 function Booking() {
   const { planId } = useParams();
@@ -25,6 +26,8 @@ function Booking() {
   const { selectedMentor } = useSearchStore();
   const [name, setName] = useState(`${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim());
   const [email, setEmail] = useState(user?.email);
+  const [discuss, setDiscuss] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   useEffect(() => {
     if (planId) {
       void fetchSlots(Number(planId));
@@ -39,6 +42,55 @@ function Booking() {
     });
   }, [selectedDate, slots]);
 
+  const handleBookSession = async () => {
+    if (!user?.user_id) {
+      alert("Please login to book a session");
+      return;
+    }
+
+    if (!selectedSlotId || !planId) {
+      alert("Please select a session");
+      return;
+    }
+
+    const currentSlot = slots.find((s) => s.slot_id === selectedSlotId);
+    if (!currentSlot) {
+      alert("Not found slot id!");
+      return;
+    }
+
+    if (!discuss) {
+      alert("Please complete the discussion");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const payload = {
+        menteeId: user.user_id,
+        mentorId: currentSlot.mentor_id,
+        planId: Number(planId),
+        slotStartTime: currentSlot.start_time,
+        slotEndTime: currentSlot.end_time,
+        message: discuss,
+        discountCode: "",
+      };
+
+      const res = await createCheckoutSession(payload);
+
+      if (res.success && res.data?.sessionUrl) {
+        window.location.href = res.data.sessionUrl;
+      } else if (!res.success) {
+        alert(res.message);
+      }
+    } catch (error) {
+      console.error("Booking Error:", error);
+      alert("Failed to create checkout session. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   return (
     <>
       {!isLoadingSlots && (
@@ -121,7 +173,8 @@ function Booking() {
                   <div className='grid grid-cols-3 gap-4'>
                     {slotsForSelectedDate.length > 0 ? (
                       slotsForSelectedDate.map((slot) => {
-                        const timeLabel = format(parseISO(slot.start_time), "h:mm a");
+                        const fixedTime = slot.start_time.replace("Z", "");
+                        const timeLabel = format(parseISO(fixedTime), "h:mm a");
                         const isSelected = selectedSlotId === slot.slot_id;
 
                         return (
@@ -187,14 +240,26 @@ function Booking() {
                     <textarea
                       className='h-[200px] w-full rounded-lg border border-gray-600 bg-gray-700/50 px-4 py-3 text-white transition-all outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500'
                       placeholder='Please share what you d like to focus on during our session...'
+                      value={discuss}
+                      onChange={(e) => {
+                        setDiscuss(e.target.value);
+                      }}
                     />
                   </div>
                   <div className='mt-3 flex justify-end gap-4'>
                     <button className='cursor-pointer rounded-lg border border-gray-500 px-4 py-3 text-gray-400 transition-all hover:border-gray-400 hover:bg-gray-700'>
                       Cancel
                     </button>
-                    <button className='cursor-pointer rounded-lg bg-(--primary) px-7 py-3 text-gray-200 transition-all hover:bg-(--primary)/80'>
-                      Book Session
+                    <button
+                      className={`flex items-center gap-2 rounded-lg px-8 py-2.5 font-bold text-white shadow-lg transition ${
+                        selectedSlotId && !isProcessing
+                          ? "cursor-pointer bg-(--primary) hover:bg-(--primary)/80"
+                          : "cursor-not-allowed bg-gray-700 text-gray-500"
+                      }`}
+                      disabled={!selectedSlotId || isProcessing}
+                      onClick={() => void handleBookSession()}
+                    >
+                      {isProcessing ? "Processing..." : "Book Session"}
                     </button>
                   </div>
                 </div>
