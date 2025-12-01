@@ -37,6 +37,8 @@ tags:
     description: Payment processing with Stripe integration
   - name: messages
     description: Real-time messaging between users with WebSocket integration
+  - name: meeting
+    description: Meeting management for mentors and mentees
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -122,6 +124,17 @@ paths:
     $ref: "./paths/message.yaml#/messagesByUserId"
   /api/messages:
     $ref: "./paths/message.yaml#/sendMessage"
+  # Meeting Endpoints
+  /api/meetings/mentee:
+    $ref: "./paths/meeting.yaml#/getMeetingsForMentee"
+  /api/meetings/mentor:
+    $ref: "./paths/meeting.yaml#/getMeetingsForMentor"
+  /api/meetings/{meetingId}:
+    $ref: "./paths/meeting.yaml#/getMeetingById"
+  /api/meetings/{meetingId}/location:
+    $ref: "./paths/meeting.yaml#/updateMeetingLocation"
+  /api/meetings/{meetingId}/status:
+    $ref: "./paths/meeting.yaml#/updateMeetingStatus"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

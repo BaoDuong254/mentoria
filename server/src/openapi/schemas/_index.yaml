@@ -80,3 +80,11 @@ SlotWithPlanDetails:
   $ref: "./slot.yaml#/SlotWithPlanDetails"
 SlotsListResponse:
   $ref: "./slot.yaml#/SlotsListResponse"
+
+# Meeting schemas
+MeetingResponse:
+  $ref: "./meeting.yaml#/MeetingResponse"
+UpdateMeetingLocationRequest:
+  $ref: "./meeting.yaml#/UpdateMeetingLocationRequest"
+UpdateMeetingStatusRequest:
+  $ref: "./meeting.yaml#/UpdateMeetingStatusRequest"
