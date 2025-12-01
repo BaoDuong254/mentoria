@@ -260,6 +260,7 @@ export const useSearchStore = create<SearchMentorState>()(
         companies: state.companies,
         selectedCompanies: state.selectedCompanies,
         keywordCompanies: state.keywordCompanies,
+        selectedMentor: state.selectedMentor,
       }),
     }
   )

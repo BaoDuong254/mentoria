@@ -50,7 +50,7 @@ export default function useRoutesConfig() {
           element: <PublicLayout />,
           children: [
             { path: path.MENTEE_DASHBOARD, element: <MenteeDashboard /> },
-            { path: path.MENTEE_BOOKING, element: <Booking /> },
+            { path: `${path.MENTEE_BOOKING}/:planId`, element: <Booking /> },
           ],
         },
       ],
