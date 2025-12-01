@@ -2,6 +2,24 @@ import sql from "mssql";
 import poolPromise from "@/config/database";
 import { MentorListItem, FilterMentorsQuery, FilterMentorsResponse } from "@/types/mentor.type";
 
+interface MentorDatabaseRow {
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  avatar_url: string | null;
+  country: string | null;
+  bio: string | null;
+  headline: string | null;
+  response_time: string;
+  total_feedbacks: number;
+  average_rating: number | null;
+  lowest_plan_price: number | null;
+  Skills: string | null;
+  Languages: string | null;
+  Companies: string | null;
+  Categories: string | null;
+}
+
 const buildFilterClauses = (query: FilterMentorsQuery, request: sql.Request) => {
   const whereClauses: string[] = [];
   const havingClauses: string[] = [];
@@ -251,7 +269,7 @@ export const filterMentorsService = async (query: FilterMentorsQuery): Promise<F
 
     const result = await mainRequest.query(mainQuery);
 
-    const mentors: MentorListItem[] = result.recordset.map((row: any) => {
+    const mentors: MentorListItem[] = result.recordset.map((row: MentorDatabaseRow) => {
       const skills = row.Skills ? JSON.parse(row.Skills) : [];
       const languagesRaw = row.Languages ? JSON.parse(row.Languages) : [];
       const companies = row.Companies ? JSON.parse(row.Companies) : [];
@@ -272,7 +290,7 @@ export const filterMentorsService = async (query: FilterMentorsQuery): Promise<F
         lowest_plan_price:
           row.lowest_plan_price !== null && row.lowest_plan_price !== undefined ? Number(row.lowest_plan_price) : null,
         skills,
-        languages: languagesRaw.map((l: any) => l.language),
+        languages: languagesRaw.map((l: { language: string }) => l.language),
         companies,
         categories,
       } as MentorListItem;

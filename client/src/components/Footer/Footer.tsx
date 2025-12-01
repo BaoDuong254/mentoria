@@ -60,7 +60,7 @@ export default function Footer() {
           <div className='bg-secondary mt-10 flex w-full max-w-7xl items-center justify-center border-t border-gray-700'>
             <div className='flex flex-col items-center justify-center pt-2'>
               <p className='text-gray-300'>&copy; HCMUT L07 Group 1</p>
-              <p className='text-gray-300'>Programming Integration Project (CO30103)</p>
+              <p className='text-gray-300'>Programming Integration Project (CO3103)</p>
             </div>
           </div>
         </div>

@@ -326,14 +326,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/mentors/23",
+							"raw": "{{host}}/api/mentors/2",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"mentors",
-								"23"
+								"2"
 							]
 						}
 					},
@@ -1078,6 +1078,83 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Update a slot for a specific plan",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"startTime\": \"2025-12-01T10:00:00Z\",\r\n  \"endTime\": \"2025-12-01T11:00:00Z\",\r\n  \"date\": \"2025-12-01\",\r\n  \"status\": \"Available\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/slots/plans/35?startTime=2025-11-20T02:00:00.000Z&endTime=2025-11-20T03:00:00.000Z&date=2025-11-20T00:00:00.000Z",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"plans",
+								"35"
+							],
+							"query": [
+								{
+									"key": "startTime",
+									"value": "2025-11-20T02:00:00.000Z"
+								},
+								{
+									"key": "endTime",
+									"value": "2025-11-20T03:00:00.000Z"
+								},
+								{
+									"key": "date",
+									"value": "2025-11-20T00:00:00.000Z"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a slot for a specific plan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/slots/plans/35?startTime=2025-11-20T02:00:00.000Z&endTime=2025-11-20T03:00:00.000Z&date=2025-11-20T00:00:00.000Z",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"slots",
+								"plans",
+								"35"
+							],
+							"query": [
+								{
+									"key": "startTime",
+									"value": "2025-11-20T02:00:00.000Z"
+								},
+								{
+									"key": "endTime",
+									"value": "2025-11-20T03:00:00.000Z"
+								},
+								{
+									"key": "date",
+									"value": "2025-11-20T00:00:00.000Z"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1196,7 +1273,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"menteeId\": 14,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-11-27T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-11-27T09:00:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"FIXED20\"\r\n}",
+							"raw": "{\r\n  \"menteeId\": 7,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-11-27T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-11-27T09:00:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"FIXED20\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

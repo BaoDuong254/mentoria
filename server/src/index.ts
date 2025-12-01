@@ -86,7 +86,7 @@ const swaggerDocument = YAML.parse(file);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Setup Socket.IO
-const io = setupSocketIO(httpServer);
+setupSocketIO(httpServer);
 
 httpServer.listen(PORT, async () => {
   // Test database connection on server start
