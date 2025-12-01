@@ -35,6 +35,8 @@ tags:
     description: Payment processing with Stripe integration
   - name: messages
     description: Real-time messaging between users with WebSocket integration
+  - name: meeting
+    description: Meeting management for mentors and mentees
 paths:
   /api/auth/register:
     post:
@@ -3157,6 +3159,318 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/meetings/mentee:
+    get:
+      tags:
+        - meeting
+      summary: Get meetings for mentee
+      description: |
+        Retrieve all meetings for the currently authenticated mentee.
+        Returns meetings with full details including mentor info, plan details, and payment info.
+        Results are ordered by date (descending) and start time (descending).
+      operationId: getMeetingsForMentee
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Meetings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MeetingResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentees can access this resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/meetings/mentor:
+    get:
+      tags:
+        - meeting
+      summary: Get meetings for mentor
+      description: |
+        Retrieve all meetings for the currently authenticated mentor.
+        Returns meetings with full details including mentee info, plan details, and payment info.
+        Results are ordered by date (descending) and start time (descending).
+      operationId: getMeetingsForMentor
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Meetings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MeetingResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentors can access this resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}":
+    get:
+      tags:
+        - meeting
+      summary: Get meeting by ID
+      description: |
+        Retrieve details of a specific meeting by its ID.
+        Only the mentor or mentee who is part of the meeting can access this endpoint.
+      operationId: getMeetingById
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Meeting retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Invalid meeting ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user is not part of this meeting
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}/location":
+    patch:
+      tags:
+        - meeting
+      summary: Update meeting location
+      description: |
+        Update the location (Google Meet link) of a meeting.
+        Only the mentor who owns the meeting can update the location.
+        After updating, the meeting status will automatically change from 'Pending' to 'Scheduled'.
+
+        **Workflow:**
+        1. After payment, meeting is created with status 'Pending' and empty location
+        2. Mentor adds Google Meet link using this endpoint
+        3. Status automatically changes to 'Scheduled'
+        4. Mentee can see the meeting link in their meetings list
+      operationId: updateMeetingLocation
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMeetingLocationRequest"
+      responses:
+        "200":
+          description: Meeting location updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Meeting location updated successfully. Status changed to Scheduled.
+                  data:
+                    $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Invalid meeting ID or missing location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentors can update meeting location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found or user does not have permission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}/status":
+    patch:
+      tags:
+        - meeting
+      summary: Update meeting status
+      description: |
+        Update the status of a meeting.
+        Only the mentor who owns the meeting can update the status.
+
+        **Valid status transitions:**
+        - 'Scheduled' → 'Completed' (after session ends)
+        - 'Scheduled' → 'Cancelled' (if cancelled)
+        - 'Pending' → 'Cancelled' (if cancelled before scheduling)
+
+        **Status values:**
+        - `Pending`: Meeting created but no Google Meet link added yet
+        - `Scheduled`: Google Meet link added, ready for session
+        - `Completed`: Session has been completed
+        - `Cancelled`: Meeting was cancelled
+      operationId: updateMeetingStatus
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMeetingStatusRequest"
+      responses:
+        "200":
+          description: Meeting status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Meeting status updated to Completed
+                  data:
+                    $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Invalid meeting ID or invalid status value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentors can update meeting status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found or user does not have permission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:
@@ -4289,6 +4603,166 @@ components:
             $ref: "#/components/schemas/SlotWithPlanDetails"
         pagination:
           $ref: "#/components/schemas/PaginationInfo"
+    MeetingResponse:
+      type: object
+      description: "Complete meeting information with mentor, mentee, and plan details"
+      properties:
+        meeting_id:
+          type: integer
+          description: Unique identifier for the meeting
+          example: 1
+        invoice_id:
+          type: integer
+          description: Associated invoice ID
+          example: 1
+        plan_registerations_id:
+          type: integer
+          description: Associated plan registration ID
+          example: 1
+        status:
+          type: string
+          enum:
+            - Pending
+            - Scheduled
+            - Completed
+            - Cancelled
+          description: |
+            Current status of the meeting:
+            - Pending: Created but no Google Meet link yet
+            - Scheduled: Google Meet link added, ready for session
+            - Completed: Session completed
+            - Cancelled: Meeting was cancelled
+          example: Scheduled
+        location:
+          type: string
+          description: Google Meet link or meeting location URL
+          example: "https://meet.google.com/abc-defg-hij"
+        start_time:
+          type: string
+          format: date-time
+          description: Meeting start time in ISO 8601 format
+          example: "2025-12-01T09:00:00.000Z"
+        end_time:
+          type: string
+          format: date-time
+          description: Meeting end time in ISO 8601 format
+          example: "2025-12-01T10:00:00.000Z"
+        date:
+          type: string
+          format: date
+          description: Meeting date
+          example: "2025-12-01"
+        mentor_id:
+          type: integer
+          description: Mentor's user ID
+          example: 1
+        mentor_first_name:
+          type: string
+          description: Mentor's first name
+          example: John
+        mentor_last_name:
+          type: string
+          description: Mentor's last name
+          example: Doe
+        mentor_avatar_url:
+          type: string
+          nullable: true
+          description: Mentor's avatar URL
+          example: "https://i.pravatar.cc/150?img=1"
+        mentor_email:
+          type: string
+          format: email
+          description: Mentor's email address
+          example: john.doe@example.com
+        mentee_id:
+          type: integer
+          description: Mentee's user ID
+          example: 6
+        mentee_first_name:
+          type: string
+          description: Mentee's first name
+          example: Alice
+        mentee_last_name:
+          type: string
+          description: Mentee's last name
+          example: Smith
+        mentee_avatar_url:
+          type: string
+          nullable: true
+          description: Mentee's avatar URL
+          example: "https://i.pravatar.cc/150?img=20"
+        mentee_email:
+          type: string
+          format: email
+          description: Mentee's email address
+          example: alice.smith@example.com
+        plan_type:
+          type: string
+          description: Type of the mentorship plan
+          example: Beginner
+        plan_description:
+          type: string
+          description: Description of the mentorship plan
+          example: "30-minute focused mentorship session covering React, Node.js, and web development best practices"
+        plan_charge:
+          type: number
+          format: decimal
+          description: Original price of the plan
+          example: 50
+        amount_paid:
+          type: number
+          format: decimal
+          description: Actual amount paid (after discounts)
+          example: 45
+      required:
+        - meeting_id
+        - invoice_id
+        - plan_registerations_id
+        - status
+        - location
+        - start_time
+        - end_time
+        - date
+        - mentor_id
+        - mentor_first_name
+        - mentor_last_name
+        - mentor_email
+        - mentee_id
+        - mentee_first_name
+        - mentee_last_name
+        - mentee_email
+        - plan_type
+        - plan_description
+        - plan_charge
+        - amount_paid
+    UpdateMeetingLocationRequest:
+      type: object
+      description: Request body for updating meeting location
+      properties:
+        location:
+          type: string
+          description: Google Meet link or meeting location URL
+          example: "https://meet.google.com/abc-defg-hij"
+      required:
+        - location
+    UpdateMeetingStatusRequest:
+      type: object
+      description: Request body for updating meeting status
+      properties:
+        status:
+          type: string
+          enum:
+            - Scheduled
+            - Completed
+            - Cancelled
+          description: |
+            New status for the meeting. Valid values:
+            - Scheduled: Meeting is scheduled (use when adding location)
+            - Completed: Session has been completed
+            - Cancelled: Meeting is cancelled
+          example: Completed
+      required:
+        - status
   securitySchemes:
     cookieAuth:
       type: apiKey

@@ -1,0 +1,318 @@
+# Meeting API endpoints
+
+getMeetingsForMentee:
+  get:
+    tags:
+      - meeting
+    summary: Get meetings for mentee
+    description: |
+      Retrieve all meetings for the currently authenticated mentee.
+      Returns meetings with full details including mentor info, plan details, and payment info.
+      Results are ordered by date (descending) and start time (descending).
+    operationId: getMeetingsForMentee
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Meetings retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: array
+                  items:
+                    $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentees can access this resource
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getMeetingsForMentor:
+  get:
+    tags:
+      - meeting
+    summary: Get meetings for mentor
+    description: |
+      Retrieve all meetings for the currently authenticated mentor.
+      Returns meetings with full details including mentee info, plan details, and payment info.
+      Results are ordered by date (descending) and start time (descending).
+    operationId: getMeetingsForMentor
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Meetings retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: array
+                  items:
+                    $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentors can access this resource
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getMeetingById:
+  get:
+    tags:
+      - meeting
+    summary: Get meeting by ID
+    description: |
+      Retrieve details of a specific meeting by its ID.
+      Only the mentor or mentee who is part of the meeting can access this endpoint.
+    operationId: getMeetingById
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The unique identifier of the meeting
+        schema:
+          type: integer
+          example: 1
+    responses:
+      "200":
+        description: Meeting retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "400":
+        description: Invalid meeting ID
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - user is not part of this meeting
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Meeting not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+updateMeetingLocation:
+  patch:
+    tags:
+      - meeting
+    summary: Update meeting location
+    description: |
+      Update the location (Google Meet link) of a meeting.
+      Only the mentor who owns the meeting can update the location.
+      After updating, the meeting status will automatically change from 'Pending' to 'Scheduled'.
+
+      **Workflow:**
+      1. After payment, meeting is created with status 'Pending' and empty location
+      2. Mentor adds Google Meet link using this endpoint
+      3. Status automatically changes to 'Scheduled'
+      4. Mentee can see the meeting link in their meetings list
+    operationId: updateMeetingLocation
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The unique identifier of the meeting
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/meeting.yaml#/UpdateMeetingLocationRequest"
+    responses:
+      "200":
+        description: Meeting location updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Meeting location updated successfully. Status changed to Scheduled."
+                data:
+                  $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "400":
+        description: Invalid meeting ID or missing location
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentors can update meeting location
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Meeting not found or user does not have permission
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+updateMeetingStatus:
+  patch:
+    tags:
+      - meeting
+    summary: Update meeting status
+    description: |
+      Update the status of a meeting.
+      Only the mentor who owns the meeting can update the status.
+
+      **Valid status transitions:**
+      - 'Scheduled' → 'Completed' (after session ends)
+      - 'Scheduled' → 'Cancelled' (if cancelled)
+      - 'Pending' → 'Cancelled' (if cancelled before scheduling)
+
+      **Status values:**
+      - `Pending`: Meeting created but no Google Meet link added yet
+      - `Scheduled`: Google Meet link added, ready for session
+      - `Completed`: Session has been completed
+      - `Cancelled`: Meeting was cancelled
+    operationId: updateMeetingStatus
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The unique identifier of the meeting
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/meeting.yaml#/UpdateMeetingStatusRequest"
+    responses:
+      "200":
+        description: Meeting status updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Meeting status updated to Completed"
+                data:
+                  $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "400":
+        description: Invalid meeting ID or invalid status value
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentors can update meeting status
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Meeting not found or user does not have permission
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
