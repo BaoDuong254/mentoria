@@ -26,7 +26,12 @@ const getMentorProfileService = async (
           m.bio,
           m.headline,
           m.response_time,
-          m.cv_url
+          m.cv_url,
+          m.bank_name,
+          m.account_number,
+          m.account_holder_name,
+          m.bank_branch,
+          m.swift_code
         FROM users u
         INNER JOIN mentors m ON u.user_id = m.user_id
         WHERE u.user_id = @mentorId AND u.role = N'Mentor'
@@ -286,6 +291,26 @@ const updateMentorProfileService = async (
       if (updateData.cvUrl !== undefined) {
         mentorUpdateFields.push("cv_url = @cvUrl");
         mentorRequest.input("cvUrl", updateData.cvUrl);
+      }
+      if (updateData.bankName !== undefined) {
+        mentorUpdateFields.push("bank_name = @bankName");
+        mentorRequest.input("bankName", updateData.bankName);
+      }
+      if (updateData.accountNumber !== undefined) {
+        mentorUpdateFields.push("account_number = @accountNumber");
+        mentorRequest.input("accountNumber", updateData.accountNumber);
+      }
+      if (updateData.accountHolderName !== undefined) {
+        mentorUpdateFields.push("account_holder_name = @accountHolderName");
+        mentorRequest.input("accountHolderName", updateData.accountHolderName);
+      }
+      if (updateData.bankBranch !== undefined) {
+        mentorUpdateFields.push("bank_branch = @bankBranch");
+        mentorRequest.input("bankBranch", updateData.bankBranch);
+      }
+      if (updateData.swiftCode !== undefined) {
+        mentorUpdateFields.push("swift_code = @swiftCode");
+        mentorRequest.input("swiftCode", updateData.swiftCode);
       }
 
       if (mentorUpdateFields.length > 0) {

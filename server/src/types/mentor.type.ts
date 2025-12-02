@@ -11,6 +11,11 @@ export interface MentorProfile {
   headline: string | null;
   response_time: string;
   cv_url: string | null;
+  bank_name: string | null;
+  account_number: string | null;
+  account_holder_name: string | null;
+  bank_branch: string | null;
+  swift_code: string | null;
   social_links: Array<{
     link: string;
     platform: string;
@@ -66,6 +71,11 @@ export interface UpdateMentorProfileRequest {
   headline?: string;
   responseTime?: string;
   cvUrl?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolderName?: string;
+  bankBranch?: string;
+  swiftCode?: string;
   socialLinks?: Array<{
     link: string;
     platform: string;

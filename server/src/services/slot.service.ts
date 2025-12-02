@@ -115,6 +115,27 @@ const createSlotService = async (
       };
     }
 
+    // Calculate slot duration in minutes
+    const slotDurationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+
+    // Check if this plan is a mentorship plan and validate duration
+    const mentorshipCheck = await pool.request().input("planId", planId).query(`
+      SELECT minutes_per_call
+      FROM plan_mentorships
+      WHERE mentorships_id = @planId
+    `);
+
+    if (mentorshipCheck.recordset.length > 0) {
+      const minutesPerCall = mentorshipCheck.recordset[0].minutes_per_call;
+
+      if (slotDurationMinutes > minutesPerCall) {
+        return {
+          success: false,
+          message: `Slot duration (${slotDurationMinutes} minutes) exceeds the plan's maximum duration of ${minutesPerCall} minutes per call`,
+        };
+      }
+    }
+
     // Check for overlapping slots
     const hasOverlap = await checkSlotOverlap(planId, startTime, endTime, date);
     if (hasOverlap) {
@@ -415,6 +436,27 @@ const updateSlotService = async (
         success: false,
         message: "No valid fields to update",
       };
+    }
+
+    // Calculate slot duration in minutes
+    const slotDurationMinutes = Math.round((parsedEndTime.getTime() - parsedStartTime.getTime()) / (1000 * 60));
+
+    // Check if this plan is a mentorship plan and validate duration
+    const mentorshipCheck = await pool.request().input("planId", planId).query(`
+      SELECT minutes_per_call
+      FROM plan_mentorships
+      WHERE mentorships_id = @planId
+    `);
+
+    if (mentorshipCheck.recordset.length > 0) {
+      const minutesPerCall = mentorshipCheck.recordset[0].minutes_per_call;
+
+      if (slotDurationMinutes > minutesPerCall) {
+        return {
+          success: false,
+          message: `Slot duration (${slotDurationMinutes} minutes) exceeds the plan's maximum duration of ${minutesPerCall} minutes per call`,
+        };
+      }
     }
 
     await pool

@@ -34,8 +34,12 @@ CREATE TABLE users (
     sex NVARCHAR(10) CHECK (sex IN (N'Male', N'Female')),
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME NULL,
-    email NVARCHAR(100) UNIQUE NOT NULL,
-    password NVARCHAR(255) NULL,
+    email NVARCHAR(100) UNIQUE NOT NULL CHECK (
+        email LIKE '%_@__%.__%'
+    ),
+    password NVARCHAR(255) NULL CHECK (
+        password IS NULL OR LEN(password) >= 60
+    ),
     avatar_url NVARCHAR(255) NULL,
     country NVARCHAR(100) NULL,
     role NVARCHAR(50) CHECK (role IN (N'Mentee', N'Mentor', N'Admin')) DEFAULT N'Mentee',
@@ -52,7 +56,9 @@ CREATE TABLE users (
 
 CREATE TABLE user_social_links (
     user_id INT NOT NULL,
-    link NVARCHAR(255) NOT NULL,
+    link NVARCHAR(255) NOT NULL CHECK (
+        link LIKE 'http://%' OR link LIKE 'https://%'
+    ),
     platform NVARCHAR(100) NOT NULL,
     PRIMARY KEY (user_id, link, platform),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
@@ -93,6 +99,11 @@ CREATE TABLE mentors (
     headline NVARCHAR(255),
     response_time NVARCHAR(100) NOT NULL,
     cv_url NVARCHAR(255),
+    bank_name NVARCHAR(255) NULL,
+    account_number NVARCHAR(50) NULL,
+    account_holder_name NVARCHAR(255) NULL,
+    bank_branch NVARCHAR(255) NULL,
+    swift_code NVARCHAR(50) NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -151,7 +162,9 @@ CREATE TABLE feedbacks (
     mentee_id INT NOT NULL,
     mentor_id INT NOT NULL,
     stars INT CHECK (stars BETWEEN 1 AND 5),
-    content NVARCHAR(MAX) NOT NULL,
+    content NVARCHAR(MAX) NOT NULL CHECK (
+        LEN(LTRIM(RTRIM(content))) > 0
+    ),
     sent_time DATETIME DEFAULT GETDATE(),
     PRIMARY KEY (mentee_id, mentor_id),
     FOREIGN KEY (mentee_id) REFERENCES mentees(user_id)
@@ -213,7 +226,7 @@ CREATE TABLE plans(
 
 CREATE TABLE plan_sessions(
     sessions_id INT PRIMARY KEY,
-    sessions_duration INT NOT NULL,
+    sessions_duration INT NOT NULL CHECK (sessions_duration > 0 AND sessions_duration <= 120),
     FOREIGN KEY (sessions_id) REFERENCES plans(plan_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -221,6 +234,8 @@ CREATE TABLE plan_sessions(
 
 CREATE TABLE plan_mentorships(
     mentorships_id INT PRIMARY KEY,
+    calls_per_month INT NOT NULL CHECK (calls_per_month > 0),
+    minutes_per_call INT NOT NULL CHECK (minutes_per_call > 0 AND minutes_per_call <= 120),
     FOREIGN KEY (mentorships_id) REFERENCES plans(plan_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -285,7 +300,8 @@ CREATE TABLE slots(
         ON UPDATE CASCADE,
     FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
         ON DELETE NO ACTION
-        ON UPDATE NO ACTION
+        ON UPDATE NO ACTION,
+    CHECK (end_time > start_time)
 );
 
 CREATE TABLE invoices(
