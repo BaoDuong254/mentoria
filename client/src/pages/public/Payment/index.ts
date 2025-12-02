@@ -1,2 +1,2 @@
-import PaymentPage from "./PaymentPage";
-export default PaymentPage;
+import PaymentSuccessPage from "./PaymentSuccesssPage";
+export default PaymentSuccessPage;

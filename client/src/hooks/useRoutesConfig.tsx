@@ -17,7 +17,7 @@ import MenteeDashboard from "@/pages/mentee/MenteeDashboard";
 
 import ProtectedMenteeRoute from "@/layouts/ProtectedMenteeRoute";
 import ProtectedMentorRoute from "@/layouts/ProtectedMentorRoute";
-import PaymentPage from "@/pages/public/Payment";
+import PaymentSuccessPage from "@/pages/public/Payment";
 
 export default function useRoutesConfig() {
   const routes = [
@@ -31,7 +31,7 @@ export default function useRoutesConfig() {
         { path: path.REGISTER_MENTOR, element: <RegisterMentor /> },
         { path: path.MENTOR_BROWSE, element: <MentorBrowse /> },
         { path: `${path.MENTOR_PROFILE}/:id`, element: <MentorProfile /> },
-        { path: path.PAYMENT, element: <PaymentPage /> },
+        { path: path.PAYMENT_SUCCESS, element: <PaymentSuccessPage /> },
       ],
     },
     {

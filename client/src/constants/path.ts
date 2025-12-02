@@ -6,7 +6,7 @@ const path = {
   REGISTER_MENTOR: "/mentor/register",
   MENTOR_BROWSE: "/mentor-browse",
   MENTOR_PROFILE: "/mentor-profile",
-  PAYMENT: "/payment",
+  PAYMENT_SUCCESS: "/payment/success",
 
   //mentee routes
   MENTEE: "/mentee",
