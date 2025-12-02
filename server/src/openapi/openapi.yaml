@@ -73,6 +73,10 @@ paths:
   # Mentee Endpoints
   /api/mentees:
     $ref: "./paths/mentee.yaml#/menteesList"
+  /api/mentees/sessions:
+    $ref: "./paths/mentee.yaml#/menteeSessions"
+  /api/mentees/sessions/{registrationId}:
+    $ref: "./paths/mentee.yaml#/menteeSessionCancel"
   /api/mentees/{menteeId}:
     $ref: "./paths/mentee.yaml#/mentee"
   # User Endpoints

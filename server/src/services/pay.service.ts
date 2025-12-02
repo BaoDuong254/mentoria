@@ -342,10 +342,11 @@ const createMeetingService = async (
       .input("startTime", startDateTime)
       .input("endTime", endDateTime)
       .input("date", dateStr)
-      .input("mentorId", data.mentorId).query(`
-      INSERT INTO meetings (invoice_id, plan_registerations_id, location, start_time, end_time, date, mentor_id)
+      .input("mentorId", data.mentorId)
+      .input("status", "Scheduled").query(`
+      INSERT INTO meetings (invoice_id, plan_registerations_id, location, start_time, end_time, date, mentor_id, status)
       OUTPUT INSERTED.meeting_id
-      VALUES (@invoiceId, @registrationId, @location, @startTime, @endTime, @date, @mentorId)
+      VALUES (@invoiceId, @registrationId, @location, @startTime, @endTime, @date, @mentorId, @status)
     `);
 
     return result.recordset[0].meeting_id;
@@ -522,6 +523,88 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
   }
 };
 
+/**
+ * Verify and process payment by session ID
+ * This is a fallback when webhook doesn't work (development mode)
+ * Client calls this after successful payment redirect
+ */
+const verifyAndProcessPaymentService = async (
+  sessionId: string
+): Promise<{
+  success: boolean;
+  message: string;
+  alreadyProcessed?: boolean;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // 1. Retrieve the session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (!session) {
+      return {
+        success: false,
+        message: "Session not found",
+      };
+    }
+
+    // 2. Check if payment was successful
+    if (session.payment_status !== "paid") {
+      return {
+        success: false,
+        message: "Payment not completed",
+      };
+    }
+
+    // 3. Extract metadata
+    const metadata = session.metadata as unknown as CheckoutSessionMetadata;
+
+    if (!metadata || !metadata.menteeId || !metadata.mentorId || !metadata.planId) {
+      return {
+        success: false,
+        message: "Session metadata is missing or incomplete",
+      };
+    }
+
+    // 4. Check if this session was already processed (check invoices)
+    // We'll check if there's already an invoice with this session's plan_registration
+    const existingCheck = await pool
+      .request()
+      .input("menteeId", parseInt(metadata.menteeId))
+      .input("planId", parseInt(metadata.planId))
+      .input("slotStartTime", new Date(metadata.slotStartTime)).query(`
+      SELECT COUNT(*) as count
+      FROM bookings b
+      INNER JOIN plan_registerations pr ON b.plan_registerations_id = pr.registration_id
+      INNER JOIN meetings m ON m.plan_registerations_id = pr.registration_id
+      WHERE b.mentee_id = @menteeId
+        AND b.plan_id = @planId
+        AND m.start_time = @slotStartTime
+    `);
+
+    if (existingCheck.recordset[0].count > 0) {
+      return {
+        success: true,
+        message: "Payment already processed",
+        alreadyProcessed: true,
+      };
+    }
+
+    // 5. Process the checkout session (same as webhook handler)
+    await handleCheckoutSessionCompletedService(session);
+
+    return {
+      success: true,
+      message: "Payment verified and processed successfully",
+      alreadyProcessed: false,
+    };
+  } catch (error) {
+    console.error("Error in verifyAndProcessPaymentService:", error);
+    throw error;
+  }
+};
+
 export {
   validateBookingService,
   createCheckoutSessionService,
@@ -532,4 +615,5 @@ export {
   updateSlotStatusService,
   createMeetingService,
   incrementDiscountUsageService,
+  verifyAndProcessPaymentService,
 };

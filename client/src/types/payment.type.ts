@@ -17,3 +17,11 @@ export interface CheckoutSessionResponse {
     errors?: string[];
   };
 }
+
+export interface VerifyPaymentResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    alreadyProcessed: boolean;
+  };
+}

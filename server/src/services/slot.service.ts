@@ -8,11 +8,11 @@ const generateSlotId = (mentorId: number, startTime: Date, endTime: Date, date: 
 };
 
 const checkSlotOverlap = async (
-  planId: number,
+  mentorId: number,
   startTime: Date,
   endTime: Date,
   date: Date,
-  excludeSlot?: { startTime: Date; endTime: Date; date: Date }
+  excludeSlot?: { startTime: Date; endTime: Date; date: Date; planId?: number }
 ): Promise<boolean> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
@@ -20,15 +20,16 @@ const checkSlotOverlap = async (
   try {
     const request = pool
       .request()
-      .input("planId", planId)
+      .input("mentorId", mentorId)
       .input("newStartTime", startTime)
       .input("newEndTime", endTime)
       .input("newDate", date);
 
+    // Check overlap across ALL plans for this mentor (not just one plan)
     let query = `
       SELECT * FROM slots
-      WHERE plan_id = @planId
-        AND date = @newDate
+      WHERE mentor_id = @mentorId
+        AND CAST(date AS DATE) = CAST(@newDate AS DATE)
         AND (
           (start_time < @newEndTime AND end_time > @newStartTime)
         )
@@ -45,7 +46,7 @@ const checkSlotOverlap = async (
         AND NOT (
           start_time = @excludeStartTime
           AND end_time = @excludeEndTime
-          AND date = @excludeDate
+          AND CAST(date AS DATE) = CAST(@excludeDate AS DATE)
         )
       `;
     }
@@ -115,12 +116,12 @@ const createSlotService = async (
       };
     }
 
-    // Check for overlapping slots
-    const hasOverlap = await checkSlotOverlap(planId, startTime, endTime, date);
+    // Check for overlapping slots across ALL mentor's plans
+    const hasOverlap = await checkSlotOverlap(mentorId, startTime, endTime, date);
     if (hasOverlap) {
       return {
         success: false,
-        message: "This slot overlaps with an existing slot for this plan",
+        message: "This slot overlaps with an existing slot. Please choose a different time.",
       };
     }
 
@@ -184,7 +185,7 @@ const getSlotsService = async (
 
     // Set pagination defaults
     const page = query.page && query.page > 0 ? query.page : 1;
-    const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
+    const limit = query.limit && query.limit > 0 && query.limit <= 500 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
     // Build WHERE clause conditions

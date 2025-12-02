@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { CreateCheckoutSessionSchema, TCreateCheckoutSessionSchema } from "@/validation/pay.schema";
-import { createCheckoutSessionService, handleCheckoutSessionCompletedService } from "@/services/pay.service";
+import {
+  createCheckoutSessionService,
+  handleCheckoutSessionCompletedService,
+  verifyAndProcessPaymentService,
+} from "@/services/pay.service";
 import envConfig from "@/config/env";
 import Stripe from "stripe";
 
@@ -107,4 +111,45 @@ const handleWebhook = async (req: Request, res: Response) => {
   }
 };
 
-export { createCheckoutSession, handleWebhook };
+/**
+ * Verify payment and process booking
+ * Called by client after successful Stripe payment redirect
+ * This is a fallback for when webhooks don't work in development
+ */
+const verifyPayment = async (req: Request, res: Response) => {
+  try {
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Session ID is required",
+      });
+    }
+
+    const result = await verifyAndProcessPaymentService(sessionId);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+      data: {
+        alreadyProcessed: result.alreadyProcessed,
+      },
+    });
+  } catch (error) {
+    console.error("Error in verifyPayment controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export { createCheckoutSession, handleWebhook, verifyPayment };

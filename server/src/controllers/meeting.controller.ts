@@ -5,6 +5,7 @@ import {
   getMeetingByIdService,
   updateMeetingLocationService,
   updateMeetingStatusService,
+  updateMeetingReviewLinkService,
 } from "@/services/meeting.service";
 
 /**
@@ -252,6 +253,68 @@ export const updateMeetingStatus = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Error in updateMeetingStatus:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * Update meeting review link (add review document/PDF link)
+ * Only mentor can update this for completed meetings
+ */
+export const updateMeetingReviewLink = async (req: Request, res: Response) => {
+  try {
+    const mentorId = req.user?.user_id;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const { reviewLink } = req.body;
+
+    if (!mentorId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // Verify user is a mentor
+    if (req.user?.role !== "Mentor") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only mentors can add review links.",
+      });
+    }
+
+    if (!meetingId || isNaN(meetingId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid meeting ID",
+      });
+    }
+
+    if (!reviewLink || typeof reviewLink !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Review link is required",
+      });
+    }
+
+    const updatedMeeting = await updateMeetingReviewLinkService(meetingId, Number(mentorId), reviewLink);
+
+    if (!updatedMeeting) {
+      return res.status(404).json({
+        success: false,
+        message: "Meeting not found or you do not have permission to update it",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Review link added successfully",
+      data: updatedMeeting,
+    });
+  } catch (error) {
+    console.error("Error in updateMeetingReviewLink:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

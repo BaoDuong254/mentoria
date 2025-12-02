@@ -5,6 +5,7 @@ import {
   getMeetingById,
   updateMeetingLocation,
   updateMeetingStatus,
+  updateMeetingReviewLink,
 } from "@/controllers/meeting.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
 
@@ -15,5 +16,6 @@ router.get("/mentor", protectRoute, getMeetingsForMentor);
 router.get("/:meetingId", protectRoute, getMeetingById);
 router.patch("/:meetingId/location", protectRoute, updateMeetingLocation);
 router.patch("/:meetingId/status", protectRoute, updateMeetingStatus);
+router.patch("/:meetingId/review", protectRoute, updateMeetingReviewLink);
 
 export default router;

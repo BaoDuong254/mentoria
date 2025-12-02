@@ -98,10 +98,10 @@ const getSlots = async (req: Request, res: Response) => {
       });
     }
 
-    if (limit !== undefined && (isNaN(limit) || limit < 1 || limit > 100)) {
+    if (limit !== undefined && (isNaN(limit) || limit < 1 || limit > 500)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid limit. Must be between 1 and 100.",
+        message: "Invalid limit. Must be between 1 and 500.",
       });
     }
 

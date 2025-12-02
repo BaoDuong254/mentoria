@@ -17,6 +17,7 @@ import slotRoutes from "@/routes/slot.route";
 import payRoutes from "@/routes/pay.route";
 import messageRoutes from "@/routes/message.route";
 import meetingRoutes from "@/routes/meeting.route";
+import settingsRoutes from "@/routes/settings.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import "@/config/passport";
@@ -73,6 +74,7 @@ app.use("/api/slots", slotRoutes);
 app.use("/api/pay", payRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/meetings", meetingRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Health check endpoint
 app.get("/", (_req, res) => {

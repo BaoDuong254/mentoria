@@ -229,4 +229,107 @@ const getMenteesListService = async (
   }
 };
 
-export { getMenteeProfileService, updateMenteeProfileService, getMenteesListService };
+// Get all sessions (bookings with meetings) for a mentee
+const getMenteeSessionsService = async (
+  menteeId: number
+): Promise<{
+  success: boolean;
+  message: string;
+  data?: {
+    sessions: {
+      plan_registerations_id: number;
+      plan_id: number;
+      mentor_id: number;
+      mentee_id: number;
+      mentor_first_name: string;
+      mentor_last_name: string;
+      mentor_avatar: string | null;
+      mentor_specialty: string | null;
+      topic: string | null;
+      plan_charge: number;
+      plan_description: string;
+      start_time: string | null;
+      end_time: string | null;
+      date: string | null;
+      meeting_status: string | null;
+      meeting_link: string | null;
+      invoice_id: number | null;
+      amount: number | null;
+      paid_time: string | null;
+      review_link: string | null;
+    }[];
+  };
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify mentee exists
+    const menteeCheck = await pool
+      .request()
+      .input("menteeId", menteeId)
+      .query("SELECT user_id FROM users WHERE user_id = @menteeId AND role = N'Mentee'");
+
+    if (menteeCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Mentee not found",
+      };
+    }
+
+    // Get all sessions for this mentee
+    // Join bookings -> plan_registerations -> meetings -> invoices
+    // Also get mentor info and plan details
+    const sessionsQuery = `
+      SELECT
+        pr.registration_id as plan_registerations_id,
+        b.plan_id,
+        p.mentor_id,
+        b.mentee_id,
+        mentor_user.first_name as mentor_first_name,
+        mentor_user.last_name as mentor_last_name,
+        mentor_user.avatar_url as mentor_avatar,
+        (
+          SELECT TOP 1 jt.job_name
+          FROM work_for wf
+          INNER JOIN job_title jt ON wf.current_job_title_id = jt.job_title_id
+          WHERE wf.mentor_id = p.mentor_id
+        ) as mentor_specialty,
+        pr.message as topic,
+        p.plan_charge,
+        p.plan_description,
+        m.start_time,
+        m.end_time,
+        m.date,
+        m.status as meeting_status,
+        m.location as meeting_link,
+        i.invoice_id,
+        i.amount,
+        i.paid_time,
+        m.review_link
+      FROM bookings b
+      INNER JOIN plan_registerations pr ON b.plan_registerations_id = pr.registration_id
+      INNER JOIN plans p ON b.plan_id = p.plan_id
+      INNER JOIN users mentor_user ON p.mentor_id = mentor_user.user_id
+      LEFT JOIN meetings m ON pr.registration_id = m.plan_registerations_id
+      LEFT JOIN invoices i ON m.invoice_id = i.invoice_id
+      WHERE b.mentee_id = @menteeId
+      ORDER BY m.date DESC, m.start_time DESC
+    `;
+
+    const sessionsResult = await pool.request().input("menteeId", menteeId).query(sessionsQuery);
+
+    return {
+      success: true,
+      message: "Sessions retrieved successfully",
+      data: {
+        sessions: sessionsResult.recordset,
+      },
+    };
+  } catch (error) {
+    console.error(`Error in getMenteeSessionsService: ${error}`);
+    throw error;
+  }
+};
+
+export { getMenteeProfileService, updateMenteeProfileService, getMenteesListService, getMenteeSessionsService };

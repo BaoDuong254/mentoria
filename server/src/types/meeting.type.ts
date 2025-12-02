@@ -8,6 +8,7 @@ export interface Meeting {
   end_time: Date;
   date: Date;
   mentor_id: number;
+  review_link: string | null;
 }
 
 export interface MeetingResponse {
@@ -33,6 +34,7 @@ export interface MeetingResponse {
   plan_description: string;
   plan_charge: number;
   amount_paid: number;
+  review_link: string | null;
 }
 
 export interface UpdateMeetingLocationRequest {
@@ -43,4 +45,9 @@ export interface UpdateMeetingLocationRequest {
 export interface UpdateMeetingStatusRequest {
   meetingId: number;
   status: "Scheduled" | "Completed" | "Cancelled";
+}
+
+export interface UpdateMeetingReviewRequest {
+  meetingId: number;
+  reviewLink: string;
 }

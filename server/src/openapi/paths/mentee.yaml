@@ -148,3 +148,79 @@ menteesList:
         description: Invalid parameters
       "500":
         description: Internal server error
+
+menteeSessions:
+  get:
+    tags:
+      - mentee
+    summary: Get mentee sessions
+    description: Retrieve all booking sessions for the currently logged-in mentee. Returns sessions from the database with meeting details, invoice info, and mentor information.
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Successful operation
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Sessions retrieved successfully"
+                data:
+                  type: object
+                  properties:
+                    sessions:
+                      type: array
+                      items:
+                        $ref: "../schemas/mentee.yaml#/MenteeSession"
+      "401":
+        description: Unauthorized - not authenticated
+      "404":
+        description: Mentee not found
+      "500":
+        description: Internal server error
+
+menteeSessionCancel:
+  delete:
+    tags:
+      - mentee
+    summary: Cancel a booking session
+    description: Cancel a pending booking session for the currently logged-in mentee.
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: registrationId
+        in: path
+        required: true
+        description: ID of the plan registration to cancel
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Session cancelled successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Session cancelled successfully"
+      "400":
+        description: Invalid registration ID
+      "401":
+        description: Unauthorized - not authenticated
+      "403":
+        description: Forbidden - can only cancel own sessions
+      "404":
+        description: Session not found
+      "500":
+        description: Internal server error

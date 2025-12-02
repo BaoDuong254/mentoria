@@ -314,6 +314,7 @@ CREATE TABLE meetings(
     end_time DATETIME NOT NULL,
     date DATE NOT NULL,
     mentor_id INT NOT NULL,
+    review_link NVARCHAR(500) NULL,
     UNIQUE (meeting_id, invoice_id, plan_registerations_id),
     FOREIGN KEY (invoice_id, plan_registerations_id) REFERENCES invoices(invoice_id, plan_registerations_id)
         ON DELETE CASCADE

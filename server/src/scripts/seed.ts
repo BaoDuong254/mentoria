@@ -1330,13 +1330,19 @@ async function seedSlots() {
     "david.kim@example.com",
   ];
 
-  const today = new Date();
+  // Start from December 1, 2025 and create slots for 60 days (Dec 2025 + Jan 2026)
+  const startDate = new Date("2025-12-01");
   let slotsCount = 0;
 
-  // Create slots for the next 14 days
-  for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
-    const slotDate = new Date(today);
-    slotDate.setDate(today.getDate() + dayOffset);
+  // Create slots for 60 days starting from December 1, 2025
+  for (let dayOffset = 0; dayOffset < 60; dayOffset++) {
+    const slotDate = new Date(startDate);
+    slotDate.setDate(startDate.getDate() + dayOffset);
+
+    // Skip weekends (Saturday=6, Sunday=0)
+    const dayOfWeek = slotDate.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
+
     const dateStr = slotDate.toISOString().split("T")[0];
 
     for (const mentorEmail of mentorEmails) {
@@ -1344,8 +1350,8 @@ async function seedSlots() {
       const mentorPlanIds = planIds[mentorEmail];
       if (!mentorId || !mentorPlanIds) continue;
 
-      // Use the first session plan for this mentor
-      const planId = mentorPlanIds[0];
+      // Use different plans for different time slots
+      const planCount = mentorPlanIds.length;
 
       // Morning slots (9 AM - 12 PM)
       for (let hour = 9; hour <= 11; hour++) {
@@ -1353,13 +1359,18 @@ async function seedSlots() {
         startTime.setHours(hour, 0, 0, 0);
         const endTime = new Date(slotDate);
         endTime.setHours(hour + 1, 0, 0, 0);
+
+        // Use different plans based on hour
+        const planIndex = (hour - 9) % planCount;
+        const planId = mentorPlanIds[planIndex];
+
         await pool
           .request()
           .input("start_time", sql.DateTime, startTime)
           .input("end_time", sql.DateTime, endTime)
           .input("date", sql.Date, dateStr)
           .input("mentor_id", sql.Int, mentorId)
-          .input("status", sql.NVarChar, dayOffset < 2 ? "Booked" : "Available")
+          .input("status", sql.NVarChar, "Available")
           .input("plan_id", sql.Int, planId).query(`
             INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
             VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
@@ -1373,13 +1384,18 @@ async function seedSlots() {
         startTime.setHours(hour, 0, 0, 0);
         const endTime = new Date(slotDate);
         endTime.setHours(hour + 1, 0, 0, 0);
+
+        // Use different plans based on hour
+        const planIndex = (hour - 14) % planCount;
+        const planId = mentorPlanIds[planIndex];
+
         await pool
           .request()
           .input("start_time", sql.DateTime, startTime)
           .input("end_time", sql.DateTime, endTime)
           .input("date", sql.Date, dateStr)
           .input("mentor_id", sql.Int, mentorId)
-          .input("status", sql.NVarChar, dayOffset < 3 && hour === 14 ? "Booked" : "Available")
+          .input("status", sql.NVarChar, "Available")
           .input("plan_id", sql.Int, planId).query(`
             INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
             VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
@@ -1393,6 +1409,10 @@ async function seedSlots() {
         startTime.setHours(hour, 0, 0, 0);
         const endTime = new Date(slotDate);
         endTime.setHours(hour + 1, 0, 0, 0);
+
+        // Use first plan for evening slots
+        const planId = mentorPlanIds[0];
+
         await pool
           .request()
           .input("start_time", sql.DateTime, startTime)

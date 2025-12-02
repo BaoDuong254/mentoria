@@ -84,3 +84,94 @@ MenteeListItem:
     created_at:
       type: string
       format: date-time
+
+MenteeSession:
+  type: object
+  description: A mentee's booking session with meeting and invoice details
+  properties:
+    plan_registerations_id:
+      type: integer
+      description: ID of the plan registration
+      example: 1
+    plan_id:
+      type: integer
+      description: ID of the plan
+      example: 14
+    mentor_id:
+      type: integer
+      description: ID of the mentor
+      example: 5
+    mentee_id:
+      type: integer
+      description: ID of the mentee
+      example: 10
+    mentor_first_name:
+      type: string
+      description: Mentor's first name
+      example: "David"
+    mentor_last_name:
+      type: string
+      description: Mentor's last name
+      example: "Kim"
+    mentor_avatar:
+      type: string
+      nullable: true
+      description: URL to mentor's avatar
+    mentor_specialty:
+      type: string
+      nullable: true
+      description: Mentor's specialty/job title
+      example: "Senior Software Engineer"
+    topic:
+      type: string
+      nullable: true
+      description: Topic or message for the session
+    plan_charge:
+      type: number
+      description: Price of the plan
+      example: 70
+    plan_description:
+      type: string
+      description: Description of the plan
+      example: "1-on-1 mentoring session"
+    start_time:
+      type: string
+      format: date-time
+      nullable: true
+      description: Session start time
+    end_time:
+      type: string
+      format: date-time
+      nullable: true
+      description: Session end time
+    date:
+      type: string
+      format: date
+      nullable: true
+      description: Session date
+    meeting_status:
+      type: string
+      nullable: true
+      enum: ["Scheduled", "Completed", "Cancelled"]
+      description: Status of the meeting
+    meeting_link:
+      type: string
+      nullable: true
+      description: URL to the meeting
+    invoice_id:
+      type: integer
+      nullable: true
+      description: ID of the invoice
+    amount:
+      type: number
+      nullable: true
+      description: Amount paid
+    paid_time:
+      type: string
+      format: date-time
+      nullable: true
+      description: When payment was made
+    review_link:
+      type: string
+      nullable: true
+      description: Link to review materials from mentor

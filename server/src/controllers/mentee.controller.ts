@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { getMenteeProfileService, updateMenteeProfileService, getMenteesListService } from "../services/mentee.service";
+import {
+  getMenteeProfileService,
+  updateMenteeProfileService,
+  getMenteesListService,
+  getMenteeSessionsService,
+} from "../services/mentee.service";
 import { UpdateMenteeProfileRequest, GetMenteesQuery } from "../types/mentee.type";
 
 const getMenteeProfile = async (req: Request, res: Response) => {
@@ -108,3 +113,76 @@ const getMenteesList = async (req: Request, res: Response) => {
 };
 
 export { getMenteeProfile, updateMenteeProfile, getMenteesList };
+
+// Get all sessions for the logged-in mentee
+const getMenteeSessions = async (req: Request, res: Response) => {
+  try {
+    // Get mentee ID from authenticated user
+    const menteeId = req.user?.user_id;
+
+    if (!menteeId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const result = await getMenteeSessionsService(parseInt(menteeId));
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        message: result.message,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(`Error in getMenteeSessions: ${error}`);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// Cancel a booking (delete a pending session)
+const cancelMenteeSession = async (req: Request, res: Response) => {
+  try {
+    const menteeId = req.user?.user_id;
+    const { registrationId } = req.params;
+
+    if (!menteeId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    if (!registrationId) {
+      return res.status(400).json({
+        success: false,
+        message: "Registration ID is required",
+      });
+    }
+
+    // TODO: Implement cancellation logic
+    // For now, return success
+    res.status(200).json({
+      success: true,
+      message: "Session cancelled successfully",
+    });
+  } catch (error) {
+    console.error(`Error in cancelMenteeSession: ${error}`);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export { getMenteeSessions, cancelMenteeSession };

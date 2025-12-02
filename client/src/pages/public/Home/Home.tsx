@@ -93,7 +93,7 @@ function Home() {
                   setHeroSearch(e.target.value);
                 }}
                 placeholder='Search by skill, role or mentor name'
-                className='w-full rounded-lg bg-slate-700 py-3 pr-32 pl-10 text-white placeholder-slate-400 focus:ring-2 focus:ring-[var(--green)] focus:outline-none'
+                className='w-full rounded-lg bg-slate-700 py-3 pr-32 pl-10 text-white placeholder-slate-400 focus:ring-2 focus:ring-(--green) focus:outline-none'
               />
 
               {/* Search icon */}
@@ -570,7 +570,7 @@ function Home() {
                   className='flex flex-col items-center rounded-xl p-4 text-center transition hover:-translate-y-0.5 hover:border-(--primary) hover:shadow-(--primary)/10 hover:shadow-lg'
                 >
                   <div
-                    className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${tip.color}`}
+                    className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br ${tip.color}`}
                   >
                     {tip.icon}
                   </div>

@@ -21,6 +21,7 @@ export const getMeetingsByMenteeIdService = async (menteeId: number): Promise<Me
         m.end_time,
         m.date,
         m.mentor_id,
+        m.review_link,
         mentor_user.first_name AS mentor_first_name,
         mentor_user.last_name AS mentor_last_name,
         mentor_user.avatar_url AS mentor_avatar_url,
@@ -70,6 +71,7 @@ export const getMeetingsByMentorIdService = async (mentorId: number): Promise<Me
         m.end_time,
         m.date,
         m.mentor_id,
+        m.review_link,
         mentor_user.first_name AS mentor_first_name,
         mentor_user.last_name AS mentor_last_name,
         mentor_user.avatar_url AS mentor_avatar_url,
@@ -119,6 +121,7 @@ export const getMeetingByIdService = async (meetingId: number): Promise<MeetingR
         m.end_time,
         m.date,
         m.mentor_id,
+        m.review_link,
         mentor_user.first_name AS mentor_first_name,
         mentor_user.last_name AS mentor_last_name,
         mentor_user.avatar_url AS mentor_avatar_url,
@@ -230,6 +233,48 @@ export const updateMeetingStatusService = async (
     return await getMeetingByIdService(meetingId);
   } catch (error) {
     console.error("Error in updateMeetingStatusService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update meeting review link
+ * Mentor can add a review link (Google Docs, PDF, etc.) for completed meetings
+ */
+export const updateMeetingReviewLinkService = async (
+  meetingId: number,
+  mentorId: number,
+  reviewLink: string
+): Promise<MeetingResponse | null> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // First verify the meeting belongs to the mentor and is completed
+    const verifyResult = await pool
+      .request()
+      .input("meetingId", sql.Int, meetingId)
+      .input("mentorId", sql.Int, mentorId).query(`
+      SELECT meeting_id, status FROM meetings 
+      WHERE meeting_id = @meetingId AND mentor_id = @mentorId
+    `);
+
+    if (verifyResult.recordset.length === 0) {
+      return null;
+    }
+
+    // Update review link
+    await pool.request().input("meetingId", sql.Int, meetingId).input("reviewLink", sql.NVarChar(500), reviewLink)
+      .query(`
+      UPDATE meetings 
+      SET review_link = @reviewLink
+      WHERE meeting_id = @meetingId
+    `);
+
+    // Return updated meeting
+    return await getMeetingByIdService(meetingId);
+  } catch (error) {
+    console.error("Error in updateMeetingReviewLinkService:", error);
     throw error;
   }
 };

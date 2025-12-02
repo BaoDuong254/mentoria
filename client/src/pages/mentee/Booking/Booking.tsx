@@ -1,16 +1,53 @@
 import { useBookingStore } from "@/store/useBookingStore";
-import { Clock, Globe, Star, Users, Video } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useBookingRequestStore, type BookingRequest } from "@/store/useBookingRequestStore";
+import { Clock, Globe, Star, Users, Video, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { format, isSameDay, parseISO } from "date-fns";
 import type { Slot } from "@/types/booking.type";
-import Calendar from "react-calendar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSearchStore } from "@/store/useSearchStore";
-import { createCheckoutSession } from "@/apis/payment.api";
+import path from "@/constants/path";
+
+interface MonthConfig {
+  month: number;
+  year: number;
+}
+
+const WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function buildCalendarMatrix(year: number, month: number): (number | null)[][] {
+  // Monday as first day of week
+  const firstDayIndex = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const weeks: (number | null)[][] = [];
+  let currentWeek: (number | null)[] = [];
+
+  for (let i = 0; i < firstDayIndex; i++) {
+    currentWeek.push(null);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    currentWeek.push(day);
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) {
+      currentWeek.push(null);
+    }
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+}
 
 function Booking() {
   const { planId } = useParams();
+  const navigate = useNavigate();
   const {
     slots,
     selectedDate,
@@ -24,15 +61,124 @@ function Booking() {
   } = useBookingStore();
   const { user } = useAuthStore();
   const { selectedMentor } = useSearchStore();
+  const { addRequest } = useBookingRequestStore();
   const [name, setName] = useState(`${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim());
   const [email, setEmail] = useState(user?.email);
   const [discuss, setDiscuss] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Calendar state - memoize today to prevent unnecessary re-renders
+  const today = useMemo(() => new Date(), []);
+  const [currentMonth, setCurrentMonth] = useState<MonthConfig>({
+    month: today.getMonth() + 1,
+    year: today.getFullYear(),
+  });
+
+  const calendarWeeks = useMemo(
+    () => buildCalendarMatrix(currentMonth.year, currentMonth.month),
+    [currentMonth.year, currentMonth.month]
+  );
+
+  const monthLabel = useMemo(
+    () =>
+      new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(
+        new Date(currentMonth.year, currentMonth.month - 1)
+      ),
+    [currentMonth.year, currentMonth.month]
+  );
+
+  // Dates with available slots
+  const datesWithSlots = useMemo(() => {
+    const dates = new Set<number>();
+    slots.forEach((slot) => {
+      const slotDate = parseISO(slot.start_time);
+      if (slotDate.getMonth() + 1 === currentMonth.month && slotDate.getFullYear() === currentMonth.year) {
+        dates.add(slotDate.getDate());
+      }
+    });
+    return dates;
+  }, [slots, currentMonth.month, currentMonth.year]);
+
+  const handleMonthChange = useCallback((direction: "prev" | "next") => {
+    setCurrentMonth((prev) => {
+      let newMonth = prev.month;
+      let newYear = prev.year;
+
+      if (direction === "prev") {
+        if (prev.month === 1) {
+          newMonth = 12;
+          newYear = prev.year - 1;
+        } else {
+          newMonth = prev.month - 1;
+        }
+        // Limit to year 1900
+        if (newYear < 1900) return prev;
+      } else {
+        if (prev.month === 12) {
+          newMonth = 1;
+          newYear = prev.year + 1;
+        } else {
+          newMonth = prev.month + 1;
+        }
+        // Limit to year 2100
+        if (newYear > 2100) return prev;
+      }
+
+      return { month: newMonth, year: newYear };
+    });
+  }, []);
+
+  const handleDayClick = useCallback(
+    (day: number) => {
+      const newDate = new Date(currentMonth.year, currentMonth.month - 1, day);
+      // Only allow selecting future dates
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      if (newDate >= todayStart) {
+        setSelectedDate(newDate);
+        setSelectedSlotId("");
+      }
+    },
+    [currentMonth.year, currentMonth.month, setSelectedDate, setSelectedSlotId, today]
+  );
+
+  const isSelectedDay = useCallback(
+    (day: number) => {
+      if (!selectedDate) return false;
+      return (
+        selectedDate.getDate() === day &&
+        selectedDate.getMonth() + 1 === currentMonth.month &&
+        selectedDate.getFullYear() === currentMonth.year
+      );
+    },
+    [selectedDate, currentMonth.month, currentMonth.year]
+  );
+
+  const isToday = useCallback(
+    (day: number) => {
+      return (
+        day === today.getDate() &&
+        currentMonth.month === today.getMonth() + 1 &&
+        currentMonth.year === today.getFullYear()
+      );
+    },
+    [today, currentMonth.month, currentMonth.year]
+  );
+
+  const isPastDay = useCallback(
+    (day: number) => {
+      const date = new Date(currentMonth.year, currentMonth.month - 1, day);
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      return date < todayStart;
+    },
+    [currentMonth.year, currentMonth.month, today]
+  );
+
   useEffect(() => {
     if (planId) {
       void fetchSlots(Number(planId));
     }
   }, [planId, fetchSlots]);
+
   const slotsForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
 
@@ -42,7 +188,7 @@ function Booking() {
     });
   }, [selectedDate, slots]);
 
-  const handleBookSession = async () => {
+  const handleBookSession = () => {
     if (!user?.user_id) {
       alert("Please login to book a session");
       return;
@@ -67,26 +213,37 @@ function Booking() {
     setIsProcessing(true);
 
     try {
-      const payload = {
+      // Create pending booking request using Zustand store
+      const pendingRequest: BookingRequest = {
+        id: `pending-${String(Date.now())}`,
         menteeId: user.user_id,
+        menteeName: name,
+        menteeEmail: email ?? "",
+        menteeAvatar: user.avatar_url ?? "",
         mentorId: currentSlot.mentor_id,
+        mentorName: `${selectedMentor?.first_name ?? ""} ${selectedMentor?.last_name ?? ""}`,
+        mentorAvatar: selectedMentor?.avatar_url ?? "",
+        mentorSpecialty: selectedMentor?.companies[0]?.job_name ?? "Mentor",
         planId: Number(planId),
+        planType: selectedPlanType ?? "Session",
+        planCharge: selectedCharge ?? 0,
         slotStartTime: currentSlot.start_time,
         slotEndTime: currentSlot.end_time,
+        slotDate: currentSlot.start_time.split("T")[0],
         message: discuss,
-        discountCode: "",
+        status: "pending",
+        createdAt: new Date().toISOString(),
       };
 
-      const res = await createCheckoutSession(payload);
+      // Add to Zustand store (which persists to localStorage)
+      addRequest(pendingRequest);
 
-      if (res.success && res.data?.sessionUrl) {
-        window.location.href = res.data.sessionUrl;
-      } else if (!res.success) {
-        alert(res.message);
-      }
+      // Navigate to MenteeDashboard with success message
+      alert("Booking request sent successfully! Waiting for mentor approval.");
+      void navigate(`${path.MENTEE}/${path.MENTEE_DASHBOARD}`);
     } catch (error) {
       console.error("Booking Error:", error);
-      alert("Failed to create checkout session. Please try again.");
+      alert("Failed to create booking request. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -149,15 +306,63 @@ function Booking() {
                   </div>
                 </div>
               </div>
+              {/* Custom Calendar */}
               <div className='w-11/12 rounded-xl border border-gray-500 bg-gray-800 p-6'>
-                <h3 className='mb-4 font-bold text-white'>{format(selectedDate ?? new Date(), "dd MMMM yyyy")}</h3>
-                <Calendar
-                  className='w-full border-none bg-transparent text-white'
-                  onChange={(val) => {
-                    setSelectedDate(val as Date);
-                  }}
-                  tileClassName='text-white hover:bg-gray-700 rounded-lg'
-                />
+                <div className='mb-4 flex items-center justify-between'>
+                  <button
+                    onClick={() => {
+                      handleMonthChange("prev");
+                    }}
+                    className='p-1 text-gray-400 hover:text-white'
+                  >
+                    <ChevronLeft className='h-5 w-5' />
+                  </button>
+                  <h3 className='font-bold text-white'>«{monthLabel}»</h3>
+                  <button
+                    onClick={() => {
+                      handleMonthChange("next");
+                    }}
+                    className='p-1 text-gray-400 hover:text-white'
+                  >
+                    <ChevronRight className='h-5 w-5' />
+                  </button>
+                </div>
+
+                {/* Weekday Labels */}
+                <div className='mb-2 grid grid-cols-7 text-center'>
+                  {WEEKDAY_LABELS.map((label, i) => (
+                    <div key={i} className='py-1 text-xs text-gray-400 underline'>
+                      {label}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar Grid */}
+                <div className='grid grid-cols-7 gap-1'>
+                  {calendarWeeks.flat().map((day, i) => {
+                    if (day === null) {
+                      return <div key={`empty-${String(i)}`} className='h-8' />;
+                    }
+
+                    const hasSlots = datesWithSlots.has(day);
+                    const selected = isSelectedDay(day);
+                    const todayDay = isToday(day);
+                    const past = isPastDay(day);
+
+                    return (
+                      <button
+                        key={day}
+                        onClick={() => {
+                          if (!past) handleDayClick(day);
+                        }}
+                        disabled={past}
+                        className={`mx-auto flex h-8 w-8 items-center justify-center rounded text-sm transition-colors ${selected ? "bg-purple-600 text-white" : ""} ${!selected && hasSlots && !past ? "bg-cyan-600 text-white" : ""} ${!selected && !hasSlots && !past ? "text-gray-300 hover:bg-gray-700" : ""} ${past ? "cursor-not-allowed text-gray-600" : "cursor-pointer"} ${todayDay && !selected ? "ring-1 ring-purple-500" : ""} `}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             {/* Right side */}
@@ -257,7 +462,9 @@ function Booking() {
                           : "cursor-not-allowed bg-gray-700 text-gray-500"
                       }`}
                       disabled={!selectedSlotId || isProcessing}
-                      onClick={() => void handleBookSession()}
+                      onClick={() => {
+                        handleBookSession();
+                      }}
                     >
                       {isProcessing ? "Processing..." : "Book Session"}
                     </button>
