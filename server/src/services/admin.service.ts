@@ -1,34 +1,73 @@
 import poolPromise from "@/config/database";
 import { Status } from "@/constants/type";
+import {
+  AdminMenteeItem,
+  AdminMentorItem,
+  AdminServiceResponse,
+  AdminListResponse,
+  UpdateAdminMenteeRequest,
+  UpdateAdminMentorRequest,
+  ReviewAction,
+} from "@/types/admin.type";
 
-const listMentees = async () => {
+const listMenteesService = async (): Promise<AdminListResponse<AdminMenteeItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
-  const result = await pool
-    .request()
-    .query(
-      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal FROM users u JOIN mentees m ON u.user_id = m.user_id`
-    );
-  return result.recordset;
+
+  const result = await pool.request().query(`
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal 
+    FROM users u 
+    JOIN mentees m ON u.user_id = m.user_id
+  `);
+
+  return {
+    success: true,
+    message: "Mentees retrieved successfully",
+    data: result.recordset,
+  };
 };
 
-const getMentee = async (userId: number) => {
+const getMenteeService = async (userId: number): Promise<AdminServiceResponse<AdminMenteeItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
-  const result = await pool
-    .request()
-    .input("userId", userId)
-    .query(
-      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal FROM users u JOIN mentees m ON u.user_id = m.user_id WHERE u.user_id = @userId`
-    );
-  return result.recordset[0];
+
+  const result = await pool.request().input("userId", userId).query(`
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal 
+    FROM users u 
+    JOIN mentees m ON u.user_id = m.user_id 
+    WHERE u.user_id = @userId
+  `);
+
+  if (result.recordset.length === 0) {
+    return {
+      success: false,
+      message: "Mentee not found",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Mentee retrieved successfully",
+    data: result.recordset[0],
+  };
 };
 
-const updateMentee = async (userId: number, data: any) => {
+const updateMenteeService = async (userId: number, data: UpdateAdminMenteeRequest): Promise<AdminServiceResponse> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
+
+  // Check if mentee exists
+  const existingMentee = await getMenteeService(userId);
+  if (!existingMentee.success) {
+    return {
+      success: false,
+      message: "Mentee not found",
+    };
+  }
+
   const transaction = pool.transaction();
   await transaction.begin();
+
   try {
     if (data.first_name || data.last_name || data.email) {
       await transaction
@@ -56,76 +95,150 @@ const updateMentee = async (userId: number, data: any) => {
     }
 
     await transaction.commit();
-    return { success: true };
+
+    return {
+      success: true,
+      message: "Mentee updated successfully",
+    };
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
 
-const deleteMentee = async (userId: number) => {
+const deleteMenteeService = async (userId: number): Promise<AdminServiceResponse> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
   // Check if mentee exists
-  const mentee = await getMentee(userId);
-  if (!mentee) return { success: false, message: "Mentee not found" };
-
-  // Delete from users table (CASCADE will handle mentees table)
-  const result = await pool.request().input("userId", userId).query(`DELETE FROM users WHERE user_id = @userId`);
-
-  if (result.rowsAffected[0] === 0) {
-    return { success: false, message: "Failed to delete mentee" };
+  const existingMentee = await getMenteeService(userId);
+  if (!existingMentee.success) {
+    return {
+      success: false,
+      message: "Mentee not found",
+    };
   }
 
-  return { success: true };
-};
-
-// Mentors
-const listMentors = async () => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-  const result = await pool
-    .request()
-    .query(
-      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, m.bio, m.cv_url, m.headline, m.response_time FROM users u JOIN mentors m ON u.user_id = m.user_id`
-    );
-  return result.recordset;
-};
-
-const getPendingMentors = async () => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-  const result = await pool
-    .request()
-    .input("status", Status.Pending)
-    .query(
-      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, u.created_at, m.bio, m.cv_url, m.headline, m.response_time 
-     FROM users u 
-     JOIN mentors m ON u.user_id = m.user_id 
-     WHERE u.status = @status
-     ORDER BY u.created_at DESC`
-    );
-  return result.recordset;
-};
-
-const getMentor = async (userId: number) => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-  const result = await pool
-    .request()
-    .input("userId", userId)
-    .query(
-      `SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, m.bio, m.cv_url, m.headline, m.response_time FROM users u JOIN mentors m ON u.user_id = m.user_id WHERE u.user_id = @userId`
-    );
-  return result.recordset[0];
-};
-
-const updateMentor = async (userId: number, data: any) => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
   const transaction = pool.transaction();
   await transaction.begin();
+
+  try {
+    // Delete related records with NO ACTION FK constraints
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
+    `);
+
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM feedbacks WHERE mentee_id = @userId
+    `);
+
+    // Delete user (cascades to mentees table)
+    const result = await transaction.request().input("userId", userId).query(`
+      DELETE FROM users WHERE user_id = @userId
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      await transaction.rollback();
+      return {
+        success: false,
+        message: "Failed to delete mentee",
+      };
+    }
+
+    await transaction.commit();
+
+    return {
+      success: true,
+      message: "Mentee deleted successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
+};
+
+// ==================== MENTOR SERVICES ====================
+
+const listMentorsService = async (): Promise<AdminListResponse<AdminMentorItem>> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  const result = await pool.request().query(`
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, 
+           m.bio, m.cv_url, m.headline, m.response_time 
+    FROM users u 
+    JOIN mentors m ON u.user_id = m.user_id
+  `);
+
+  return {
+    success: true,
+    message: "Mentors retrieved successfully",
+    data: result.recordset,
+  };
+};
+
+const getPendingMentorsService = async (): Promise<AdminListResponse<AdminMentorItem>> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  const result = await pool.request().input("status", Status.Pending).query(`
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, u.created_at, 
+           m.bio, m.cv_url, m.headline, m.response_time 
+    FROM users u 
+    JOIN mentors m ON u.user_id = m.user_id 
+    WHERE u.status = @status
+    ORDER BY u.created_at DESC
+  `);
+
+  return {
+    success: true,
+    message: "Pending mentors retrieved successfully",
+    data: result.recordset,
+  };
+};
+
+const getMentorService = async (userId: number): Promise<AdminServiceResponse<AdminMentorItem>> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  const result = await pool.request().input("userId", userId).query(`
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, 
+           m.bio, m.cv_url, m.headline, m.response_time 
+    FROM users u 
+    JOIN mentors m ON u.user_id = m.user_id 
+    WHERE u.user_id = @userId
+  `);
+
+  if (result.recordset.length === 0) {
+    return {
+      success: false,
+      message: "Mentor not found",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Mentor retrieved successfully",
+    data: result.recordset[0],
+  };
+};
+
+const updateMentorService = async (userId: number, data: UpdateAdminMentorRequest): Promise<AdminServiceResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  // Check if mentor exists
+  const existingMentor = await getMentorService(userId);
+  if (!existingMentor.success) {
+    return {
+      success: false,
+      message: "Mentor not found",
+    };
+  }
+
+  const transaction = pool.transaction();
+  await transaction.begin();
+
   try {
     if (data.first_name || data.last_name || data.email) {
       await transaction
@@ -144,7 +257,6 @@ const updateMentor = async (userId: number, data: any) => {
         `);
     }
 
-    // update mentors specific columns
     await transaction
       .request()
       .input("userId", userId)
@@ -162,67 +274,157 @@ const updateMentor = async (userId: number, data: any) => {
       `);
 
     await transaction.commit();
-    return { success: true };
+
+    return {
+      success: true,
+      message: "Mentor updated successfully",
+    };
   } catch (error) {
     await transaction.rollback();
     throw error;
   }
 };
 
-const deleteMentor = async (userId: number) => {
+const deleteMentorService = async (userId: number): Promise<AdminServiceResponse> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
   // Check if mentor exists
-  const mentor = await getMentor(userId);
-  if (!mentor) return { success: false, message: "Mentor not found" };
-
-  // Delete from users table (CASCADE will handle mentors table)
-  const result = await pool.request().input("userId", userId).query(`DELETE FROM users WHERE user_id = @userId`);
-
-  if (result.rowsAffected[0] === 0) {
-    return { success: false, message: "Failed to delete mentor" };
+  const existingMentor = await getMentorService(userId);
+  if (!existingMentor.success) {
+    return {
+      success: false,
+      message: "Mentor not found",
+    };
   }
 
-  return { success: true };
+  const transaction = pool.transaction();
+  await transaction.begin();
+
+  try {
+    // Delete related records with NO ACTION FK constraints
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
+    `);
+
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM feedbacks WHERE mentor_id = @userId
+    `);
+
+    // Delete meetings that reference this mentor's slots
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM meetings WHERE mentor_id = @userId
+    `);
+
+    // Delete user (cascades to mentors, slots, plans, etc.)
+    const result = await transaction.request().input("userId", userId).query(`
+      DELETE FROM users WHERE user_id = @userId
+    `);
+
+    if (result.rowsAffected[0] === 0) {
+      await transaction.rollback();
+      return {
+        success: false,
+        message: "Failed to delete mentor",
+      };
+    }
+
+    await transaction.commit();
+
+    return {
+      success: true,
+      message: "Mentor deleted successfully",
+    };
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
-// Approve or reject mentor profile
-const reviewMentor = async (userId: number, action: "accept" | "reject") => {
+// ==================== REVIEW MENTOR SERVICE ====================
+
+const reviewMentorService = async (
+  userId: number,
+  action: ReviewAction
+): Promise<AdminServiceResponse<AdminMentorItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
-  const mentor = await getMentor(userId);
-  if (!mentor) return { success: false, message: "Mentor not found" };
+
+  // Get mentor info before any action
+  const mentorResult = await getMentorService(userId);
+  if (!mentorResult.success || !mentorResult.data) {
+    return {
+      success: false,
+      message: "Mentor not found",
+    };
+  }
+
+  const mentor = mentorResult.data;
 
   if (action === "accept") {
-    // According to requirement, set status to Inactive and notify
     await pool
       .request()
       .input("userId", userId)
       .input("status", Status.Inactive)
       .query(`UPDATE users SET status = @status, updated_at = GETDATE() WHERE user_id = @userId`);
-    return { success: true, mentor };
+
+    return {
+      success: true,
+      message: "Mentor accepted successfully",
+      data: mentor,
+    };
   }
 
-  // reject: delete the user (cascade deletes mentor record)
   if (action === "reject") {
-    const mentorCopy = mentor;
-    await pool.request().input("userId", userId).query(`DELETE FROM users WHERE user_id = @userId`);
-    return { success: true, mentor: mentorCopy };
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Delete related records with NO ACTION FK constraints
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
+      `);
+
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM feedbacks WHERE mentor_id = @userId
+      `);
+
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM meetings WHERE mentor_id = @userId
+      `);
+
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM users WHERE user_id = @userId
+      `);
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+
+    return {
+      success: true,
+      message: "Mentor rejected and removed successfully",
+      data: mentor,
+    };
   }
 
-  return { success: false, message: "Invalid action" };
+  return {
+    success: false,
+    message: "Invalid action",
+  };
 };
 
 export {
-  listMentees,
-  getMentee,
-  updateMentee,
-  deleteMentee,
-  listMentors,
-  getPendingMentors,
-  getMentor,
-  updateMentor,
-  deleteMentor,
-  reviewMentor,
+  listMenteesService,
+  getMenteeService,
+  updateMenteeService,
+  deleteMenteeService,
+  listMentorsService,
+  getPendingMentorsService,
+  getMentorService,
+  updateMentorService,
+  deleteMentorService,
+  reviewMentorService,
 };
