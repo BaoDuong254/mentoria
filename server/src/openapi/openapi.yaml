@@ -39,6 +39,8 @@ tags:
     description: Real-time messaging between users with WebSocket integration
   - name: meeting
     description: Meeting management for mentors and mentees
+  - name: admin
+    description: Admin management for mentees and mentors (Admin only)
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -143,6 +145,19 @@ paths:
     $ref: "./paths/meeting.yaml#/updateMeetingLocation"
   /api/meetings/{meetingId}/status:
     $ref: "./paths/meeting.yaml#/updateMeetingStatus"
+  # Admin Endpoints
+  /api/admin/mentees:
+    $ref: "./paths/admin.yaml#/menteesList"
+  /api/admin/mentees/{id}:
+    $ref: "./paths/admin.yaml#/mentee"
+  /api/admin/mentors:
+    $ref: "./paths/admin.yaml#/mentorsList"
+  /api/admin/mentors/pending:
+    $ref: "./paths/admin.yaml#/mentorsPending"
+  /api/admin/mentors/{id}:
+    $ref: "./paths/admin.yaml#/mentor"
+  /api/admin/mentors/{id}/review:
+    $ref: "./paths/admin.yaml#/mentorReview"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

@@ -31,3 +31,21 @@ export const sendBookingConfirmation = async (data: BookingConfirmationData, ema
 
   await mailConfig(htmlToSend, email, "Booking Confirmation");
 };
+
+export const sendMentorApproved = async (mentorName: string, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/mentor-accepted.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template({ name: mentorName });
+
+  await mailConfig(htmlToSend, email, "Mentoria Mentor Approved");
+};
+
+export const sendMentorRejected = async (mentorName: string, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/mentor-rejected.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template({ name: mentorName });
+
+  await mailConfig(htmlToSend, email, "Mentoria Mentor Application Rejected");
+};
