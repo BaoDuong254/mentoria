@@ -18,6 +18,8 @@ import MenteeDashboard from "@/pages/mentee/MenteeDashboard";
 import ProtectedMenteeRoute from "@/layouts/ProtectedMenteeRoute";
 import ProtectedMentorRoute from "@/layouts/ProtectedMentorRoute";
 import PaymentSuccessPage from "@/pages/public/Payment";
+import ProtectedAdminRoute from "@/layouts/ProtectedAdminRoute";
+import MentorPlans from "@/pages/mentor/MentorPlans/MentorPlans";
 
 export default function useRoutesConfig() {
   const routes = [
@@ -40,7 +42,19 @@ export default function useRoutesConfig() {
         {
           path: path.MENTOR,
           element: <PublicLayout />,
-          children: [{ path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> }],
+          children: [
+            { path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> },
+            { path: path.MENTOR_PLANS, element: <MentorPlans /> },
+          ],
+        },
+      ],
+    },
+    {
+      element: <ProtectedAdminRoute />,
+      childre: [
+        {
+          path: path.ADMIN,
+          element: <PublicLayout />,
         },
       ],
     },
