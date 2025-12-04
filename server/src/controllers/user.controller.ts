@@ -1,4 +1,9 @@
-import { updateAvatarService, changePasswordService } from "@/services/user.service";
+import {
+  updateAvatarService,
+  changePasswordService,
+  getMenteeInvoiceStatsService,
+  getMentorInvoiceStatsService,
+} from "@/services/user.service";
 import { Request, Response } from "express";
 import cloudinary from "@/config/cloudinary";
 import { ChangePasswordSchema, TChangePasswordSchema } from "@/validation/change-password.schema";
@@ -148,4 +153,110 @@ const changePassword = async (req: Request, res: Response) => {
   }
 };
 
-export { updateAvatar, changePassword };
+const getMenteeInvoiceStats = async (req: Request, res: Response) => {
+  try {
+    // Check if user is authenticated
+    if (!req.user || !req.user.user_id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User not authenticated",
+      });
+    }
+
+    // Check if user is a mentee
+    if (req.user.role !== "Mentee") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden - Only mentees can access this resource",
+      });
+    }
+
+    const menteeId = parseInt(req.user.user_id);
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+    const month = req.query.month ? parseInt(req.query.month as string) : undefined;
+
+    // Validate year and month if provided
+    if (year && (year < 2000 || year > 2100)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid year provided",
+      });
+    }
+
+    if (month && (month < 1 || month > 12)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid month provided (must be between 1 and 12)",
+      });
+    }
+
+    const result = await getMenteeInvoiceStatsService(menteeId, year, month);
+
+    return res.status(200).json({
+      success: true,
+      message: "Invoice statistics retrieved successfully",
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("Error in getMenteeInvoiceStats controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+const getMentorInvoiceStats = async (req: Request, res: Response) => {
+  try {
+    // Check if user is authenticated
+    if (!req.user || !req.user.user_id) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - User not authenticated",
+      });
+    }
+
+    // Check if user is a mentor
+    if (req.user.role !== "Mentor") {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden - Only mentors can access this resource",
+      });
+    }
+
+    const mentorId = parseInt(req.user.user_id);
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+    const month = req.query.month ? parseInt(req.query.month as string) : undefined;
+
+    // Validate year and month if provided
+    if (year && (year < 2000 || year > 2100)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid year provided",
+      });
+    }
+
+    if (month && (month < 1 || month > 12)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid month provided (must be between 1 and 12)",
+      });
+    }
+
+    const result = await getMentorInvoiceStatsService(mentorId, year, month);
+
+    return res.status(200).json({
+      success: true,
+      message: "Invoice statistics retrieved successfully",
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("Error in getMentorInvoiceStats controller:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export { updateAvatar, changePassword, getMenteeInvoiceStats, getMentorInvoiceStats };

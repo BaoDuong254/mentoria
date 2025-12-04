@@ -80,6 +80,10 @@ paths:
     $ref: "./paths/user.yaml#/avatar"
   /api/users/change-password:
     $ref: "./paths/user.yaml#/change-password"
+  /api/users/mentee/invoice-stats:
+    $ref: "./paths/user.yaml#/mentee-invoice-stats"
+  /api/users/mentor/invoice-stats:
+    $ref: "./paths/user.yaml#/mentor-invoice-stats"
   # Search Endpoints
   /api/search/mentors:
     $ref: "./paths/search.yaml#/searchMentors"

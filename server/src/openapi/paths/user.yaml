@@ -184,3 +184,373 @@ change-password:
             example:
               success: false
               message: "Internal server error"
+
+mentee-invoice-stats:
+  get:
+    tags:
+      - user
+    summary: Get mentee invoice statistics
+    description: |
+      Retrieve invoice statistics and transaction history for a mentee user.
+
+      **Features:**
+      - View all payments made in a specific month
+      - Total amount spent in that month
+      - Detailed invoice information including mentor details, plan information, and payment status
+      - Invoice count for the period
+
+      **Access:**
+      - Only accessible by authenticated users with 'Mentee' role
+      - Each mentee can only view their own invoice statistics
+
+      **Use Cases:**
+      - Monthly spending summary for mentees
+      - Transaction history review
+      - Budget tracking and financial planning
+      - Receipt access for accounting purposes
+    operationId: getMenteeInvoiceStats
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: year
+        in: query
+        description: Filter by specific year (defaults to current year if not provided)
+        required: false
+        schema:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2025
+      - name: month
+        in: query
+        description: Filter by specific month 1-12 (defaults to current month if not provided)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 12
+    responses:
+      "200":
+        description: Invoice statistics retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Invoice statistics retrieved successfully"
+                data:
+                  type: object
+                  properties:
+                    year:
+                      type: integer
+                      example: 2025
+                      description: "Year of the statistics"
+                    month:
+                      type: integer
+                      example: 12
+                      description: "Month of the statistics (1-12)"
+                    total_spent:
+                      type: number
+                      format: decimal
+                      example: 500.00
+                      description: "Total amount spent by the mentee in the specified month"
+                    count:
+                      type: integer
+                      example: 5
+                      description: "Number of invoices in the period"
+                    invoices:
+                      type: array
+                      description: "Array of detailed invoice records"
+                      items:
+                        type: object
+                        properties:
+                          invoice_id:
+                            type: integer
+                            example: 123
+                          amount:
+                            type: number
+                            format: decimal
+                            example: 100.00
+                          method:
+                            type: string
+                            example: "card"
+                          paid_time:
+                            type: string
+                            format: date-time
+                            example: "2025-12-01T10:30:00.000Z"
+                          payment_status:
+                            type: string
+                            example: "paid"
+                          currency:
+                            type: string
+                            example: "usd"
+                          amount_subtotal:
+                            type: number
+                            format: decimal
+                            example: 100.00
+                          amount_total:
+                            type: number
+                            format: decimal
+                            example: 100.00
+                          stripe_receipt_url:
+                            type: string
+                            format: uri
+                            example: "https://stripe.com/receipt/123"
+                          plan_description:
+                            type: string
+                            example: "1-hour mentorship session"
+                          plan_type:
+                            type: string
+                            example: "session"
+                          plan_charge:
+                            type: number
+                            format: decimal
+                            example: 100.00
+                          mentor_id:
+                            type: integer
+                            example: 456
+                          mentor_first_name:
+                            type: string
+                            example: "John"
+                          mentor_last_name:
+                            type: string
+                            example: "Doe"
+                          mentor_avatar_url:
+                            type: string
+                            format: uri
+                            example: "https://cloudinary.com/avatar.jpg"
+      "400":
+        description: Bad request - Invalid year or month parameter
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            examples:
+              invalidYear:
+                value:
+                  success: false
+                  message: "Invalid year provided"
+              invalidMonth:
+                value:
+                  success: false
+                  message: "Invalid month provided (must be between 1 and 12)"
+      "401":
+        description: Unauthorized - User not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Unauthorized - User not authenticated"
+      "403":
+        description: Forbidden - Only mentees can access this resource
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Forbidden - Only mentees can access this resource"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Internal server error"
+
+mentor-invoice-stats:
+  get:
+    tags:
+      - user
+    summary: Get mentor invoice statistics
+    description: |
+      Retrieve invoice statistics and earnings history for a mentor user.
+
+      **Features:**
+      - View all payments received in a specific month
+      - Total amount earned in that month
+      - Detailed invoice information including mentee details, plan information, and payment status
+      - Invoice count for the period
+
+      **Access:**
+      - Only accessible by authenticated users with 'Mentor' role
+      - Each mentor can only view their own invoice statistics
+
+      **Use Cases:**
+      - Monthly earnings summary for mentors
+      - Revenue tracking and financial reporting
+      - Client transaction history
+      - Tax reporting and accounting purposes
+    operationId: getMentorInvoiceStats
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: year
+        in: query
+        description: Filter by specific year (defaults to current year if not provided)
+        required: false
+        schema:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2025
+      - name: month
+        in: query
+        description: Filter by specific month 1-12 (defaults to current month if not provided)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 12
+    responses:
+      "200":
+        description: Invoice statistics retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Invoice statistics retrieved successfully"
+                data:
+                  type: object
+                  properties:
+                    year:
+                      type: integer
+                      example: 2025
+                      description: "Year of the statistics"
+                    month:
+                      type: integer
+                      example: 12
+                      description: "Month of the statistics (1-12)"
+                    total_received:
+                      type: number
+                      format: decimal
+                      example: 1500.00
+                      description: "Total amount received by the mentor in the specified month"
+                    count:
+                      type: integer
+                      example: 10
+                      description: "Number of invoices in the period"
+                    invoices:
+                      type: array
+                      description: "Array of detailed invoice records"
+                      items:
+                        type: object
+                        properties:
+                          invoice_id:
+                            type: integer
+                            example: 123
+                          amount:
+                            type: number
+                            format: decimal
+                            example: 150.00
+                          method:
+                            type: string
+                            example: "card"
+                          paid_time:
+                            type: string
+                            format: date-time
+                            example: "2025-12-01T10:30:00.000Z"
+                          payment_status:
+                            type: string
+                            example: "paid"
+                          currency:
+                            type: string
+                            example: "usd"
+                          amount_subtotal:
+                            type: number
+                            format: decimal
+                            example: 150.00
+                          amount_total:
+                            type: number
+                            format: decimal
+                            example: 150.00
+                          stripe_receipt_url:
+                            type: string
+                            format: uri
+                            example: "https://stripe.com/receipt/123"
+                          plan_description:
+                            type: string
+                            example: "Monthly mentorship package"
+                          plan_type:
+                            type: string
+                            example: "mentorship"
+                          plan_charge:
+                            type: number
+                            format: decimal
+                            example: 150.00
+                          mentee_id:
+                            type: integer
+                            example: 789
+                          mentee_first_name:
+                            type: string
+                            example: "Jane"
+                          mentee_last_name:
+                            type: string
+                            example: "Smith"
+                          mentee_avatar_url:
+                            type: string
+                            format: uri
+                            example: "https://cloudinary.com/avatar.jpg"
+                          mentee_email:
+                            type: string
+                            format: email
+                            example: "jane.smith@example.com"
+      "400":
+        description: Bad request - Invalid year or month parameter
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            examples:
+              invalidYear:
+                value:
+                  success: false
+                  message: "Invalid year provided"
+              invalidMonth:
+                value:
+                  success: false
+                  message: "Invalid month provided (must be between 1 and 12)"
+      "401":
+        description: Unauthorized - User not authenticated
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Unauthorized - User not authenticated"
+      "403":
+        description: Forbidden - Only mentors can access this resource
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Forbidden - Only mentors can access this resource"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Internal server error"
