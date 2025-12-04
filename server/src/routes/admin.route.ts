@@ -1,22 +1,31 @@
-import { Router } from "express";
-import * as adminController from "@/controllers/admin.controller";
+import {
+  listMentees,
+  getMentee,
+  updateMentee,
+  deleteMentee,
+  listMentors,
+  getPendingMentors,
+  getMentor,
+  updateMentor,
+  deleteMentor,
+  reviewMentor,
+} from "@/controllers/admin.controller";
+import { protectRoute } from "@/middlewares/auth.middleware";
+import express, { Router } from "express";
 
-const router = Router();
+const router: Router = express.Router();
 
-// Mentees
-router.get("/mentees", adminController.listMentees);
-router.get("/mentees/:id", adminController.getMentee);
-router.put("/mentees/:id", adminController.updateMentee);
-router.delete("/mentees/:id", adminController.deleteMentee);
+router.get("/mentees", protectRoute, listMentees);
+router.get("/mentees/:id", protectRoute, getMentee);
+router.put("/mentees/:id", protectRoute, updateMentee);
+router.delete("/mentees/:id", protectRoute, deleteMentee);
 
-// Mentors
-router.get("/mentors", adminController.listMentors);
-router.get("/mentors/pending", adminController.getPendingMentors);
-router.get("/mentors/:id", adminController.getMentor);
-router.put("/mentors/:id", adminController.updateMentor);
-router.delete("/mentors/:id", adminController.deleteMentor);
+router.get("/mentors", protectRoute, listMentors);
+router.get("/mentors/pending", protectRoute, getPendingMentors);
+router.get("/mentors/:id", protectRoute, getMentor);
+router.put("/mentors/:id", protectRoute, updateMentor);
+router.delete("/mentors/:id", protectRoute, deleteMentor);
 
-// Review mentor (accept/reject)
-router.post("/mentors/:id/review", adminController.reviewMentor);
+router.post("/mentors/:id/review", protectRoute, reviewMentor);
 
 export default router;
