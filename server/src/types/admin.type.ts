@@ -9,10 +9,10 @@ export interface AdminMenteeItem {
 }
 
 export interface UpdateAdminMenteeRequest {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  goal?: string;
+  first_name?: string | undefined;
+  last_name?: string | undefined;
+  email?: string | undefined;
+  goal?: string | undefined;
 }
 
 // Admin Mentor Types
@@ -31,13 +31,13 @@ export interface AdminMentorItem {
 }
 
 export interface UpdateAdminMentorRequest {
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  bio?: string;
-  headline?: string;
-  response_time?: string;
-  cv_url?: string;
+  first_name?: string | undefined;
+  last_name?: string | undefined;
+  email?: string | undefined;
+  bio?: string | undefined;
+  headline?: string | undefined;
+  response_time?: string | undefined;
+  cv_url?: string | undefined;
 }
 
 // Review Mentor Types

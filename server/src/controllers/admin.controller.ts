@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ZodError } from "zod";
 import {
   listMenteesService,
   getMenteeService,
@@ -12,7 +13,10 @@ import {
   reviewMentorService,
 } from "@/services/admin.service";
 import { sendMentorApproved, sendMentorRejected } from "@/mailtrap/mailSend";
-import { ReviewAction, UpdateAdminMenteeRequest, UpdateAdminMentorRequest } from "@/types/admin.type";
+import { ReviewAction } from "@/types/admin.type";
+import { UpdateMenteeSchema, UpdateMentorSchema, ReviewMentorSchema } from "@/validation/admin.schema";
+
+// ==================== MENTEE CONTROLLERS ====================
 
 const listMentees = async (_req: Request, res: Response) => {
   try {
@@ -50,7 +54,17 @@ const updateMentee = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Invalid id" });
     }
 
-    const data: UpdateAdminMenteeRequest = req.body;
+    // Validate request body with Zod
+    const data = UpdateMenteeSchema.parse(req.body);
+
+    // Check if at least one field is provided
+    if (!data.first_name && !data.last_name && !data.email && typeof data.goal === "undefined") {
+      return res.status(400).json({
+        success: false,
+        message: "At least one field must be provided for update",
+      });
+    }
+
     const result = await updateMenteeService(userId, data);
 
     if (!result.success) {
@@ -59,6 +73,13 @@ const updateMentee = async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.issues,
+      });
+    }
     console.error("[Admin] updateMentee error:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
@@ -131,7 +152,20 @@ const updateMentor = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Invalid id" });
     }
 
-    const data: UpdateAdminMentorRequest = req.body;
+    // Validate request body with Zod
+    const data = UpdateMentorSchema.parse(req.body);
+
+    // Check if at least one field is provided
+    const hasFields =
+      data.first_name || data.last_name || data.email || data.bio || data.headline || data.response_time || data.cv_url;
+
+    if (!hasFields) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one field must be provided for update",
+      });
+    }
+
     const result = await updateMentorService(userId, data);
 
     if (!result.success) {
@@ -140,6 +174,13 @@ const updateMentor = async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: error.issues,
+      });
+    }
     console.error("[Admin] updateMentor error:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
@@ -173,29 +214,39 @@ const reviewMentor = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: "Invalid id" });
     }
 
-    const { action } = req.body as { action: string };
-    if (!action || (action !== "accept" && action !== "reject")) {
-      return res.status(400).json({ success: false, message: "Invalid action. Must be 'accept' or 'reject'" });
-    }
+    // Validate action with Zod
+    const { action } = ReviewMentorSchema.parse(req.body);
 
     const result = await reviewMentorService(userId, action as ReviewAction);
     if (!result.success) {
       return res.status(404).json(result);
     }
 
+    // Send email notification (non-blocking, with error handling)
     const mentor = result.data;
     if (mentor && mentor.email) {
       const fullName = `${mentor.first_name} ${mentor.last_name}`;
 
-      if (action === "accept") {
-        await sendMentorApproved(fullName, mentor.email);
-      } else if (action === "reject") {
-        await sendMentorRejected(fullName, mentor.email);
+      try {
+        if (action === "accept") {
+          await sendMentorApproved(fullName, mentor.email);
+        } else if (action === "reject") {
+          await sendMentorRejected(fullName, mentor.email);
+        }
+      } catch (emailError) {
+        console.error("[Admin] Failed to send email:", emailError);
+        // Email failure does not block successful response
       }
     }
 
     return res.status(200).json(result);
   } catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid action. Must be 'accept' or 'reject'",
+      });
+    }
     console.error("[Admin] reviewMentor error:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }

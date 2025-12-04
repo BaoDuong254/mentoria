@@ -69,24 +69,34 @@ const updateMenteeService = async (userId: number, data: UpdateAdminMenteeReques
   await transaction.begin();
 
   try {
-    if (data.first_name || data.last_name || data.email) {
-      await transaction
-        .request()
-        .input("userId", userId)
-        .input("firstName", data.first_name || null)
-        .input("lastName", data.last_name || null)
-        .input("email", data.email || null).query(`
-          UPDATE users
-          SET
-            first_name = COALESCE(@firstName, first_name),
-            last_name = COALESCE(@lastName, last_name),
-            email = COALESCE(@email, email),
-            updated_at = GETDATE()
-          WHERE user_id = @userId
-        `);
+    // Build dynamic update for users table
+    const userFields: string[] = [];
+    const userRequest = transaction.request().input("userId", userId);
+
+    if ("first_name" in data) {
+      userFields.push("first_name = @firstName");
+      userRequest.input("firstName", data.first_name);
+    }
+    if ("last_name" in data) {
+      userFields.push("last_name = @lastName");
+      userRequest.input("lastName", data.last_name);
+    }
+    if ("email" in data) {
+      userFields.push("email = @email");
+      userRequest.input("email", data.email);
     }
 
-    if (typeof data.goal !== "undefined") {
+    if (userFields.length > 0) {
+      userFields.push("updated_at = GETDATE()");
+      await userRequest.query(`
+        UPDATE users
+        SET ${userFields.join(", ")}
+        WHERE user_id = @userId
+      `);
+    }
+
+    // Update goal in mentees table
+    if ("goal" in data) {
       await transaction
         .request()
         .input("userId", userId)
@@ -240,38 +250,64 @@ const updateMentorService = async (userId: number, data: UpdateAdminMentorReques
   await transaction.begin();
 
   try {
-    if (data.first_name || data.last_name || data.email) {
-      await transaction
-        .request()
-        .input("userId", userId)
-        .input("firstName", data.first_name || null)
-        .input("lastName", data.last_name || null)
-        .input("email", data.email || null).query(`
-          UPDATE users
-          SET
-            first_name = COALESCE(@firstName, first_name),
-            last_name = COALESCE(@lastName, last_name),
-            email = COALESCE(@email, email),
-            updated_at = GETDATE()
-          WHERE user_id = @userId
-        `);
+    // Build dynamic update for users table
+    const userFields: string[] = [];
+    const userRequest = transaction.request().input("userId", userId);
+
+    if ("first_name" in data) {
+      userFields.push("first_name = @firstName");
+      userRequest.input("firstName", data.first_name);
+    }
+    if ("last_name" in data) {
+      userFields.push("last_name = @lastName");
+      userRequest.input("lastName", data.last_name);
+    }
+    if ("email" in data) {
+      userFields.push("email = @email");
+      userRequest.input("email", data.email);
     }
 
-    await transaction
-      .request()
-      .input("userId", userId)
-      .input("bio", data.bio || null)
-      .input("headline", data.headline || null)
-      .input("responseTime", data.response_time || null)
-      .input("cvUrl", data.cv_url || null).query(`
-        UPDATE mentors
-        SET
-          bio = COALESCE(@bio, bio),
-          headline = COALESCE(@headline, headline),
-          response_time = COALESCE(@responseTime, response_time),
-          cv_url = COALESCE(@cvUrl, cv_url)
+    if (userFields.length > 0) {
+      userFields.push("updated_at = GETDATE()");
+      await userRequest.query(`
+        UPDATE users
+        SET ${userFields.join(", ")}
         WHERE user_id = @userId
       `);
+    }
+
+    // Build dynamic update for mentors table
+    const mentorFields: { [key: string]: any } = {};
+    const mentorUpdates: string[] = [];
+
+    if ("bio" in data) {
+      mentorFields["bio"] = data.bio;
+      mentorUpdates.push("bio = @bio");
+    }
+    if ("headline" in data) {
+      mentorFields["headline"] = data.headline;
+      mentorUpdates.push("headline = @headline");
+    }
+    if ("response_time" in data) {
+      mentorFields["responseTime"] = data.response_time;
+      mentorUpdates.push("response_time = @responseTime");
+    }
+    if ("cv_url" in data) {
+      mentorFields["cvUrl"] = data.cv_url;
+      mentorUpdates.push("cv_url = @cvUrl");
+    }
+
+    if (mentorUpdates.length > 0) {
+      const mentorRequest = transaction.request().input("userId", userId);
+      for (const [key, value] of Object.entries(mentorFields)) {
+        mentorRequest.input(key, value);
+      }
+      await mentorRequest.query(`
+        UPDATE mentors
+        SET ${mentorUpdates.join(", ")}
+        WHERE user_id = @userId
+      `);
+    }
 
     await transaction.commit();
 
@@ -362,17 +398,27 @@ const reviewMentorService = async (
   const mentor = mentorResult.data;
 
   if (action === "accept") {
-    await pool
-      .request()
-      .input("userId", userId)
-      .input("status", Status.Inactive)
-      .query(`UPDATE users SET status = @status, updated_at = GETDATE() WHERE user_id = @userId`);
+    const transaction = pool.transaction();
+    await transaction.begin();
 
-    return {
-      success: true,
-      message: "Mentor accepted successfully",
-      data: mentor,
-    };
+    try {
+      await transaction
+        .request()
+        .input("userId", userId)
+        .input("status", Status.Inactive)
+        .query(`UPDATE users SET status = @status, updated_at = GETDATE() WHERE user_id = @userId`);
+
+      await transaction.commit();
+
+      return {
+        success: true,
+        message: "Mentor accepted successfully",
+        data: mentor,
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   if (action === "reject") {
