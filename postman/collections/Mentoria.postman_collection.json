@@ -1357,7 +1357,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"goal\": \"New learning goal\"\n}",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"email\": \"updated.mentee@example.com\",\n  \"goal\": \"New learning goal\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1382,7 +1382,8 @@
 									"description": "ID của mentee cần update"
 								}
 							]
-						}
+						},
+						"description": "Cập nhật thông tin mentee. Tất cả các fields đều là optional: first_name, last_name, email, goal. Email phải unique và không được trùng với user khác."
 					},
 					"response": []
 				},
@@ -1492,7 +1493,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Mentor\",\n  \"bio\": \"Updated bio\",\n  \"headline\": \"Senior Developer\"\n}",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Mentor\",\n  \"email\": \"updated.mentor@example.com\",\n  \"bio\": \"Updated bio with more details about experience and expertise\",\n  \"headline\": \"Senior Developer | Tech Lead\",\n  \"response_time\": \"within 24 hours\",\n  \"cv_url\": \"https://example.com/cv.pdf\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1517,7 +1518,8 @@
 									"description": "ID của mentor cần update"
 								}
 							]
-						}
+						},
+						"description": "Cập nhật thông tin mentor. Tất cả các fields đều là optional: first_name, last_name, email, bio, headline, response_time, cv_url. Email phải unique và không được trùng với user khác."
 					},
 					"response": []
 				},

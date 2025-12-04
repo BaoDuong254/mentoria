@@ -82,6 +82,21 @@ const updateMenteeService = async (userId: number, data: UpdateAdminMenteeReques
       userRequest.input("lastName", data.last_name);
     }
     if ("email" in data) {
+      // Check if email is already in use by another user
+      const emailCheckResult = await transaction
+        .request()
+        .input("email", data.email)
+        .input("userId", userId)
+        .query(`SELECT user_id FROM users WHERE email = @email AND user_id <> @userId`);
+
+      if (emailCheckResult.recordset.length > 0) {
+        await transaction.rollback();
+        return {
+          success: false,
+          message: "Email already in use",
+        };
+      }
+
       userFields.push("email = @email");
       userRequest.input("email", data.email);
     }
@@ -263,6 +278,21 @@ const updateMentorService = async (userId: number, data: UpdateAdminMentorReques
       userRequest.input("lastName", data.last_name);
     }
     if ("email" in data) {
+      // Check if email is already in use by another user
+      const emailCheckResult = await transaction
+        .request()
+        .input("email", data.email)
+        .input("userId", userId)
+        .query(`SELECT user_id FROM users WHERE email = @email AND user_id <> @userId`);
+
+      if (emailCheckResult.recordset.length > 0) {
+        await transaction.rollback();
+        return {
+          success: false,
+          message: "Email already in use",
+        };
+      }
+
       userFields.push("email = @email");
       userRequest.input("email", data.email);
     }
@@ -396,6 +426,14 @@ const reviewMentorService = async (
   }
 
   const mentor = mentorResult.data;
+
+  // Only allow review actions for mentors with Pending status
+  if (mentor.status !== Status.Pending) {
+    return {
+      success: false,
+      message: "Only pending mentors can be reviewed",
+    };
+  }
 
   if (action === "accept") {
     const transaction = pool.transaction();

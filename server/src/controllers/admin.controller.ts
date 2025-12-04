@@ -58,7 +58,7 @@ const updateMentee = async (req: Request, res: Response) => {
     const data = UpdateMenteeSchema.parse(req.body);
 
     // Check if at least one field is provided
-    if (!data.first_name && !data.last_name && !data.email && typeof data.goal === "undefined") {
+    if (!("first_name" in data) && !("last_name" in data) && !("email" in data) && !("goal" in data)) {
       return res.status(400).json({
         success: false,
         message: "At least one field must be provided for update",
@@ -156,10 +156,7 @@ const updateMentor = async (req: Request, res: Response) => {
     const data = UpdateMentorSchema.parse(req.body);
 
     // Check if at least one field is provided
-    const hasFields =
-      data.first_name || data.last_name || data.email || data.bio || data.headline || data.response_time || data.cv_url;
-
-    if (!hasFields) {
+    if (Object.keys(data).length === 0) {
       return res.status(400).json({
         success: false,
         message: "At least one field must be provided for update",
