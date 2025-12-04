@@ -76,8 +76,9 @@ skills:
       - catalog
     summary: Get skills
     description: |-
-      Retrieve a paginated list of skills with mentor counts, category, and supercategory information.
-      Each skill includes the total number of mentors who possess that skill, along with its associated category and supercategory details.
+      Retrieve a paginated list of unique skills with mentor counts and their associated categories.
+      Each skill includes the total number of mentors who possess that skill, along with an array of all categories and supercategories it belongs to.
+      Skills are returned without duplicates - each skill appears only once with all its categories grouped together.
       Results are ordered by mentor count (descending) and then by skill name (ascending).
     operationId: getSkills
     parameters:

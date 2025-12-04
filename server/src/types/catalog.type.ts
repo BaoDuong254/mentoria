@@ -33,14 +33,18 @@ export type SuperCategoriesResponse = BaseResponse<{ categories: SuperCategoryIt
 // Skills
 export type SkillsQuery = PaginationQuery;
 
+export interface SkillCategoryInfo {
+  category_id: number;
+  category_name: string;
+  super_category_id: number | null;
+  super_category_name: string | null;
+}
+
 export interface SkillItem {
   skill_id: number;
   skill_name: string;
   mentor_count: number;
-  category_id: number | null;
-  category_name: string | null;
-  super_category_id: number | null;
-  super_category_name: string | null;
+  categories: SkillCategoryInfo[];
 }
 
 export type SkillsResponse = BaseResponse<{ skills: SkillItem[] }>;

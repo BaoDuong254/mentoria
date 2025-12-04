@@ -470,13 +470,13 @@ VALUES
 -- First insert parent categories (super_category_id = NULL)
 INSERT INTO categories (category_name, super_category_id)
 VALUES
-(N'Engineering', NULL),
-(N'Design', NULL),
-(N'Business & Startup', NULL),
-(N'AI & Data Science', NULL),
-(N'Product Management', NULL),
-(N'Marketing', NULL),
-(N'Leadership & Career', NULL);
+(N'Engineering Mentors', NULL),
+(N'Design Mentors', NULL),
+(N'Startup Mentors', NULL),
+(N'AI Mentors', NULL),
+(N'Product Managers', NULL),
+(N'Marketing Coaches', NULL),
+(N'Leadership Mentors', NULL);
 
 -- Then insert subcategories
 INSERT INTO categories (category_name, super_category_id)
@@ -1260,11 +1260,11 @@ VALUES
 -- Insert Discounts
 INSERT INTO discounts (discount_name, discount_type, discount_value, start_date, end_date, status, usage_limit, used_count)
 VALUES
-(N'WELCOME10', N'Percentage', 10.00, '2025-01-01', '2025-12-31', N'Active', 1000, 15),
-(N'SAVE20', N'Percentage', 20.00, '2025-06-01', '2025-06-30', N'Active', 500, 42),
-(N'FIRST50', N'Fixed', 50.00, '2025-01-01', '2025-12-31', N'Active', 200, 67),
+(N'WELCOME10', N'Percentage', 10.00, '2025-01-01', '2026-12-31', N'Active', 1000, 15),
+(N'SAVE20', N'Percentage', 20.00, '2025-06-01', '2026-06-30', N'Active', 500, 42),
+(N'FIRST50', N'Fixed', 50.00, '2025-01-01', '2026-12-31', N'Active', 200, 67),
 (N'MENTOR25', N'Percentage', 25.00, '2025-09-01', '2025-03-31', N'Active', 300, 89),
-(N'EARLYBIRD', N'Percentage', 15.00, '2025-01-01', '2025-12-31', N'Inactive', 150, 150);
+(N'EARLYBIRD', N'Percentage', 15.00, '2025-01-01', '2026-12-31', N'Inactive', 150, 150);
 
 -- Insert Plan Registrations
 INSERT INTO plan_registerations (message, discount_id)

@@ -83,8 +83,30 @@ const handleWebhook = async (req: Request, res: Response) => {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log(`Checkout session completed: ${session.id}`);
 
+        // Retrieve the full session with expanded fields for complete Stripe data
+        const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+          expand: [
+            "customer",
+            "payment_intent",
+            "payment_intent.latest_charge",
+            "payment_intent.latest_charge.balance_transaction",
+          ],
+        });
+
+        // If payment intent is still a string, manually retrieve it with expansions
+        let enrichedSession = expandedSession;
+        if (typeof expandedSession.payment_intent === "string" && expandedSession.payment_intent) {
+          const paymentIntent = await stripe.paymentIntents.retrieve(expandedSession.payment_intent, {
+            expand: ["latest_charge", "latest_charge.balance_transaction"],
+          });
+          enrichedSession = {
+            ...expandedSession,
+            payment_intent: paymentIntent,
+          };
+        }
+
         // Process the completed checkout session
-        await handleCheckoutSessionCompletedService(session);
+        await handleCheckoutSessionCompletedService(enrichedSession);
 
         break;
       }

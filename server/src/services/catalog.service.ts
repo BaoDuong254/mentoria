@@ -111,25 +111,18 @@ export const getSkillsService = async (query: SkillsQuery): Promise<SkillsRespon
     const limit = query.limit && query.limit > 0 && query.limit <= 100 ? query.limit : 10;
     const offset = (page - 1) * limit;
 
-    // Query for skills with mentor counts, category, and supercategory
+    // Query for unique skills with mentor counts
     const skillsQuery = `
       SELECT
         s.skill_id,
         s.skill_name,
-        COUNT(DISTINCT ss.mentor_id) as mentor_count,
-        cat.category_id,
-        cat.category_name,
-        supercat.category_id as super_category_id,
-        supercat.category_name as super_category_name
+        COUNT(DISTINCT ss.mentor_id) as mentor_count
       FROM skills s
       LEFT JOIN set_skill ss ON s.skill_id = ss.skill_id
-      LEFT JOIN own_skill os ON s.skill_id = os.skill_id
-      LEFT JOIN categories cat ON os.category_id = cat.category_id
-      LEFT JOIN categories supercat ON cat.super_category_id = supercat.category_id
-      GROUP BY s.skill_id, s.skill_name, cat.category_id, cat.category_name, supercat.category_id, supercat.category_name
+      GROUP BY s.skill_id, s.skill_name
     `;
 
-    // Get total count
+    // Get total count of unique skills
     const countQuery = `
       SELECT COUNT(*) as total
       FROM (
@@ -154,14 +147,46 @@ export const getSkillsService = async (query: SkillsQuery): Promise<SkillsRespon
     mainRequest.input("offset", sql.Int, offset);
     const result = await mainRequest.query(paginatedQuery);
 
+    // Get categories for each skill in the result set
+    const skillIds = result.recordset.map((row) => row.skill_id);
+
+    const categoriesMap = new Map();
+    if (skillIds.length > 0) {
+      const categoriesQuery = `
+        SELECT DISTINCT
+          os.skill_id,
+          cat.category_id,
+          cat.category_name,
+          supercat.category_id as super_category_id,
+          supercat.category_name as super_category_name
+        FROM own_skill os
+        INNER JOIN categories cat ON os.category_id = cat.category_id
+        LEFT JOIN categories supercat ON cat.super_category_id = supercat.category_id
+        WHERE os.skill_id IN (${skillIds.join(",")})
+        ORDER BY os.skill_id, cat.category_name ASC
+      `;
+
+      const categoriesResult = await pool.request().query(categoriesQuery);
+
+      // Group categories by skill_id
+      categoriesResult.recordset.forEach((row) => {
+        if (!categoriesMap.has(row.skill_id)) {
+          categoriesMap.set(row.skill_id, []);
+        }
+        categoriesMap.get(row.skill_id).push({
+          category_id: row.category_id,
+          category_name: row.category_name,
+          super_category_id: row.super_category_id,
+          super_category_name: row.super_category_name,
+        });
+      });
+    }
+
     const skills: SkillItem[] = result.recordset.map((row) => ({
       skill_id: row.skill_id,
       skill_name: row.skill_name,
       mentor_count: row.mentor_count,
-      category_id: row.category_id,
-      category_name: row.category_name,
-      super_category_id: row.super_category_id,
-      super_category_name: row.super_category_name,
+      categories: categoriesMap.get(row.skill_id) || [],
     }));
 
     return {

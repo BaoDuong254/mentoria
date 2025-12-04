@@ -1612,8 +1612,9 @@ paths:
         - catalog
       summary: Get skills
       description: |-
-        Retrieve a paginated list of skills with mentor counts, category, and supercategory information.
-        Each skill includes the total number of mentors who possess that skill, along with its associated category and supercategory details.
+        Retrieve a paginated list of unique skills with mentor counts and their associated categories.
+        Each skill includes the total number of mentors who possess that skill, along with an array of all categories and supercategories it belongs to.
+        Skills are returned without duplicates - each skill appears only once with all its categories grouped together.
         Results are ordered by mentor count (descending) and then by skill name (ascending).
       operationId: getSkills
       parameters:
@@ -1657,7 +1658,7 @@ paths:
                         description: List of skills
                         items:
                           type: object
-                          description: "A skill with its ID, name, category information, and the count of mentors who possess this skill"
+                          description: "A skill with its ID, name, and the count of mentors who possess this skill. Each skill includes an array of all categories it belongs to."
                           properties:
                             skill_id:
                               type: integer
@@ -1671,34 +1672,50 @@ paths:
                               type: integer
                               description: Total number of mentors who possess this skill
                               example: 28
-                            category_id:
-                              type: integer
-                              nullable: true
-                              description: Unique identifier for the category this skill belongs to
-                              example: 3
-                            category_name:
-                              type: string
-                              nullable: true
-                              description: Name of the category this skill belongs to
-                              example: Web Development
-                            super_category_id:
-                              type: integer
-                              nullable: true
-                              description: Unique identifier for the super category (parent category)
-                              example: 1
-                            super_category_name:
-                              type: string
-                              nullable: true
-                              description: Name of the super category (parent category)
-                              example: Technology & Programming
+                            categories:
+                              type: array
+                              description: List of categories this skill belongs to
+                              items:
+                                type: object
+                                description: "Category information for a skill, including the category and its parent super category"
+                                properties:
+                                  category_id:
+                                    type: integer
+                                    description: Unique identifier for the category
+                                    example: 3
+                                  category_name:
+                                    type: string
+                                    description: Name of the category
+                                    example: Web Development
+                                  super_category_id:
+                                    type: integer
+                                    nullable: true
+                                    description: Unique identifier for the super category (parent category)
+                                    example: 1
+                                  super_category_name:
+                                    type: string
+                                    nullable: true
+                                    description: Name of the super category (parent category)
+                                    example: Technology & Programming
+                                required:
+                                  - category_id
+                                  - category_name
+                                  - super_category_id
+                                  - super_category_name
+                              example:
+                                - category_id: 3
+                                  category_name: Web Development
+                                  super_category_id: 1
+                                  super_category_name: Technology & Programming
+                                - category_id: 8
+                                  category_name: Frontend Development
+                                  super_category_id: 1
+                                  super_category_name: Technology & Programming
                           required:
                             - skill_id
                             - skill_name
                             - mentor_count
-                            - category_id
-                            - category_name
-                            - super_category_id
-                            - super_category_name
+                            - categories
                       pagination:
                         $ref: "#/components/schemas/SuperCategoriesData/properties/pagination"
                     required:

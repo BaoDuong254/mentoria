@@ -206,6 +206,7 @@ const createCheckoutSessionService = async (
         },
       ],
       mode: "payment",
+      customer_creation: "always", // Always create a customer for payment tracking
       success_url: `${envConfig.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${envConfig.CLIENT_URL}/payment/cancel`,
       metadata,
@@ -237,10 +238,31 @@ const createInvoiceService = async (
       .input("registrationId", registrationId)
       .input("amount", data.finalAmount)
       .input("method", "Stripe")
-      .input("menteeId", menteeId).query(`
-      INSERT INTO invoices (plan_registerations_id, amount, method, mentee_id)
+      .input("menteeId", menteeId)
+      .input("stripeSessionId", data.stripeSessionId || null)
+      .input("stripeCustomerId", data.stripeCustomerId || null)
+      .input("stripeCustomerEmail", data.stripeCustomerEmail || null)
+      .input("stripePaymentIntentId", data.stripePaymentIntentId || null)
+      .input("stripeChargeId", data.stripeChargeId || null)
+      .input("stripeBalanceTransactionId", data.stripeBalanceTransactionId || null)
+      .input("stripeReceiptUrl", data.stripeReceiptUrl || null)
+      .input("paymentStatus", data.paymentStatus || null)
+      .input("currency", data.currency || null)
+      .input("amountSubtotal", data.amountSubtotal || null)
+      .input("amountTotal", data.amountTotal / 100).query(`
+      INSERT INTO invoices (
+        plan_registerations_id, amount, method, mentee_id,
+        stripe_session_id, stripe_customer_id, stripe_customer_email,
+        stripe_payment_intent_id, stripe_charge_id, stripe_balance_transaction_id,
+        stripe_receipt_url, payment_status, currency, amount_subtotal, amount_total
+      )
       OUTPUT INSERTED.invoice_id
-      VALUES (@registrationId, @amount, @method, @menteeId)
+      VALUES (
+        @registrationId, @amount, @method, @menteeId,
+        @stripeSessionId, @stripeCustomerId, @stripeCustomerEmail,
+        @stripePaymentIntentId, @stripeChargeId, @stripeBalanceTransactionId,
+        @stripeReceiptUrl, @paymentStatus, @currency, @amountSubtotal, @amountTotal
+      )
     `);
 
     return result.recordset[0].invoice_id;
@@ -411,7 +433,66 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
       }
     }
 
-    // 2. Create invoice (requires registrationId)
+    // 2. Extract Stripe details from expanded session
+    let chargeId: string | undefined;
+    let balanceTransactionId: string | undefined;
+    let receiptUrl: string | undefined;
+    let customerId: string | undefined;
+
+    // Get customer ID from session
+    if (session.customer) {
+      customerId = typeof session.customer === "string" ? session.customer : session.customer.id;
+    }
+
+    // Get payment intent details
+    if (session.payment_intent) {
+      const paymentIntent =
+        typeof session.payment_intent === "string" ? undefined : (session.payment_intent as Stripe.PaymentIntent);
+
+      if (paymentIntent) {
+        // Get customer from payment intent if not in session
+        if (!customerId && paymentIntent.customer) {
+          customerId = typeof paymentIntent.customer === "string" ? paymentIntent.customer : paymentIntent.customer.id;
+        }
+
+        // Get charge details from latest_charge
+        if (paymentIntent.latest_charge) {
+          const charge =
+            typeof paymentIntent.latest_charge === "string"
+              ? undefined
+              : (paymentIntent.latest_charge as Stripe.Charge);
+
+          if (charge) {
+            chargeId = charge.id;
+            receiptUrl = charge.receipt_url || undefined;
+
+            // Get balance transaction ID
+            if (charge.balance_transaction) {
+              balanceTransactionId =
+                typeof charge.balance_transaction === "string"
+                  ? charge.balance_transaction
+                  : charge.balance_transaction.id;
+            } else {
+              // Balance transaction might not be available immediately - retry once
+              try {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                const retrievedCharge = await stripe.charges.retrieve(charge.id);
+                if (retrievedCharge.balance_transaction) {
+                  balanceTransactionId =
+                    typeof retrievedCharge.balance_transaction === "string"
+                      ? retrievedCharge.balance_transaction
+                      : retrievedCharge.balance_transaction.id;
+                }
+              } catch (retryError) {
+                console.error("Error retrieving balance transaction:", retryError);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 3. Create invoice with complete Stripe information
     const invoiceId = await createInvoiceService(
       {
         sessionId: session.id,
@@ -420,22 +501,32 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
         discountAmount: discountAmount,
         finalAmount: (session.amount_total || 0) / 100,
         discountId: discountId ? parseInt(discountId) : undefined,
+        stripeSessionId: session.id,
+        stripeCustomerId: customerId,
+        stripeCustomerEmail: session.customer_details?.email || session.customer_email || undefined,
+        stripePaymentIntentId:
+          typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
+        stripeChargeId: chargeId,
+        stripeBalanceTransactionId: balanceTransactionId,
+        stripeReceiptUrl: receiptUrl,
+        paymentStatus: session.payment_status,
+        amountSubtotal: session.amount_subtotal ? session.amount_subtotal / 100 : undefined,
       },
       registrationId,
       parseInt(menteeId)
     );
 
-    // 3. Create booking
+    // 4. Create booking
     await createBookingService({
       menteeId: parseInt(menteeId),
       planId: parseInt(planId),
       registrationId,
     });
 
-    // 4. Update slot status to Booked
+    // 5. Update slot status to Booked
     await updateSlotStatusService(parseInt(mentorId), slotStartTime, slotEndTime);
 
-    // 5. Create meeting (requires invoiceId and registrationId)
+    // 6. Create meeting (requires invoiceId and registrationId)
     await createMeetingService(
       {
         menteeId: parseInt(menteeId),
@@ -447,7 +538,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
       registrationId
     );
 
-    // 6. Increment discount usage if discount was applied
+    // 7. Increment discount usage if discount was applied
     if (discountId) {
       await incrementDiscountUsageService(parseInt(discountId));
     }
@@ -456,7 +547,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
 
     console.log(`Successfully processed checkout session: ${session.id}`);
 
-    // 7. Send booking confirmation email (after transaction commit)
+    // 8. Send booking confirmation email (after transaction commit)
     if (envConfig.MAIL_SEND) {
       try {
         // Fetch user details for email

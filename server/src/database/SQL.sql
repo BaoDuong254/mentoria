@@ -311,6 +311,17 @@ CREATE TABLE invoices(
     method NVARCHAR(50) NOT NULL,
     paid_time DATETIME DEFAULT GETDATE(),
     mentee_id INT NOT NULL,
+    stripe_session_id NVARCHAR(255) NULL,
+    stripe_customer_id NVARCHAR(255) NULL,
+    stripe_customer_email NVARCHAR(255) NULL,
+    stripe_payment_intent_id NVARCHAR(255) NULL,
+    stripe_charge_id NVARCHAR(255) NULL,
+    stripe_balance_transaction_id NVARCHAR(255) NULL,
+    stripe_receipt_url NVARCHAR(500) NULL,
+    payment_status NVARCHAR(50) NULL,
+    currency NVARCHAR(10) NULL,
+    amount_subtotal DECIMAL(10,2) NULL,
+    amount_total DECIMAL(10,2) NULL,
     UNIQUE (invoice_id, plan_registerations_id),
     FOREIGN KEY (plan_registerations_id) REFERENCES plan_registerations(registration_id)
         ON DELETE CASCADE

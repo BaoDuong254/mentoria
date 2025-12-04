@@ -73,6 +73,15 @@ export interface CreateInvoiceData {
   discountAmount: number;
   finalAmount: number;
   discountId?: number | undefined;
+  stripeSessionId?: string | undefined;
+  stripeCustomerId?: string | undefined;
+  stripeCustomerEmail?: string | undefined;
+  stripePaymentIntentId?: string | undefined;
+  stripeChargeId?: string | undefined;
+  stripeBalanceTransactionId?: string | undefined;
+  stripeReceiptUrl?: string | undefined;
+  paymentStatus?: string | undefined;
+  amountSubtotal?: number | undefined;
 }
 
 export interface CreateBookingData {
