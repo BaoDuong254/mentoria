@@ -589,6 +589,664 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  "/api/mentors/{mentorId}/plans":
+    get:
+      tags:
+        - mentor
+      summary: Get all plans for a mentor
+      description: Retrieve all mentorship plans (both session and mentorship types) offered by a specific mentor.
+      operationId: getAllPlans
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Plans retrieved successfully
+                  data:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: "#/paths/~1api~1mentors~1%7BmentorId%7D~1plans~1%7BplanId%7D/get/responses/200/content/application~1json/schema/properties/data/oneOf/0"
+                        - $ref: "#/paths/~1api~1mentors~1%7BmentorId%7D~1plans~1%7BplanId%7D/get/responses/200/content/application~1json/schema/properties/data/oneOf/1"
+              example:
+                success: true
+                message: Plans retrieved successfully
+                data:
+                  - plan_id: 1
+                    plan_description: 30-minute focused mentorship session
+                    plan_charge: 50
+                    plan_type: Beginner
+                    mentor_id: 1
+                    sessions_duration: 30
+                    plan_category: session
+                  - plan_id: 2
+                    plan_description: Monthly mentorship - 2 calls per month
+                    plan_charge: 199
+                    plan_type: Lite
+                    mentor_id: 1
+                    calls_per_month: 2
+                    minutes_per_call: 60
+                    benefits:
+                      - 2 calls per month (60min/call)
+                      - Email support
+                      - Career guidance
+                    plan_category: mentorship
+        "400":
+          description: Invalid mentor ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - mentor
+      summary: Create a new plan
+      description: Create a new mentorship plan (either session or mentorship type) for a mentor. Only the authenticated mentor can create plans for their own profile.
+      operationId: createPlan
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - planDescription
+                    - planCharge
+                    - planType
+                    - sessionsDuration
+                  properties:
+                    planDescription:
+                      type: string
+                      example: 45-minute career coaching session
+                      description: Description of the session plan
+                    planCharge:
+                      type: number
+                      format: decimal
+                      minimum: 0.01
+                      example: 75
+                      description: Price of the session plan
+                    planType:
+                      type: string
+                      example: Beginner
+                      description: "Type/tier of the plan (e.g., Beginner, Introductory)"
+                    sessionsDuration:
+                      type: integer
+                      minimum: 1
+                      maximum: 120
+                      example: 45
+                      description: Duration of the session in minutes (1-120)
+                - type: object
+                  required:
+                    - planDescription
+                    - planCharge
+                    - planType
+                    - callsPerMonth
+                    - minutesPerCall
+                  properties:
+                    planDescription:
+                      type: string
+                      example: Standard mentorship - 4 calls per month
+                      description: Description of the mentorship plan
+                    planCharge:
+                      type: number
+                      format: decimal
+                      minimum: 0.01
+                      example: 349
+                      description: Monthly price of the mentorship plan
+                    planType:
+                      type: string
+                      example: Standard
+                      description: "Type/tier of the plan (e.g., Lite, Standard, Premium)"
+                    callsPerMonth:
+                      type: integer
+                      minimum: 1
+                      example: 4
+                      description: Number of calls included per month
+                    minutesPerCall:
+                      type: integer
+                      minimum: 1
+                      maximum: 120
+                      example: 60
+                      description: Duration of each call in minutes (1-120)
+                    benefits:
+                      type: array
+                      items:
+                        type: string
+                      example:
+                        - 4 calls per month (60min/call)
+                        - Unlimited chat support
+                        - Code review
+                        - Career guidance
+                      description: List of benefits included in the mentorship plan
+            examples:
+              sessionPlan:
+                summary: Create a session plan
+                value:
+                  planDescription: 45-minute career coaching session
+                  planCharge: 75
+                  planType: Beginner
+                  sessionsDuration: 45
+              mentorshipPlan:
+                summary: Create a mentorship plan
+                value:
+                  planDescription: Standard mentorship - 4 calls per month
+                  planCharge: 349
+                  planType: Standard
+                  callsPerMonth: 4
+                  minutesPerCall: 60
+                  benefits:
+                    - 4 calls per month (60min/call)
+                    - Unlimited chat support
+                    - Code review
+                    - Career guidance
+      responses:
+        "201":
+          description: Plan created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Plan created successfully
+                  data:
+                    type: object
+                    properties:
+                      planId:
+                        type: integer
+                        example: 15
+        "400":
+          description: Validation error or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingFields:
+                  value:
+                    success: false
+                    message: "Plan description, charge, and type are required"
+                invalidCharge:
+                  value:
+                    success: false
+                    message: Plan charge must be a positive number
+                invalidSessionDuration:
+                  value:
+                    success: false
+                    message: Sessions duration must be between 1 and 120 minutes
+                missingPlanType:
+                  value:
+                    success: false
+                    message: Either sessionsDuration or (callsPerMonth and minutesPerCall) must be provided
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user not authorized to create plans for this mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: You are not authorized to create plans for this mentor
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/mentors/{mentorId}/plans/{planId}":
+    get:
+      tags:
+        - mentor
+      summary: Get plan details
+      description: "Retrieve detailed information about a specific mentorship plan, including session duration or mentorship benefits."
+      operationId: getPlanDetails
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+        - name: planId
+          in: path
+          required: true
+          description: Unique identifier of the plan
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: Plan details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Plan details retrieved successfully
+                  data:
+                    oneOf:
+                      - type: object
+                        properties:
+                          plan_id:
+                            type: integer
+                            example: 1
+                            description: Unique plan identifier
+                          plan_description:
+                            type: string
+                            example: 30-minute focused mentorship session
+                            description: Description of the session plan
+                          plan_charge:
+                            type: number
+                            format: decimal
+                            example: 50
+                            description: Price of the session plan
+                          plan_type:
+                            type: string
+                            example: Beginner
+                            description: Type/tier of the plan
+                          mentor_id:
+                            type: integer
+                            example: 1
+                            description: ID of the mentor offering this plan
+                          sessions_duration:
+                            type: integer
+                            example: 30
+                            description: Duration of the session in minutes
+                          plan_category:
+                            type: string
+                            enum:
+                              - session
+                            example: session
+                            description: Category of the plan (always 'session' for session plans)
+                      - type: object
+                        properties:
+                          plan_id:
+                            type: integer
+                            example: 5
+                            description: Unique plan identifier
+                          plan_description:
+                            type: string
+                            example: Monthly mentorship - 2 calls per month
+                            description: Description of the mentorship plan
+                          plan_charge:
+                            type: number
+                            format: decimal
+                            example: 199
+                            description: Monthly price of the mentorship plan
+                          plan_type:
+                            type: string
+                            example: Lite
+                            description: Type/tier of the plan
+                          mentor_id:
+                            type: integer
+                            example: 1
+                            description: ID of the mentor offering this plan
+                          calls_per_month:
+                            type: integer
+                            example: 2
+                            description: Number of calls included per month
+                          minutes_per_call:
+                            type: integer
+                            example: 60
+                            description: Duration of each call in minutes
+                          benefits:
+                            type: array
+                            items:
+                              type: string
+                            example:
+                              - 2 calls per month (60min/call)
+                              - Email support
+                              - Career guidance
+                            description: List of benefits included in the mentorship plan
+                          plan_category:
+                            type: string
+                            enum:
+                              - mentorship
+                            example: mentorship
+                            description: Category of the plan (always 'mentorship' for mentorship plans)
+              examples:
+                sessionPlan:
+                  value:
+                    success: true
+                    message: Plan details retrieved successfully
+                    data:
+                      plan_id: 1
+                      plan_description: 1-hour deep-dive session
+                      plan_charge: 90
+                      plan_type: Introductory
+                      mentor_id: 1
+                      sessions_duration: 60
+                      plan_category: session
+                mentorshipPlan:
+                  value:
+                    success: true
+                    message: Plan details retrieved successfully
+                    data:
+                      plan_id: 5
+                      plan_description: Premium mentorship package
+                      plan_charge: 699
+                      plan_type: Premium
+                      mentor_id: 1
+                      calls_per_month: 8
+                      minutes_per_call: 60
+                      benefits:
+                        - 8 calls per month (60min/call)
+                        - Priority 24/7 chat support
+                        - Code review
+                        - Career guidance
+                        - Interview preparation
+                      plan_category: mentorship
+        "400":
+          description: Invalid mentor ID or plan ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: Plan not found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - mentor
+      summary: Update a plan
+      description: Update an existing mentorship plan. Only the authenticated mentor can update their own plans. Supports partial updates.
+      operationId: updatePlan
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+        - name: planId
+          in: path
+          required: true
+          description: Unique identifier of the plan
+          schema:
+            type: integer
+            example: 5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    planDescription:
+                      type: string
+                      example: Updated session description
+                      description: Updated description of the session plan
+                    planCharge:
+                      type: number
+                      format: decimal
+                      minimum: 0.01
+                      example: 85
+                      description: Updated price of the session plan
+                    planType:
+                      type: string
+                      example: Introductory
+                      description: Updated type/tier of the plan
+                    sessionsDuration:
+                      type: integer
+                      minimum: 1
+                      maximum: 120
+                      example: 60
+                      description: Updated duration of the session in minutes (1-120)
+                - type: object
+                  properties:
+                    planDescription:
+                      type: string
+                      example: Updated mentorship description
+                      description: Updated description of the mentorship plan
+                    planCharge:
+                      type: number
+                      format: decimal
+                      minimum: 0.01
+                      example: 399
+                      description: Updated monthly price of the mentorship plan
+                    planType:
+                      type: string
+                      example: Premium
+                      description: Updated type/tier of the plan
+                    callsPerMonth:
+                      type: integer
+                      minimum: 1
+                      example: 6
+                      description: Updated number of calls per month
+                    minutesPerCall:
+                      type: integer
+                      minimum: 1
+                      maximum: 120
+                      example: 90
+                      description: Updated duration of each call in minutes (1-120)
+                    benefits:
+                      type: array
+                      items:
+                        type: string
+                      example:
+                        - 6 calls per month (90min/call)
+                        - Priority 24/7 support
+                        - Code review
+                        - Career guidance
+                        - Interview preparation
+                      description: Updated list of benefits included in the mentorship plan
+            examples:
+              updateSessionDuration:
+                summary: Update session duration
+                value:
+                  sessionsDuration: 90
+              updatePrice:
+                summary: Update plan charge
+                value:
+                  planCharge: 120
+              updateMentorshipBenefits:
+                summary: Update mentorship benefits
+                value:
+                  callsPerMonth: 6
+                  benefits:
+                    - 6 calls per month (60min/call)
+                    - Priority support
+                    - Code review
+                    - Career guidance
+                    - Resume review
+      responses:
+        "200":
+          description: Plan updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                success: true
+                message: Plan updated successfully
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidCharge:
+                  value:
+                    success: false
+                    message: Plan charge must be a positive number
+                invalidDuration:
+                  value:
+                    success: false
+                    message: Sessions duration must be between 1 and 120 minutes
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user not authorized to update this plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Plan not found or doesn't belong to mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: Plan not found or you don't have permission to update it
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - mentor
+      summary: Delete a plan
+      description: Delete a mentorship plan. Only the authenticated mentor can delete their own plans. Cannot delete plans with existing bookings or slots.
+      operationId: deletePlan
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: mentorId
+          in: path
+          required: true
+          description: Unique identifier of the mentor
+          schema:
+            type: integer
+            example: 1
+        - name: planId
+          in: path
+          required: true
+          description: Unique identifier of the plan
+          schema:
+            type: integer
+            example: 5
+      responses:
+        "200":
+          description: Plan deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                success: true
+                message: Plan deleted successfully
+        "400":
+          description: Cannot delete plan with existing bookings or slots
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                hasBookings:
+                  value:
+                    success: false
+                    message: Cannot delete plan with existing bookings
+                hasSlots:
+                  value:
+                    success: false
+                    message: Cannot delete plan with existing slots
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user not authorized to delete this plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Plan not found or doesn't belong to mentor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                message: Plan not found or you don't have permission to delete it
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   "/api/mentors/{mentorId}":
     get:
       tags:

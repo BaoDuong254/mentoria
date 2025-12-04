@@ -68,6 +68,10 @@ paths:
     $ref: "./paths/mentor.yaml#/mentorsList"
   /api/mentors/{mentorId}/stats:
     $ref: "./paths/mentor.yaml#/mentorStats"
+  /api/mentors/{mentorId}/plans:
+    $ref: "./paths/mentor.yaml#/mentorPlans"
+  /api/mentors/{mentorId}/plans/{planId}:
+    $ref: "./paths/mentor.yaml#/mentorPlanDetails"
   /api/mentors/{mentorId}:
     $ref: "./paths/mentor.yaml#/mentorProfile"
   # Mentee Endpoints

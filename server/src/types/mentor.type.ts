@@ -156,3 +156,60 @@ export interface FilterMentorsResponse {
     };
   };
 }
+
+// Plan-related types
+export interface PlanSession {
+  plan_id: number;
+  plan_description: string;
+  plan_charge: number;
+  plan_type: string;
+  mentor_id: number;
+  sessions_duration: number;
+  plan_category: "session";
+}
+
+export interface PlanMentorship {
+  plan_id: number;
+  plan_description: string;
+  plan_charge: number;
+  plan_type: string;
+  mentor_id: number;
+  calls_per_month: number;
+  minutes_per_call: number;
+  benefits: string[];
+  plan_category: "mentorship";
+}
+
+export type Plan = PlanSession | PlanMentorship;
+
+export interface CreatePlanSessionRequest {
+  planDescription: string;
+  planCharge: number;
+  planType: string;
+  sessionsDuration: number;
+}
+
+export interface CreatePlanMentorshipRequest {
+  planDescription: string;
+  planCharge: number;
+  planType: string;
+  callsPerMonth: number;
+  minutesPerCall: number;
+  benefits: string[];
+}
+
+export interface UpdatePlanSessionRequest {
+  planDescription?: string;
+  planCharge?: number;
+  planType?: string;
+  sessionsDuration?: number;
+}
+
+export interface UpdatePlanMentorshipRequest {
+  planDescription?: string;
+  planCharge?: number;
+  planType?: string;
+  callsPerMonth?: number;
+  minutesPerCall?: number;
+  benefits?: string[];
+}

@@ -1,5 +1,15 @@
 import poolPromise from "@/config/database";
-import { MentorProfile, UpdateMentorProfileRequest, MentorListItem, GetMentorsQuery } from "@/types/mentor.type";
+import {
+  MentorProfile,
+  UpdateMentorProfileRequest,
+  MentorListItem,
+  GetMentorsQuery,
+  Plan,
+  CreatePlanSessionRequest,
+  CreatePlanMentorshipRequest,
+  UpdatePlanSessionRequest,
+  UpdatePlanMentorshipRequest,
+} from "@/types/mentor.type";
 
 const getMentorProfileService = async (
   mentorId: number
@@ -773,6 +783,538 @@ const getMentorStatsService = async (
   }
 };
 
+const getAllPlansService = async (
+  mentorId: number
+): Promise<{
+  success: boolean;
+  message: string;
+  plans?: Plan[];
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify mentor exists
+    const mentorCheck = await pool
+      .request()
+      .input("mentorId", mentorId)
+      .query("SELECT user_id FROM users WHERE user_id = @mentorId AND role = N'Mentor'");
+
+    if (mentorCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Mentor not found",
+      };
+    }
+
+    // Get all plans for the mentor
+    const plansResult = await pool.request().input("mentorId", mentorId).query(`
+        SELECT plan_id, plan_description, plan_charge, plan_type, mentor_id
+        FROM plans
+        WHERE mentor_id = @mentorId
+      `);
+
+    // Get additional details for each plan
+    const plans: Plan[] = await Promise.all(
+      plansResult.recordset.map(
+        async (plan: {
+          plan_id: number;
+          plan_description: string;
+          plan_charge: number;
+          plan_type: string;
+          mentor_id: number;
+        }): Promise<Plan> => {
+          // Check if this is a session plan
+          const sessionResult = await pool
+            .request()
+            .input("planId", plan.plan_id)
+            .query("SELECT sessions_duration FROM plan_sessions WHERE sessions_id = @planId");
+
+          if (sessionResult.recordset.length > 0) {
+            return {
+              plan_id: plan.plan_id,
+              plan_description: plan.plan_description,
+              plan_charge: plan.plan_charge,
+              plan_type: plan.plan_type,
+              mentor_id: plan.mentor_id,
+              sessions_duration: sessionResult.recordset[0].sessions_duration,
+              plan_category: "session" as const,
+            };
+          }
+
+          // Check if this is a mentorship plan
+          const mentorshipResult = await pool
+            .request()
+            .input("planId", plan.plan_id)
+            .query("SELECT calls_per_month, minutes_per_call FROM plan_mentorships WHERE mentorships_id = @planId");
+
+          if (mentorshipResult.recordset.length > 0) {
+            // Get benefits for mentorship plan
+            const benefitsResult = await pool
+              .request()
+              .input("planId", plan.plan_id)
+              .query("SELECT benefit_description FROM mentorships_benefits WHERE mentorships_id = @planId");
+
+            return {
+              plan_id: plan.plan_id,
+              plan_description: plan.plan_description,
+              plan_charge: plan.plan_charge,
+              plan_type: plan.plan_type,
+              mentor_id: plan.mentor_id,
+              calls_per_month: mentorshipResult.recordset[0].calls_per_month,
+              minutes_per_call: mentorshipResult.recordset[0].minutes_per_call,
+              benefits: benefitsResult.recordset.map((b: { benefit_description: string }) => b.benefit_description),
+              plan_category: "mentorship" as const,
+            };
+          }
+
+          // If neither session nor mentorship, return as a basic session plan
+          return {
+            plan_id: plan.plan_id,
+            plan_description: plan.plan_description,
+            plan_charge: plan.plan_charge,
+            plan_type: plan.plan_type,
+            mentor_id: plan.mentor_id,
+            sessions_duration: 0,
+            plan_category: "session" as const,
+          };
+        }
+      )
+    );
+
+    return {
+      success: true,
+      message: "Plans retrieved successfully",
+      plans,
+    };
+  } catch (error) {
+    console.error("Error in getAllPlansService:", error);
+    throw error;
+  }
+};
+
+const getPlanDetailsService = async (
+  planId: number
+): Promise<{
+  success: boolean;
+  message: string;
+  plan?: Plan;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Get basic plan information
+    const planResult = await pool.request().input("planId", planId).query(`
+        SELECT plan_id, plan_description, plan_charge, plan_type, mentor_id
+        FROM plans
+        WHERE plan_id = @planId
+      `);
+
+    if (planResult.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Plan not found",
+      };
+    }
+
+    const plan = planResult.recordset[0];
+
+    // Check if this is a session plan
+    const sessionResult = await pool
+      .request()
+      .input("planId", planId)
+      .query("SELECT sessions_duration FROM plan_sessions WHERE sessions_id = @planId");
+
+    if (sessionResult.recordset.length > 0) {
+      return {
+        success: true,
+        message: "Plan details retrieved successfully",
+        plan: {
+          plan_id: plan.plan_id,
+          plan_description: plan.plan_description,
+          plan_charge: plan.plan_charge,
+          plan_type: plan.plan_type,
+          mentor_id: plan.mentor_id,
+          sessions_duration: sessionResult.recordset[0].sessions_duration,
+          plan_category: "session",
+        },
+      };
+    }
+
+    // Check if this is a mentorship plan
+    const mentorshipResult = await pool
+      .request()
+      .input("planId", planId)
+      .query("SELECT calls_per_month, minutes_per_call FROM plan_mentorships WHERE mentorships_id = @planId");
+
+    if (mentorshipResult.recordset.length > 0) {
+      // Get benefits for mentorship plan
+      const benefitsResult = await pool
+        .request()
+        .input("planId", planId)
+        .query("SELECT benefit_description FROM mentorships_benefits WHERE mentorships_id = @planId");
+
+      return {
+        success: true,
+        message: "Plan details retrieved successfully",
+        plan: {
+          plan_id: plan.plan_id,
+          plan_description: plan.plan_description,
+          plan_charge: plan.plan_charge,
+          plan_type: plan.plan_type,
+          mentor_id: plan.mentor_id,
+          calls_per_month: mentorshipResult.recordset[0].calls_per_month,
+          minutes_per_call: mentorshipResult.recordset[0].minutes_per_call,
+          benefits: benefitsResult.recordset.map((b: { benefit_description: string }) => b.benefit_description),
+          plan_category: "mentorship",
+        },
+      };
+    }
+
+    return {
+      success: true,
+      message: "Plan details retrieved successfully",
+      plan,
+    };
+  } catch (error) {
+    console.error("Error in getPlanDetailsService:", error);
+    throw error;
+  }
+};
+
+const createPlanService = async (
+  mentorId: number,
+  planData: CreatePlanSessionRequest | CreatePlanMentorshipRequest
+): Promise<{
+  success: boolean;
+  message: string;
+  planId?: number;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify mentor exists
+    const mentorCheck = await pool
+      .request()
+      .input("mentorId", mentorId)
+      .query("SELECT user_id FROM users WHERE user_id = @mentorId AND role = N'Mentor'");
+
+    if (mentorCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Mentor not found",
+      };
+    }
+
+    // Start transaction
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Insert into plans table
+      const planResult = await transaction
+        .request()
+        .input("planDescription", planData.planDescription)
+        .input("planCharge", planData.planCharge)
+        .input("planType", planData.planType)
+        .input("mentorId", mentorId).query(`
+          INSERT INTO plans (plan_description, plan_charge, plan_type, mentor_id)
+          OUTPUT INSERTED.plan_id
+          VALUES (@planDescription, @planCharge, @planType, @mentorId)
+        `);
+
+      const planId = planResult.recordset[0].plan_id;
+
+      // Check if this is a session plan
+      if ("sessionsDuration" in planData) {
+        await transaction.request().input("planId", planId).input("sessionsDuration", planData.sessionsDuration).query(`
+            INSERT INTO plan_sessions (sessions_id, sessions_duration)
+            VALUES (@planId, @sessionsDuration)
+          `);
+      }
+      // Check if this is a mentorship plan
+      else if ("callsPerMonth" in planData && "minutesPerCall" in planData) {
+        await transaction
+          .request()
+          .input("planId", planId)
+          .input("callsPerMonth", planData.callsPerMonth)
+          .input("minutesPerCall", planData.minutesPerCall).query(`
+            INSERT INTO plan_mentorships (mentorships_id, calls_per_month, minutes_per_call)
+            VALUES (@planId, @callsPerMonth, @minutesPerCall)
+          `);
+
+        // Insert benefits if provided
+        if (planData.benefits && planData.benefits.length > 0) {
+          for (const benefit of planData.benefits) {
+            await transaction.request().input("planId", planId).input("benefit", benefit).query(`
+                INSERT INTO mentorships_benefits (mentorships_id, benefit_description)
+                VALUES (@planId, @benefit)
+              `);
+          }
+        }
+      } else {
+        await transaction.rollback();
+        return {
+          success: false,
+          message: "Invalid plan data: must specify either sessionsDuration or callsPerMonth/minutesPerCall",
+        };
+      }
+
+      await transaction.commit();
+
+      return {
+        success: true,
+        message: "Plan created successfully",
+        planId,
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in createPlanService:", error);
+    throw error;
+  }
+};
+
+const updatePlanService = async (
+  planId: number,
+  mentorId: number,
+  updateData: UpdatePlanSessionRequest | UpdatePlanMentorshipRequest
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify plan exists and belongs to mentor
+    const planCheck = await pool.request().input("planId", planId).input("mentorId", mentorId).query(`
+        SELECT plan_id, mentor_id
+        FROM plans
+        WHERE plan_id = @planId AND mentor_id = @mentorId
+      `);
+
+    if (planCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Plan not found or you don't have permission to update it",
+      };
+    }
+
+    // Start transaction
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Update plans table if there are basic plan updates
+      if (
+        updateData.planDescription !== undefined ||
+        updateData.planCharge !== undefined ||
+        updateData.planType !== undefined
+      ) {
+        const updateFields: string[] = [];
+        const request = transaction.request().input("planId", planId);
+
+        if (updateData.planDescription !== undefined) {
+          updateFields.push("plan_description = @planDescription");
+          request.input("planDescription", updateData.planDescription);
+        }
+        if (updateData.planCharge !== undefined) {
+          updateFields.push("plan_charge = @planCharge");
+          request.input("planCharge", updateData.planCharge);
+        }
+        if (updateData.planType !== undefined) {
+          updateFields.push("plan_type = @planType");
+          request.input("planType", updateData.planType);
+        }
+
+        if (updateFields.length > 0) {
+          await request.query(`
+            UPDATE plans
+            SET ${updateFields.join(", ")}
+            WHERE plan_id = @planId
+          `);
+        }
+      }
+
+      // Update session-specific data
+      if ("sessionsDuration" in updateData) {
+        // Check if session plan exists
+        const sessionCheck = await transaction
+          .request()
+          .input("planId", planId)
+          .query("SELECT sessions_id FROM plan_sessions WHERE sessions_id = @planId");
+
+        if (sessionCheck.recordset.length > 0 && "sessionsDuration" in updateData) {
+          await transaction.request().input("planId", planId).input("sessionsDuration", updateData.sessionsDuration)
+            .query(`
+              UPDATE plan_sessions
+              SET sessions_duration = @sessionsDuration
+              WHERE sessions_id = @planId
+            `);
+        }
+      }
+
+      // Update mentorship-specific data
+      if ("callsPerMonth" in updateData || "minutesPerCall" in updateData) {
+        // Check if mentorship plan exists
+        const mentorshipCheck = await transaction
+          .request()
+          .input("planId", planId)
+          .query("SELECT mentorships_id FROM plan_mentorships WHERE mentorships_id = @planId");
+
+        if (mentorshipCheck.recordset.length > 0) {
+          const updateFields: string[] = [];
+          const request = transaction.request().input("planId", planId);
+
+          if ("callsPerMonth" in updateData && updateData.callsPerMonth !== undefined) {
+            updateFields.push("calls_per_month = @callsPerMonth");
+            request.input("callsPerMonth", updateData.callsPerMonth);
+          }
+          if ("minutesPerCall" in updateData && updateData.minutesPerCall !== undefined) {
+            updateFields.push("minutes_per_call = @minutesPerCall");
+            request.input("minutesPerCall", updateData.minutesPerCall);
+          }
+
+          if (updateFields.length > 0) {
+            await request.query(`
+              UPDATE plan_mentorships
+              SET ${updateFields.join(", ")}
+              WHERE mentorships_id = @planId
+            `);
+          }
+        }
+      }
+
+      // Update benefits if provided
+      if ("benefits" in updateData) {
+        // Check if mentorship plan exists
+        const mentorshipCheck = await transaction
+          .request()
+          .input("planId", planId)
+          .query("SELECT mentorships_id FROM plan_mentorships WHERE mentorships_id = @planId");
+
+        if (mentorshipCheck.recordset.length > 0) {
+          // Delete existing benefits
+          await transaction.request().input("planId", planId).query(`
+              DELETE FROM mentorships_benefits
+              WHERE mentorships_id = @planId
+            `);
+
+          // Insert new benefits
+          if ("benefits" in updateData && updateData.benefits && updateData.benefits.length > 0) {
+            for (const benefit of updateData.benefits) {
+              await transaction.request().input("planId", planId).input("benefit", benefit).query(`
+                  INSERT INTO mentorships_benefits (mentorships_id, benefit_description)
+                  VALUES (@planId, @benefit)
+                `);
+            }
+          }
+        }
+      }
+
+      await transaction.commit();
+
+      return {
+        success: true,
+        message: "Plan updated successfully",
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in updatePlanService:", error);
+    throw error;
+  }
+};
+
+const deletePlanService = async (
+  planId: number,
+  mentorId: number
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify plan exists and belongs to mentor
+    const planCheck = await pool.request().input("planId", planId).input("mentorId", mentorId).query(`
+        SELECT plan_id, mentor_id
+        FROM plans
+        WHERE plan_id = @planId AND mentor_id = @mentorId
+      `);
+
+    if (planCheck.recordset.length === 0) {
+      return {
+        success: false,
+        message: "Plan not found or you don't have permission to delete it",
+      };
+    }
+
+    // Check if plan has any bookings
+    const bookingCheck = await pool.request().input("planId", planId).query(`
+        SELECT COUNT(*) as booking_count
+        FROM bookings
+        WHERE plan_id = @planId
+      `);
+
+    if (bookingCheck.recordset[0].booking_count > 0) {
+      return {
+        success: false,
+        message: "Cannot delete plan with existing bookings",
+      };
+    }
+
+    // Check if plan has any slots
+    const slotCheck = await pool.request().input("planId", planId).query(`
+        SELECT COUNT(*) as slot_count
+        FROM slots
+        WHERE plan_id = @planId
+      `);
+
+    if (slotCheck.recordset[0].slot_count > 0) {
+      return {
+        success: false,
+        message: "Cannot delete plan with existing slots",
+      };
+    }
+
+    // Start transaction
+    const transaction = pool.transaction();
+    await transaction.begin();
+
+    try {
+      // Delete from plan_sessions if it exists (CASCADE will handle this)
+      // Delete from plan_mentorships and mentorships_benefits if they exist (CASCADE will handle this)
+      // Finally, delete from plans table
+      await transaction.request().input("planId", planId).query(`
+          DELETE FROM plans
+          WHERE plan_id = @planId
+        `);
+
+      await transaction.commit();
+
+      return {
+        success: true,
+        message: "Plan deleted successfully",
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in deletePlanService:", error);
+    throw error;
+  }
+};
+
 export {
   getMentorProfileService,
   updateMentorProfileService,
@@ -782,4 +1324,9 @@ export {
   getTotalFeedbackCountService,
   getTotalStarsService,
   getAverageRatingService,
+  getAllPlansService,
+  getPlanDetailsService,
+  createPlanService,
+  updatePlanService,
+  deletePlanService,
 };
