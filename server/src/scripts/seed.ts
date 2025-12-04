@@ -1322,16 +1322,73 @@ async function seedSlots() {
 
   console.log(chalk.yellow("Seeding slots..."));
 
-  const mentorEmails = [
-    "john.doe@example.com",
-    "sarah.johnson@example.com",
-    "michael.chen@example.com",
-    "emily.rodriguez@example.com",
-    "david.kim@example.com",
-  ];
+  // Fetch all mentors with their plans and durations
+  const mentorsResult = await pool.request().query(`
+    SELECT DISTINCT
+      u.user_id,
+      u.email,
+      p.plan_id,
+      ps.sessions_duration,
+      pm.minutes_per_call
+    FROM users u
+    INNER JOIN mentors m ON u.user_id = m.user_id
+    INNER JOIN plans p ON m.user_id = p.mentor_id
+    LEFT JOIN plan_sessions ps ON p.plan_id = ps.sessions_id
+    LEFT JOIN plan_mentorships pm ON p.plan_id = pm.mentorships_id
+    WHERE u.role = 'Mentor'
+    ORDER BY u.user_id, p.plan_id
+  `);
+
+  const mentorPlans: {
+    [mentorId: number]: {
+      email: string;
+      plans: { planId: number; duration: number }[];
+    };
+  } = {};
+
+  // Organize plans by mentor
+  for (const row of mentorsResult.recordset) {
+    const mentorId = row.user_id;
+    const planId = row.plan_id;
+
+    // Determine duration: for sessions use sessions_duration, for mentorships use minutes_per_call
+    const duration = row.sessions_duration || row.minutes_per_call;
+
+    if (!duration) continue; // Skip plans without duration
+
+    if (!mentorPlans[mentorId]) {
+      mentorPlans[mentorId] = {
+        email: row.email,
+        plans: [],
+      };
+    }
+
+    mentorPlans[mentorId].plans.push({ planId, duration });
+  }
 
   const today = new Date();
   let slotsCount = 0;
+
+  // Time slots configuration (hour, minute pairs)
+  const baseTimeSlots = [
+    // Morning slots (9 AM - 12 PM)
+    { hour: 9, minute: 0 },
+    { hour: 10, minute: 0 },
+    { hour: 11, minute: 0 },
+    // Afternoon slots (1 PM - 5 PM)
+    { hour: 13, minute: 0 },
+    { hour: 14, minute: 0 },
+    { hour: 15, minute: 0 },
+    { hour: 16, minute: 0 },
+    // Evening slots (6 PM - 8 PM)
+    { hour: 18, minute: 0 },
+    { hour: 19, minute: 0 },
+  ];
+
+  // Helper function to check if two time ranges overlap
+  const isOverlapping = (start1: Date, end1: Date, start2: Date, end2: Date): boolean => {
+    return start1 < end2 && start2 < end1;
+  };
 
   // Create slots for the next 14 days
   for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
@@ -1339,72 +1396,80 @@ async function seedSlots() {
     slotDate.setDate(today.getDate() + dayOffset);
     const dateStr = slotDate.toISOString().split("T")[0];
 
-    for (const mentorEmail of mentorEmails) {
-      const mentorId = userIds[mentorEmail];
-      const mentorPlanIds = planIds[mentorEmail];
-      if (!mentorId || !mentorPlanIds) continue;
+    // Track occupied time slots for each mentor on this day
+    const mentorOccupiedSlots: {
+      [mentorId: number]: Array<{ start: Date; end: Date }>;
+    } = {};
 
-      // Use the first session plan for this mentor
-      const planId = mentorPlanIds[0];
+    for (const mentorId in mentorPlans) {
+      const mentor = mentorPlans[mentorId];
 
-      // Morning slots (9 AM - 12 PM)
-      for (let hour = 9; hour <= 11; hour++) {
-        const startTime = new Date(slotDate);
-        startTime.setHours(hour, 0, 0, 0);
-        const endTime = new Date(slotDate);
-        endTime.setHours(hour + 1, 0, 0, 0);
-        await pool
-          .request()
-          .input("start_time", sql.DateTime, startTime)
-          .input("end_time", sql.DateTime, endTime)
-          .input("date", sql.Date, dateStr)
-          .input("mentor_id", sql.Int, mentorId)
-          .input("status", sql.NVarChar, dayOffset < 2 ? "Booked" : "Available")
-          .input("plan_id", sql.Int, planId).query(`
-            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
-            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
-          `);
-        slotsCount++;
+      if (!mentor) continue;
+
+      // Initialize occupied slots array for this mentor
+      if (!mentorOccupiedSlots[parseInt(mentorId)]) {
+        mentorOccupiedSlots[parseInt(mentorId)] = [];
       }
 
-      // Afternoon slots (2 PM - 5 PM)
-      for (let hour = 14; hour <= 16; hour++) {
-        const startTime = new Date(slotDate);
-        startTime.setHours(hour, 0, 0, 0);
-        const endTime = new Date(slotDate);
-        endTime.setHours(hour + 1, 0, 0, 0);
-        await pool
-          .request()
-          .input("start_time", sql.DateTime, startTime)
-          .input("end_time", sql.DateTime, endTime)
-          .input("date", sql.Date, dateStr)
-          .input("mentor_id", sql.Int, mentorId)
-          .input("status", sql.NVarChar, dayOffset < 3 && hour === 14 ? "Booked" : "Available")
-          .input("plan_id", sql.Int, planId).query(`
-            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
-            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
-          `);
-        slotsCount++;
-      }
+      // Shuffle plans to distribute different plan types across time slots
+      const shuffledPlans = [...mentor.plans].sort(() => 0.5 - Math.random());
 
-      // Evening slots (6 PM - 8 PM)
-      for (let hour = 18; hour <= 19; hour++) {
-        const startTime = new Date(slotDate);
-        startTime.setHours(hour, 0, 0, 0);
-        const endTime = new Date(slotDate);
-        endTime.setHours(hour + 1, 0, 0, 0);
-        await pool
-          .request()
-          .input("start_time", sql.DateTime, startTime)
-          .input("end_time", sql.DateTime, endTime)
-          .input("date", sql.Date, dateStr)
-          .input("mentor_id", sql.Int, mentorId)
-          .input("status", sql.NVarChar, "Available")
-          .input("plan_id", sql.Int, planId).query(`
-            INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
-            VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
-          `);
-        slotsCount++;
+      // For each plan, try to create slots without overlapping
+      for (const plan of shuffledPlans) {
+        const numSlotsPerPlan = Math.min(2, baseTimeSlots.length); // 2 slots per plan
+        let slotsCreated = 0;
+
+        // Try each time slot until we create enough non-overlapping slots
+        for (const timeSlot of baseTimeSlots) {
+          if (slotsCreated >= numSlotsPerPlan) break;
+
+          const startTime = new Date(slotDate);
+          startTime.setHours(timeSlot.hour, timeSlot.minute, 0, 0);
+
+          const endTime = new Date(startTime);
+          endTime.setMinutes(endTime.getMinutes() + plan.duration);
+
+          // Check if this slot overlaps with any existing slot for this mentor
+          const occupied = mentorOccupiedSlots[parseInt(mentorId)];
+          if (!occupied) continue;
+
+          let hasOverlap = false;
+
+          for (const existingSlot of occupied) {
+            if (isOverlapping(startTime, endTime, existingSlot.start, existingSlot.end)) {
+              hasOverlap = true;
+              break;
+            }
+          }
+
+          // If no overlap, create the slot
+          if (!hasOverlap) {
+            // Determine status: first 2 days have some booked slots
+            let status = "Available";
+            if (dayOffset === 0 && timeSlot.hour === 9) {
+              status = "Booked";
+            } else if (dayOffset === 1 && timeSlot.hour === 14) {
+              status = "Booked";
+            }
+
+            await pool
+              .request()
+              .input("start_time", sql.DateTime, startTime)
+              .input("end_time", sql.DateTime, endTime)
+              .input("date", sql.Date, dateStr)
+              .input("mentor_id", sql.Int, parseInt(mentorId))
+              .input("status", sql.NVarChar, status)
+              .input("plan_id", sql.Int, plan.planId).query(`
+                INSERT INTO slots (start_time, end_time, date, mentor_id, status, plan_id)
+                VALUES (@start_time, @end_time, @date, @mentor_id, @status, @plan_id)
+              `);
+
+            // Mark this time slot as occupied
+            occupied.push({ start: new Date(startTime), end: new Date(endTime) });
+            slotsCount++;
+            slotsCreated++;
+          }
+        }
       }
     }
   }
