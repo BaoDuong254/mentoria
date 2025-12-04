@@ -36,6 +36,12 @@ export default function Header() {
                 >
                   Dashboard
                 </Link>
+                <Link
+                  to={`${path.MENTOR}/${path.MENTOR_PLANS}`}
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  Your Plan
+                </Link>
               </>
             ) : (
               <>

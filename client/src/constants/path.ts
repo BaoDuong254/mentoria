@@ -16,6 +16,7 @@ const path = {
   //mentor routes
   MENTOR: "/mentor",
   MENTOR_DASHBOARD: "dashboard",
+  MENTOR_PLANS: "plans",
 
   //admin routes
   ADMIN: "/admin",
