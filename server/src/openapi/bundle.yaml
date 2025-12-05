@@ -4521,9 +4521,27 @@ paths:
       tags:
         - admin
       summary: List all mentees
-      description: Retrieve a list of all mentees with their user info and goal. Requires admin authentication.
+      description: Retrieve a paginated list of all mentees with their user info and goal. Requires admin authentication.
       security:
         - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          description: "Number of items per page (1-100, default is 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
       responses:
         "200":
           description: List of mentees retrieved successfully
@@ -4693,9 +4711,27 @@ paths:
       tags:
         - admin
       summary: List all mentors
-      description: "Retrieve a list of all mentors with their user info, bio, cv_url, headline, and response_time. Requires admin authentication."
+      description: "Retrieve a paginated list of all mentors with their user info, bio, cv_url, headline, and response_time. Requires admin authentication."
       security:
         - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          description: "Number of items per page (1-100, default is 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
       responses:
         "200":
           description: List of mentors retrieved successfully
@@ -4720,9 +4756,27 @@ paths:
       tags:
         - admin
       summary: List pending mentors
-      description: 'Retrieve a list of mentors with status "Pending" awaiting review, ordered by created_at DESC. Requires admin authentication.'
+      description: 'Retrieve a paginated list of mentors with status "Pending" awaiting review, ordered by created_at DESC. Requires admin authentication.'
       security:
         - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          description: "Number of items per page (1-100, default is 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
       responses:
         "200":
           description: List of pending mentors retrieved successfully
@@ -4956,6 +5010,200 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/invoices:
+    get:
+      tags:
+        - admin
+      summary: Get invoice statistics
+      description: |-
+        Retrieve paginated invoice statistics with optional filters.
+        Can filter by year, month, specific user (mentee or mentor).
+        Returns invoice details with mentee and mentor information.
+        Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: year
+          in: query
+          description: Filter by year (2000-2100)
+          required: false
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+            example: 2024
+        - name: month
+          in: query
+          description: Filter by month (1-12)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 12
+        - name: userId
+          in: query
+          description: Filter by specific user ID (requires userType)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: userType
+          in: query
+          description: Type of user when filtering by userId (required if userId is provided)
+          required: false
+          schema:
+            type: string
+            enum:
+              - mentee
+              - mentor
+            example: mentor
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          description: "Number of items per page (1-100, default is 10)"
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            example: 10
+      responses:
+        "200":
+          description: Invoice statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Invoice statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      year:
+                        type: integer
+                        example: 2024
+                      month:
+                        type: integer
+                        example: 12
+                      total_amount:
+                        type: number
+                        format: decimal
+                        example: 1499.85
+                      total_count:
+                        type: integer
+                        example: 15
+                      invoices:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            invoice_id:
+                              type: integer
+                              example: 1
+                            amount:
+                              type: number
+                              format: decimal
+                              example: 99.99
+                            method:
+                              type: string
+                              example: Stripe
+                            paid_time:
+                              type: string
+                              format: date-time
+                              example: "2024-12-05T10:30:00.000Z"
+                            payment_status:
+                              type: string
+                              example: Completed
+                            currency:
+                              type: string
+                              example: USD
+                            amount_subtotal:
+                              type: number
+                              format: decimal
+                              example: 99.99
+                            amount_total:
+                              type: number
+                              format: decimal
+                              example: 99.99
+                            stripe_receipt_url:
+                              type: string
+                              nullable: true
+                              example: "https://stripe.com/receipt/123"
+                            plan_description:
+                              type: string
+                              example: 1-on-1 mentorship session
+                            plan_type:
+                              type: string
+                              example: Session
+                            plan_charge:
+                              type: number
+                              format: decimal
+                              example: 99.99
+                            mentee_id:
+                              type: integer
+                              example: 31
+                            mentee_first_name:
+                              type: string
+                              example: Alice
+                            mentee_last_name:
+                              type: string
+                              example: Smith
+                            mentee_email:
+                              type: string
+                              example: alice.smith@example.com
+                            mentee_avatar_url:
+                              type: string
+                              nullable: true
+                              example: "https://example.com/avatar.jpg"
+                            mentor_id:
+                              type: integer
+                              example: 1
+                            mentor_first_name:
+                              type: string
+                              example: John
+                            mentor_last_name:
+                              type: string
+                              example: Doe
+                            mentor_email:
+                              type: string
+                              example: john.doe@example.com
+                            mentor_avatar_url:
+                              type: string
+                              nullable: true
+                              example: "https://example.com/mentor-avatar.jpg"
+                      pagination:
+                        $ref: "#/components/schemas/AdminMenteeListResponse/properties/pagination"
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -6337,10 +6585,34 @@ components:
         success:
           type: boolean
           example: true
+        message:
+          type: string
+          example: Mentees retrieved successfully
         data:
           type: array
           items:
             $ref: "#/components/schemas/AdminMenteeItem"
+        pagination:
+          type: object
+          properties:
+            currentPage:
+              type: integer
+              example: 1
+            totalPages:
+              type: integer
+              example: 5
+            totalItems:
+              type: integer
+              example: 50
+            itemsPerPage:
+              type: integer
+              example: 10
+            hasNextPage:
+              type: boolean
+              example: true
+            hasPreviousPage:
+              type: boolean
+              example: false
     AdminMenteeDetailResponse:
       type: object
       properties:
@@ -6417,10 +6689,15 @@ components:
         success:
           type: boolean
           example: true
+        message:
+          type: string
+          example: Mentors retrieved successfully
         data:
           type: array
           items:
             $ref: "#/components/schemas/AdminMentorItem"
+        pagination:
+          $ref: "#/components/schemas/AdminMenteeListResponse/properties/pagination"
     AdminMentorDetailResponse:
       type: object
       properties:

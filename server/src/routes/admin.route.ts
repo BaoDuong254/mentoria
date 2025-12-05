@@ -9,6 +9,7 @@ import {
   updateMentor,
   deleteMentor,
   reviewMentor,
+  getInvoiceStats,
 } from "@/controllers/admin.controller";
 import { isAdmin, protectRoute } from "@/middlewares/auth.middleware";
 import express, { Router } from "express";
@@ -30,5 +31,8 @@ router.delete("/mentors/:id", protectRoute, isAdmin, deleteMentor);
 
 // Review mentor route
 router.post("/mentors/:id/review", protectRoute, isAdmin, reviewMentor);
+
+// Invoice route
+router.get("/invoices", protectRoute, isAdmin, getInvoiceStats);
 
 export default router;

@@ -6,6 +6,7 @@ import {
   updateMeetingLocationService,
   updateMeetingStatusService,
 } from "@/services/meeting.service";
+import { Role } from "@/constants/type";
 
 /**
  * Get all meetings for the current mentee
@@ -22,7 +23,7 @@ export const getMeetingsForMentee = async (req: Request, res: Response) => {
     }
 
     // Verify user is a mentee
-    if (req.user?.role !== "Mentee") {
+    if (req.user?.role !== Role.Mentee) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Only mentees can access this resource.",
@@ -59,7 +60,7 @@ export const getMeetingsForMentor = async (req: Request, res: Response) => {
     }
 
     // Verify user is a mentor
-    if (req.user?.role !== "Mentor") {
+    if (req.user?.role !== Role.Mentor) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Only mentors can access this resource.",
@@ -151,7 +152,7 @@ export const updateMeetingLocation = async (req: Request, res: Response) => {
     }
 
     // Verify user is a mentor
-    if (req.user?.role !== "Mentor") {
+    if (req.user?.role !== Role.Mentor) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Only mentors can update meeting location.",
@@ -213,7 +214,7 @@ export const updateMeetingStatus = async (req: Request, res: Response) => {
     }
 
     // Verify user is a mentor
-    if (req.user?.role !== "Mentor") {
+    if (req.user?.role !== Role.Mentor) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Only mentors can update meeting status.",

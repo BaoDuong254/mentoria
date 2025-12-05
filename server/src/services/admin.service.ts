@@ -10,20 +10,46 @@ import {
   ReviewAction,
 } from "@/types/admin.type";
 
-const listMenteesService = async (): Promise<AdminListResponse<AdminMenteeItem>> => {
+const listMenteesService = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<AdminListResponse<AdminMenteeItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
-  const result = await pool.request().query(`
+  const offset = (page - 1) * limit;
+
+  // Get total count
+  const countResult = await pool.request().query(`
+    SELECT COUNT(*) as total
+    FROM users u
+    JOIN mentees m ON u.user_id = m.user_id
+  `);
+  const totalItems = countResult.recordset[0].total;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  // Get paginated results
+  const result = await pool.request().input("limit", limit).input("offset", offset).query(`
     SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal
     FROM users u
     JOIN mentees m ON u.user_id = m.user_id
+    ORDER BY u.created_at DESC
+    OFFSET @offset ROWS
+    FETCH NEXT @limit ROWS ONLY
   `);
 
   return {
     success: true,
     message: "Mentees retrieved successfully",
     data: result.recordset,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
   };
 };
 
@@ -184,41 +210,94 @@ const deleteMenteeService = async (userId: number): Promise<AdminServiceResponse
 
 // ==================== MENTOR SERVICES ====================
 
-const listMentorsService = async (): Promise<AdminListResponse<AdminMentorItem>> => {
+const listMentorsService = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<AdminListResponse<AdminMentorItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
-  const result = await pool.request().query(`
+  const offset = (page - 1) * limit;
+
+  // Get total count
+  const countResult = await pool.request().query(`
+    SELECT COUNT(*) as total
+    FROM users u
+    JOIN mentors m ON u.user_id = m.user_id
+  `);
+  const totalItems = countResult.recordset[0].total;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  // Get paginated results
+  const result = await pool.request().input("limit", limit).input("offset", offset).query(`
     SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role,
            m.bio, m.cv_url, m.headline, m.response_time
     FROM users u
     JOIN mentors m ON u.user_id = m.user_id
+    ORDER BY u.created_at DESC
+    OFFSET @offset ROWS
+    FETCH NEXT @limit ROWS ONLY
   `);
 
   return {
     success: true,
     message: "Mentors retrieved successfully",
     data: result.recordset,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
   };
 };
 
-const getPendingMentorsService = async (): Promise<AdminListResponse<AdminMentorItem>> => {
+const getPendingMentorsService = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<AdminListResponse<AdminMentorItem>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
-  const result = await pool.request().input("status", Status.Pending).query(`
+  const offset = (page - 1) * limit;
+
+  // Get total count
+  const countResult = await pool.request().input("status", Status.Pending).query(`
+    SELECT COUNT(*) as total
+    FROM users u
+    JOIN mentors m ON u.user_id = m.user_id
+    WHERE u.status = @status
+  `);
+  const totalItems = countResult.recordset[0].total;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  // Get paginated results
+  const result = await pool.request().input("status", Status.Pending).input("limit", limit).input("offset", offset)
+    .query(`
     SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, u.created_at,
            m.bio, m.cv_url, m.headline, m.response_time
     FROM users u
     JOIN mentors m ON u.user_id = m.user_id
     WHERE u.status = @status
     ORDER BY u.created_at DESC
+    OFFSET @offset ROWS
+    FETCH NEXT @limit ROWS ONLY
   `);
 
   return {
     success: true,
     message: "Pending mentors retrieved successfully",
     data: result.recordset,
+    pagination: {
+      currentPage: page,
+      totalPages,
+      totalItems,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    },
   };
 };
 
@@ -500,6 +579,131 @@ const reviewMentorService = async (
   };
 };
 
+// ==================== INVOICE SERVICES ====================
+
+const getInvoiceStatsService = async (
+  year?: number,
+  month?: number,
+  userId?: number,
+  userType?: "mentee" | "mentor",
+  page: number = 1,
+  limit: number = 10
+) => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const currentYear = year || new Date().getFullYear();
+    const currentMonth = month || new Date().getMonth() + 1;
+    const offset = (page - 1) * limit;
+
+    let query = `
+      SELECT
+        i.invoice_id,
+        i.amount,
+        i.method,
+        i.paid_time,
+        i.payment_status,
+        i.currency,
+        i.amount_subtotal,
+        i.amount_total,
+        i.stripe_receipt_url,
+        p.plan_description,
+        p.plan_type,
+        p.plan_charge,
+        mentee.user_id as mentee_id,
+        mentee.first_name as mentee_first_name,
+        mentee.last_name as mentee_last_name,
+        mentee.email as mentee_email,
+        mentee.avatar_url as mentee_avatar_url,
+        mentor.user_id as mentor_id,
+        mentor.first_name as mentor_first_name,
+        mentor.last_name as mentor_last_name,
+        mentor.email as mentor_email,
+        mentor.avatar_url as mentor_avatar_url
+      FROM invoices i
+      INNER JOIN plan_registerations pr ON i.plan_registerations_id = pr.registration_id
+      INNER JOIN bookings b ON b.plan_registerations_id = pr.registration_id
+      INNER JOIN plans p ON b.plan_id = p.plan_id
+      INNER JOIN users mentee ON i.mentee_id = mentee.user_id
+      INNER JOIN mentors m ON p.mentor_id = m.user_id
+      INNER JOIN users mentor ON m.user_id = mentor.user_id
+      WHERE YEAR(i.paid_time) = @year
+        AND MONTH(i.paid_time) = @month
+    `;
+
+    let totalQuery = `
+      SELECT
+        ISNULL(SUM(i.amount), 0) as total_amount,
+        COUNT(*) as total_count
+      FROM invoices i
+    `;
+
+    const request = pool.request().input("year", currentYear).input("month", currentMonth);
+
+    const totalRequest = pool.request().input("year", currentYear).input("month", currentMonth);
+
+    // Add user-specific filtering if provided
+    if (userId && userType === "mentee") {
+      query += " AND i.mentee_id = @userId";
+      totalQuery += `
+      WHERE YEAR(i.paid_time) = @year
+        AND MONTH(i.paid_time) = @month
+        AND i.mentee_id = @userId
+      `;
+      request.input("userId", userId);
+      totalRequest.input("userId", userId);
+    } else if (userId && userType === "mentor") {
+      query += " AND p.mentor_id = @userId";
+      totalQuery += `
+      INNER JOIN plan_registerations pr ON i.plan_registerations_id = pr.registration_id
+      INNER JOIN bookings b ON b.plan_registerations_id = pr.registration_id
+      INNER JOIN plans p ON b.plan_id = p.plan_id
+      WHERE YEAR(i.paid_time) = @year
+        AND MONTH(i.paid_time) = @month
+        AND p.mentor_id = @userId
+      `;
+      request.input("userId", userId);
+      totalRequest.input("userId", userId);
+    } else {
+      totalQuery += `
+      WHERE YEAR(i.paid_time) = @year
+        AND MONTH(i.paid_time) = @month
+      `;
+    }
+
+    query += " ORDER BY i.paid_time DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY";
+    request.input("offset", offset).input("limit", limit);
+
+    const [invoicesResult, totalResult] = await Promise.all([request.query(query), totalRequest.query(totalQuery)]);
+
+    const totalItems = totalResult.recordset[0].total_count;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      success: true,
+      data: {
+        year: currentYear,
+        month: currentMonth,
+        total_amount: totalResult.recordset[0].total_amount,
+        total_count: totalItems,
+        invoices: invoicesResult.recordset,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
+      },
+    };
+  } catch (error) {
+    console.error("Error in getInvoiceStatsService:", error);
+    throw error;
+  }
+};
+
 export {
   listMenteesService,
   getMenteeService,
@@ -511,4 +715,5 @@ export {
   updateMentorService,
   deleteMentorService,
   reviewMentorService,
+  getInvoiceStatsService,
 };

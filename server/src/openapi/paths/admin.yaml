@@ -4,9 +4,27 @@ menteesList:
     tags:
       - admin
     summary: List all mentees
-    description: Retrieve a list of all mentees with their user info and goal. Requires admin authentication.
+    description: Retrieve a paginated list of all mentees with their user info and goal. Requires admin authentication.
     security:
       - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (1-100, default is 10)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
     responses:
       "200":
         description: List of mentees retrieved successfully
@@ -179,9 +197,27 @@ mentorsList:
     tags:
       - admin
     summary: List all mentors
-    description: Retrieve a list of all mentors with their user info, bio, cv_url, headline, and response_time. Requires admin authentication.
+    description: Retrieve a paginated list of all mentors with their user info, bio, cv_url, headline, and response_time. Requires admin authentication.
     security:
       - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (1-100, default is 10)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
     responses:
       "200":
         description: List of mentors retrieved successfully
@@ -207,9 +243,27 @@ mentorsPending:
     tags:
       - admin
     summary: List pending mentors
-    description: Retrieve a list of mentors with status "Pending" awaiting review, ordered by created_at DESC. Requires admin authentication.
+    description: Retrieve a paginated list of mentors with status "Pending" awaiting review, ordered by created_at DESC. Requires admin authentication.
     security:
       - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (1-100, default is 10)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
     responses:
       "200":
         description: List of pending mentors retrieved successfully
@@ -446,6 +500,96 @@ mentorReview:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
       "404":
         description: Mentor not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+
+# ===== INVOICE STATS ENDPOINT =====
+invoiceStats:
+  get:
+    tags:
+      - admin
+    summary: Get invoice statistics
+    description: |-
+      Retrieve paginated invoice statistics with optional filters.
+      Can filter by year, month, specific user (mentee or mentor).
+      Returns invoice details with mentee and mentor information.
+      Requires admin authentication.
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: year
+        in: query
+        description: Filter by year (2000-2100)
+        required: false
+        schema:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+          example: 2024
+      - name: month
+        in: query
+        description: Filter by month (1-12)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 12
+          example: 12
+      - name: userId
+        in: query
+        description: Filter by specific user ID (requires userType)
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: userType
+        in: query
+        description: Type of user when filtering by userId (required if userId is provided)
+        required: false
+        schema:
+          type: string
+          enum: [mentee, mentor]
+          example: "mentor"
+      - name: page
+        in: query
+        description: Page number for pagination (default is 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (1-100, default is 10)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 10
+    responses:
+      "200":
+        description: Invoice statistics retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/admin.yaml#/InvoiceStatsResponse"
+      "400":
+        description: Invalid parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
         content:
           application/json:
             schema:

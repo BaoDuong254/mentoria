@@ -158,6 +158,8 @@ paths:
     $ref: "./paths/admin.yaml#/mentor"
   /api/admin/mentors/{id}/review:
     $ref: "./paths/admin.yaml#/mentorReview"
+  /api/admin/invoices:
+    $ref: "./paths/admin.yaml#/invoiceStats"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

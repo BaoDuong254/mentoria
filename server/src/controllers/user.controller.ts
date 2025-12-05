@@ -7,6 +7,7 @@ import {
 import { Request, Response } from "express";
 import cloudinary from "@/config/cloudinary";
 import { ChangePasswordSchema, TChangePasswordSchema } from "@/validation/change-password.schema";
+import { Role } from "@/constants/type";
 
 const updateAvatar = async (req: Request, res: Response) => {
   try {
@@ -164,7 +165,7 @@ const getMenteeInvoiceStats = async (req: Request, res: Response) => {
     }
 
     // Check if user is a mentee
-    if (req.user.role !== "Mentee") {
+    if (req.user.role !== Role.Mentee) {
       return res.status(403).json({
         success: false,
         message: "Forbidden - Only mentees can access this resource",
@@ -217,7 +218,7 @@ const getMentorInvoiceStats = async (req: Request, res: Response) => {
     }
 
     // Check if user is a mentor
-    if (req.user.role !== "Mentor") {
+    if (req.user.role !== Role.Mentor) {
       return res.status(403).json({
         success: false,
         message: "Forbidden - Only mentors can access this resource",

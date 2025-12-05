@@ -11,6 +11,7 @@ import {
   updateMentorService,
   deleteMentorService,
   reviewMentorService,
+  getInvoiceStatsService,
 } from "@/services/admin.service";
 import { sendMentorApproved, sendMentorRejected } from "@/mailtrap/mailSend";
 import { ReviewAction } from "@/types/admin.type";
@@ -18,9 +19,20 @@ import { UpdateMenteeSchema, UpdateMentorSchema, ReviewMentorSchema } from "@/va
 
 // ==================== MENTEE CONTROLLERS ====================
 
-const listMentees = async (_req: Request, res: Response) => {
+const listMentees = async (req: Request, res: Response) => {
   try {
-    const result = await listMenteesService();
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
+
+    const result = await listMenteesService(page, limit);
     return res.status(200).json(result);
   } catch (error) {
     console.error("[Admin] listMentees error:", error);
@@ -106,9 +118,20 @@ const deleteMentee = async (req: Request, res: Response) => {
 
 // ==================== MENTOR CONTROLLERS ====================
 
-const listMentors = async (_req: Request, res: Response) => {
+const listMentors = async (req: Request, res: Response) => {
   try {
-    const result = await listMentorsService();
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
+
+    const result = await listMentorsService(page, limit);
     return res.status(200).json(result);
   } catch (error) {
     console.error("[Admin] listMentors error:", error);
@@ -116,9 +139,20 @@ const listMentors = async (_req: Request, res: Response) => {
   }
 };
 
-const getPendingMentors = async (_req: Request, res: Response) => {
+const getPendingMentors = async (req: Request, res: Response) => {
   try {
-    const result = await getPendingMentorsService();
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
+
+    const result = await getPendingMentorsService(page, limit);
     return res.status(200).json(result);
   } catch (error) {
     console.error("[Admin] getPendingMentors error:", error);
@@ -249,6 +283,61 @@ const reviewMentor = async (req: Request, res: Response) => {
   }
 };
 
+// ==================== INVOICE CONTROLLER ====================
+
+const getInvoiceStats = async (req: Request, res: Response) => {
+  try {
+    const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+    const month = req.query.month ? parseInt(req.query.month as string) : undefined;
+    const userId = req.query.userId ? parseInt(req.query.userId as string) : undefined;
+    const userType = req.query.userType as "mentee" | "mentor" | undefined;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+
+    // Validate year and month if provided
+    if (year && (year < 2000 || year > 2100)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid year provided",
+      });
+    }
+
+    if (month && (month < 1 || month > 12)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid month provided (must be between 1 and 12)",
+      });
+    }
+
+    // Validate userType if userId is provided
+    if (userId && (!userType || (userType !== "mentee" && userType !== "mentor"))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing userType. Must be 'mentee' or 'mentor' when userId is provided",
+      });
+    }
+
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
+
+    const result = await getInvoiceStatsService(year, month, userId, userType, page, limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Invoice statistics retrieved successfully",
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("[Admin] getInvoiceStats error:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 export {
   listMentees,
   getMentee,
@@ -260,4 +349,5 @@ export {
   updateMentor,
   deleteMentor,
   reviewMentor,
+  getInvoiceStats,
 };

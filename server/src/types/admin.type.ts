@@ -47,6 +47,16 @@ export interface ReviewMentorRequest {
   action: ReviewAction;
 }
 
+// Pagination Types
+export interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 // Service Response Types
 export interface AdminServiceResponse<T = undefined> {
   success: boolean;
@@ -58,4 +68,5 @@ export interface AdminListResponse<T> {
   success: boolean;
   message: string;
   data: T[];
+  pagination?: PaginationInfo;
 }

@@ -30,10 +30,15 @@ AdminMenteeListResponse:
     success:
       type: boolean
       example: true
+    message:
+      type: string
+      example: "Mentees retrieved successfully"
     data:
       type: array
       items:
         $ref: "#/AdminMenteeItem"
+    pagination:
+      $ref: "#/PaginationInfo"
 
 AdminMenteeDetailResponse:
   type: object
@@ -111,10 +116,15 @@ AdminMentorListResponse:
     success:
       type: boolean
       example: true
+    message:
+      type: string
+      example: "Mentors retrieved successfully"
     data:
       type: array
       items:
         $ref: "#/AdminMentorItem"
+    pagination:
+      $ref: "#/PaginationInfo"
 
 AdminMentorDetailResponse:
   type: object
@@ -172,6 +182,140 @@ ReviewMentorResponse:
     message:
       type: string
       example: "Mentor accepted"
+
+# Pagination schema
+PaginationInfo:
+  type: object
+  properties:
+    currentPage:
+      type: integer
+      example: 1
+    totalPages:
+      type: integer
+      example: 5
+    totalItems:
+      type: integer
+      example: 50
+    itemsPerPage:
+      type: integer
+      example: 10
+    hasNextPage:
+      type: boolean
+      example: true
+    hasPreviousPage:
+      type: boolean
+      example: false
+
+# Invoice Stats schemas
+InvoiceItem:
+  type: object
+  properties:
+    invoice_id:
+      type: integer
+      example: 1
+    amount:
+      type: number
+      format: decimal
+      example: 99.99
+    method:
+      type: string
+      example: "Stripe"
+    paid_time:
+      type: string
+      format: date-time
+      example: "2024-12-05T10:30:00.000Z"
+    payment_status:
+      type: string
+      example: "Completed"
+    currency:
+      type: string
+      example: "USD"
+    amount_subtotal:
+      type: number
+      format: decimal
+      example: 99.99
+    amount_total:
+      type: number
+      format: decimal
+      example: 99.99
+    stripe_receipt_url:
+      type: string
+      nullable: true
+      example: "https://stripe.com/receipt/123"
+    plan_description:
+      type: string
+      example: "1-on-1 mentorship session"
+    plan_type:
+      type: string
+      example: "Session"
+    plan_charge:
+      type: number
+      format: decimal
+      example: 99.99
+    mentee_id:
+      type: integer
+      example: 31
+    mentee_first_name:
+      type: string
+      example: "Alice"
+    mentee_last_name:
+      type: string
+      example: "Smith"
+    mentee_email:
+      type: string
+      example: "alice.smith@example.com"
+    mentee_avatar_url:
+      type: string
+      nullable: true
+      example: "https://example.com/avatar.jpg"
+    mentor_id:
+      type: integer
+      example: 1
+    mentor_first_name:
+      type: string
+      example: "John"
+    mentor_last_name:
+      type: string
+      example: "Doe"
+    mentor_email:
+      type: string
+      example: "john.doe@example.com"
+    mentor_avatar_url:
+      type: string
+      nullable: true
+      example: "https://example.com/mentor-avatar.jpg"
+
+InvoiceStatsResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Invoice statistics retrieved successfully"
+    data:
+      type: object
+      properties:
+        year:
+          type: integer
+          example: 2024
+        month:
+          type: integer
+          example: 12
+        total_amount:
+          type: number
+          format: decimal
+          example: 1499.85
+        total_count:
+          type: integer
+          example: 15
+        invoices:
+          type: array
+          items:
+            $ref: "#/InvoiceItem"
+        pagination:
+          $ref: "#/PaginationInfo"
 
 # Common response schemas
 AdminSuccessResponse:
