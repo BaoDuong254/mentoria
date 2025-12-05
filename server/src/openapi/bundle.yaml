@@ -37,6 +37,8 @@ tags:
     description: Real-time messaging between users with WebSocket integration
   - name: meeting
     description: Meeting management for mentors and mentees
+  - name: admin
+    description: Admin management for mentees and mentors (Admin only)
 paths:
   /api/auth/register:
     post:
@@ -4514,6 +4516,456 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/mentees:
+    get:
+      tags:
+        - admin
+      summary: List all mentees
+      description: Retrieve a list of all mentees with their user info and goal. Requires admin authentication.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of mentees retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMenteeListResponse"
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/admin/mentees/{id}":
+    get:
+      tags:
+        - admin
+      summary: Get mentee by ID
+      description: Retrieve detailed information about a specific mentee by user_id. Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentee
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Mentee details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMenteeDetailResponse"
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentee not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - admin
+      summary: Update mentee by ID
+      description: "Update mentee's user info (first_name, last_name, email) and/or goal. Requires admin authentication."
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentee
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdminMenteeRequest"
+      responses:
+        "200":
+          description: Mentee updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSuccessResponse"
+              example:
+                success: true
+                message: Mentee updated
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - admin
+      summary: Delete mentee by ID
+      description: Delete a mentee from the system. This will delete the user record (CASCADE deletes mentee record). Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentee
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Mentee deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSuccessResponse"
+              example:
+                success: true
+                message: Mentee deleted
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentee not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/mentors:
+    get:
+      tags:
+        - admin
+      summary: List all mentors
+      description: "Retrieve a list of all mentors with their user info, bio, cv_url, headline, and response_time. Requires admin authentication."
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of mentors retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMentorListResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/mentors/pending:
+    get:
+      tags:
+        - admin
+      summary: List pending mentors
+      description: 'Retrieve a list of mentors with status "Pending" awaiting review, ordered by created_at DESC. Requires admin authentication.'
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of pending mentors retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMentorListResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/admin/mentors/{id}":
+    get:
+      tags:
+        - admin
+      summary: Get mentor by ID
+      description: Retrieve detailed information about a specific mentor by user_id. Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentor
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Mentor details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMentorDetailResponse"
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - admin
+      summary: Update mentor by ID
+      description: "Update mentor's user info (first_name, last_name, email) and/or mentor-specific fields (bio, headline, response_time, cv_url). Requires admin authentication."
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentor
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAdminMentorRequest"
+      responses:
+        "200":
+          description: Mentor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSuccessResponse"
+              example:
+                success: true
+                message: Mentor updated
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - admin
+      summary: Delete mentor by ID
+      description: Delete a mentor from the system. This will delete the user record (CASCADE deletes mentor record). Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentor
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Mentor deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSuccessResponse"
+              example:
+                success: true
+                message: Mentor deleted
+        "400":
+          description: Invalid id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/admin/mentors/{id}/review":
+    post:
+      tags:
+        - admin
+      summary: Review mentor profile (accept/reject)
+      description: |
+        Accept or reject a pending mentor profile.
+        - **accept**: Set mentor status to "Inactive" and send approval email notification.
+        - **reject**: Delete the mentor user record and send rejection email notification.
+        Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: User ID of the mentor to review
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewMentorRequest"
+      responses:
+        "200":
+          description: Mentor reviewed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewMentorResponse"
+              examples:
+                accepted:
+                  summary: Mentor accepted
+                  value:
+                    success: true
+                    message: Mentor accepted
+                rejected:
+                  summary: Mentor rejected
+                  value:
+                    success: true
+                    message: Mentor rejected and removed
+        "400":
+          description: Invalid id or invalid action
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidId:
+                  summary: Invalid ID
+                  value:
+                    success: false
+                    message: Invalid id
+                invalidAction:
+                  summary: Invalid action
+                  value:
+                    success: false
+                    message: Invalid action
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Mentor not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:
@@ -5851,6 +6303,187 @@ components:
           example: Completed
       required:
         - status
+    AdminMenteeItem:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        status:
+          type: string
+          enum:
+            - Pending
+            - Active
+            - Inactive
+            - Banned
+          example: Active
+        goal:
+          type: string
+          nullable: true
+          example: Learn programming
+    AdminMenteeListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminMenteeItem"
+    AdminMenteeDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/AdminMenteeItem"
+    UpdateAdminMenteeRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        goal:
+          type: string
+          example: Learn web development
+    AdminMentorItem:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 5
+        first_name:
+          type: string
+          example: Jane
+        last_name:
+          type: string
+          example: Smith
+        email:
+          type: string
+          format: email
+          example: jane.smith@example.com
+        status:
+          type: string
+          enum:
+            - Pending
+            - Active
+            - Inactive
+            - Banned
+          example: Active
+        role:
+          type: string
+          example: Mentor
+        bio:
+          type: string
+          nullable: true
+          example: Senior software engineer with 10 years experience
+        cv_url:
+          type: string
+          nullable: true
+          example: "https://example.com/cv.pdf"
+        headline:
+          type: string
+          nullable: true
+          example: Full Stack Developer
+        response_time:
+          type: string
+          example: Within 24 hours
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00.000Z"
+    AdminMentorListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminMentorItem"
+    AdminMentorDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/AdminMentorItem"
+    UpdateAdminMentorRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: Jane
+        last_name:
+          type: string
+          example: Smith
+        email:
+          type: string
+          format: email
+          example: jane.smith@example.com
+        bio:
+          type: string
+          example: Updated bio
+        headline:
+          type: string
+          example: Senior Developer
+        response_time:
+          type: string
+          example: Within 12 hours
+        cv_url:
+          type: string
+          example: "https://example.com/new-cv.pdf"
+    ReviewMentorRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum:
+            - accept
+            - reject
+          description: "accept: set status to Inactive and send approval email. reject: delete mentor and send rejection email."
+          example: accept
+    ReviewMentorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Mentor accepted
+    AdminSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Operation successful
   securitySchemes:
     cookieAuth:
       type: apiKey

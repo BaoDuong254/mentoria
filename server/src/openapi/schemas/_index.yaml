@@ -88,3 +88,27 @@ UpdateMeetingLocationRequest:
   $ref: "./meeting.yaml#/UpdateMeetingLocationRequest"
 UpdateMeetingStatusRequest:
   $ref: "./meeting.yaml#/UpdateMeetingStatusRequest"
+
+# Admin schemas
+AdminMenteeItem:
+  $ref: "./admin.yaml#/AdminMenteeItem"
+AdminMenteeListResponse:
+  $ref: "./admin.yaml#/AdminMenteeListResponse"
+AdminMenteeDetailResponse:
+  $ref: "./admin.yaml#/AdminMenteeDetailResponse"
+UpdateAdminMenteeRequest:
+  $ref: "./admin.yaml#/UpdateAdminMenteeRequest"
+AdminMentorItem:
+  $ref: "./admin.yaml#/AdminMentorItem"
+AdminMentorListResponse:
+  $ref: "./admin.yaml#/AdminMentorListResponse"
+AdminMentorDetailResponse:
+  $ref: "./admin.yaml#/AdminMentorDetailResponse"
+UpdateAdminMentorRequest:
+  $ref: "./admin.yaml#/UpdateAdminMentorRequest"
+ReviewMentorRequest:
+  $ref: "./admin.yaml#/ReviewMentorRequest"
+ReviewMentorResponse:
+  $ref: "./admin.yaml#/ReviewMentorResponse"
+AdminSuccessResponse:
+  $ref: "./admin.yaml#/AdminSuccessResponse"

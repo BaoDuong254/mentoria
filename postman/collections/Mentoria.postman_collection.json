@@ -1295,6 +1295,504 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "module admin",
+			"item": [
+				{
+					"name": "List all mentees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentees",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get mentee by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentees/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentee"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update mentee",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"email\": \"updated.mentee@example.com\",\n  \"goal\": \"New learning goal\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/mentees/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentee cần update"
+								}
+							]
+						},
+						"description": "Cập nhật thông tin mentee. Tất cả các fields đều là optional: first_name, last_name, email, goal. Email phải unique và không được trùng với user khác."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete mentee",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentees/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentees",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentee cần xóa"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all mentors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentors",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List pending mentors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/pending",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								"pending"
+							]
+						},
+						"description": "Lấy danh sách tất cả mentor có status Pending (chờ duyệt)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get mentor by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentor"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update mentor",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Mentor\",\n  \"email\": \"updated.mentor@example.com\",\n  \"bio\": \"Updated bio with more details about experience and expertise\",\n  \"headline\": \"Senior Developer | Tech Lead\",\n  \"response_time\": \"within 24 hours\",\n  \"cv_url\": \"https://example.com/cv.pdf\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentor cần update"
+								}
+							]
+						},
+						"description": "Cập nhật thông tin mentor. Tất cả các fields đều là optional: first_name, last_name, email, bio, headline, response_time, cv_url. Email phải unique và không được trùng với user khác."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete mentor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/:id",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentor cần xóa"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Review mentor - Accept",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"accept\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/:id/review",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								":id",
+								"review"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentor cần duyệt"
+								}
+							]
+						},
+						"description": "Duyệt hồ sơ mentor - chấp nhận. Mentor sẽ nhận email thông báo và status chuyển thành Inactive."
+					},
+					"response": []
+				},
+				{
+					"name": "Review mentor - Reject",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"reject\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/admin/mentors/:id/review",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"mentors",
+								":id",
+								"review"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1",
+									"description": "ID của mentor cần từ chối"
+								}
+							]
+						},
+						"description": "Duyệt hồ sơ mentor - từ chối. Mentor sẽ nhận email thông báo và bị xóa khỏi hệ thống."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module meetings",
+			"item": [
+				{
+					"name": "Get meetings for mentee",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/meetings/mentee",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"mentee"
+							]
+						},
+						"description": "Lấy danh sách meetings của mentee đang đăng nhập"
+					},
+					"response": []
+				},
+				{
+					"name": "Get meetings for mentor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/meetings/mentor",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"mentor"
+							]
+						},
+						"description": "Lấy danh sách meetings của mentor đang đăng nhập"
+					},
+					"response": []
+				},
+				{
+					"name": "Get meeting by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/meetings/:meetingId",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								":meetingId"
+							],
+							"variable": [
+								{
+									"key": "meetingId",
+									"value": "1",
+									"description": "ID của meeting"
+								}
+							]
+						},
+						"description": "Lấy thông tin chi tiết của một meeting"
+					},
+					"response": []
+				},
+				{
+					"name": "Update meeting location",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location\": \"https://meet.google.com/abc-defg-hij\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/meetings/:meetingId/location",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								":meetingId",
+								"location"
+							],
+							"variable": [
+								{
+									"key": "meetingId",
+									"value": "1",
+									"description": "ID của meeting cần update"
+								}
+							]
+						},
+						"description": "Cập nhật link meeting (Google Meet, Zoom, etc.)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update meeting status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"Completed\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/meetings/:meetingId/status",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								":meetingId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "meetingId",
+									"value": "1",
+									"description": "ID của meeting cần update"
+								}
+							]
+						},
+						"description": "Cập nhật status của meeting (Pending, Scheduled, Completed, Cancelled)"
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

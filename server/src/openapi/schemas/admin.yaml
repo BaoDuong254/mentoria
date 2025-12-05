@@ -1,0 +1,185 @@
+# Admin Mentee schemas - based on actual database and service
+AdminMenteeItem:
+  type: object
+  properties:
+    user_id:
+      type: integer
+      example: 1
+    first_name:
+      type: string
+      example: "John"
+    last_name:
+      type: string
+      example: "Doe"
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+    status:
+      type: string
+      enum: [Pending, Active, Inactive, Banned]
+      example: "Active"
+    goal:
+      type: string
+      nullable: true
+      example: "Learn programming"
+
+AdminMenteeListResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      type: array
+      items:
+        $ref: "#/AdminMenteeItem"
+
+AdminMenteeDetailResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      $ref: "#/AdminMenteeItem"
+
+UpdateAdminMenteeRequest:
+  type: object
+  properties:
+    first_name:
+      type: string
+      example: "John"
+    last_name:
+      type: string
+      example: "Doe"
+    email:
+      type: string
+      format: email
+      example: "john.doe@example.com"
+    goal:
+      type: string
+      example: "Learn web development"
+
+# Admin Mentor schemas - based on actual database and service
+AdminMentorItem:
+  type: object
+  properties:
+    user_id:
+      type: integer
+      example: 5
+    first_name:
+      type: string
+      example: "Jane"
+    last_name:
+      type: string
+      example: "Smith"
+    email:
+      type: string
+      format: email
+      example: "jane.smith@example.com"
+    status:
+      type: string
+      enum: [Pending, Active, Inactive, Banned]
+      example: "Active"
+    role:
+      type: string
+      example: "Mentor"
+    bio:
+      type: string
+      nullable: true
+      example: "Senior software engineer with 10 years experience"
+    cv_url:
+      type: string
+      nullable: true
+      example: "https://example.com/cv.pdf"
+    headline:
+      type: string
+      nullable: true
+      example: "Full Stack Developer"
+    response_time:
+      type: string
+      example: "Within 24 hours"
+    created_at:
+      type: string
+      format: date-time
+      example: "2024-01-15T10:30:00.000Z"
+
+AdminMentorListResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      type: array
+      items:
+        $ref: "#/AdminMentorItem"
+
+AdminMentorDetailResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      $ref: "#/AdminMentorItem"
+
+UpdateAdminMentorRequest:
+  type: object
+  properties:
+    first_name:
+      type: string
+      example: "Jane"
+    last_name:
+      type: string
+      example: "Smith"
+    email:
+      type: string
+      format: email
+      example: "jane.smith@example.com"
+    bio:
+      type: string
+      example: "Updated bio"
+    headline:
+      type: string
+      example: "Senior Developer"
+    response_time:
+      type: string
+      example: "Within 12 hours"
+    cv_url:
+      type: string
+      example: "https://example.com/new-cv.pdf"
+
+# Review Mentor schemas
+ReviewMentorRequest:
+  type: object
+  required:
+    - action
+  properties:
+    action:
+      type: string
+      enum: [accept, reject]
+      description: "accept: set status to Inactive and send approval email. reject: delete mentor and send rejection email."
+      example: "accept"
+
+ReviewMentorResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Mentor accepted"
+
+# Common response schemas
+AdminSuccessResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Operation successful"
