@@ -244,7 +244,7 @@ CREATE TABLE plans(
 
 CREATE TABLE plan_sessions(
     sessions_id INT PRIMARY KEY,
-    sessions_duration INT NOT NULL CHECK (sessions_duration > 0 AND sessions_duration <= 120),
+    sessions_duration INT NOT NULL CHECK (sessions_duration >= 15 AND sessions_duration <= 120),
     FOREIGN KEY (sessions_id) REFERENCES plans(plan_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -253,7 +253,7 @@ CREATE TABLE plan_sessions(
 CREATE TABLE plan_mentorships(
     mentorships_id INT PRIMARY KEY,
     calls_per_month INT NOT NULL CHECK (calls_per_month > 0),
-    minutes_per_call INT NOT NULL CHECK (minutes_per_call > 0 AND minutes_per_call <= 120),
+    minutes_per_call INT NOT NULL CHECK (minutes_per_call >= 15 AND minutes_per_call <= 120),
     FOREIGN KEY (mentorships_id) REFERENCES plans(plan_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -310,7 +310,7 @@ CREATE TABLE slots(
     end_time DATETIME NOT NULL,
     date DATE NOT NULL,
     mentor_id INT NOT NULL,
-    status NVARCHAR(20) CHECK (status IN (N'Available', N'Booked', N'Cancelled')) DEFAULT N'Available',
+    status NVARCHAR(20) CHECK (status IN (N'Available', N'Booked')) DEFAULT N'Available',
     plan_id INT NOT NULL,
     PRIMARY KEY (mentor_id, start_time, end_time, date),
     FOREIGN KEY (mentor_id) REFERENCES mentors(user_id)
@@ -319,7 +319,8 @@ CREATE TABLE slots(
     FOREIGN KEY (plan_id) REFERENCES plans(plan_id)
         ON DELETE NO ACTION
         ON UPDATE NO ACTION,
-    CHECK (end_time > start_time)
+    CHECK (end_time > start_time),
+    CHECK (DATEDIFF(MINUTE, start_time, end_time) BETWEEN 15 AND 120)
 );
 
 CREATE TABLE invoices(
