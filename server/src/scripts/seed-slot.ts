@@ -165,13 +165,8 @@ async function seedSlots() {
               continue;
             }
 
-            // Determine status: first 2 days have some booked slots
-            let status = "Available";
-            if (dayOffset === 0 && timeSlot.hour === 9) {
-              status = "Booked";
-            } else if (dayOffset === 1 && timeSlot.hour === 14) {
-              status = "Booked";
-            }
+            // All slots are available
+            const status = "Available";
 
             await pool
               .request()
