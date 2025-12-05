@@ -273,10 +273,6 @@ mentee-invoice-stats:
                           invoice_id:
                             type: integer
                             example: 123
-                          amount:
-                            type: number
-                            format: decimal
-                            example: 100.00
                           method:
                             type: string
                             example: "card"
@@ -456,10 +452,6 @@ mentor-invoice-stats:
                           invoice_id:
                             type: integer
                             example: 123
-                          amount:
-                            type: number
-                            format: decimal
-                            example: 150.00
                           method:
                             type: string
                             example: "card"

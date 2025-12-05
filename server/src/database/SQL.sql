@@ -40,7 +40,9 @@ CREATE TABLE users (
     password NVARCHAR(255) NULL CHECK (
         password IS NULL OR LEN(password) >= 60
     ),
-    avatar_url NVARCHAR(255) NULL,
+    avatar_url NVARCHAR(255) NULL CHECK (
+        avatar_url IS NULL OR avatar_url LIKE 'http://%' OR avatar_url LIKE 'https://%'
+    ),
     country NVARCHAR(100) NULL,
     role NVARCHAR(50) CHECK (role IN (N'Mentee', N'Mentor', N'Admin')) DEFAULT N'Mentee',
     timezone NVARCHAR(50) NULL,
@@ -97,13 +99,27 @@ CREATE TABLE mentors (
     user_id INT PRIMARY KEY,
     bio NVARCHAR(MAX),
     headline NVARCHAR(255),
-    response_time NVARCHAR(100) NOT NULL,
-    cv_url NVARCHAR(255),
-    bank_name NVARCHAR(255) NULL,
-    account_number NVARCHAR(50) NULL,
-    account_holder_name NVARCHAR(255) NULL,
-    bank_branch NVARCHAR(255) NULL,
-    swift_code NVARCHAR(50) NULL,
+    response_time NVARCHAR(100) NOT NULL CHECK (
+        response_time IN (N'Within 1 hour', N'Within 3 hours', N'Within 6 hours', N'Within 12 hours', N'Within 24 hours', N'Within 36 hours', N'Within 48 hours')
+    ),
+    cv_url NVARCHAR(255) NOT NULL CHECK (
+        cv_url LIKE 'http://%' OR cv_url LIKE 'https://%'
+    ),
+    bank_name NVARCHAR(255) NULL CHECK (
+        bank_name IS NULL OR LEN(LTRIM(RTRIM(bank_name))) >= 2
+    ),
+    account_number NVARCHAR(50) NULL CHECK (
+        account_number IS NULL OR (LEN(account_number) >= 8 AND account_number NOT LIKE '%[^0-9]%')
+    ),
+    account_holder_name NVARCHAR(255) NULL CHECK (
+        account_holder_name IS NULL OR LEN(LTRIM(RTRIM(account_holder_name))) >= 2
+    ),
+    bank_branch NVARCHAR(255) NULL CHECK (
+        bank_branch IS NULL OR LEN(LTRIM(RTRIM(bank_branch))) >= 2
+    ),
+    swift_code NVARCHAR(50) NULL CHECK (
+        swift_code IS NULL OR (LEN(swift_code) IN (8, 11) AND swift_code LIKE '[A-Z][A-Z][A-Z][A-Z][A-Z][A-Z]%')
+    ),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -307,7 +323,6 @@ CREATE TABLE slots(
 CREATE TABLE invoices(
     invoice_id INT IDENTITY(1,1) PRIMARY KEY,
     plan_registerations_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
     method NVARCHAR(50) NOT NULL,
     paid_time DATETIME DEFAULT GETDATE(),
     mentee_id INT NOT NULL,
@@ -318,10 +333,10 @@ CREATE TABLE invoices(
     stripe_charge_id NVARCHAR(255) NULL,
     stripe_balance_transaction_id NVARCHAR(255) NULL,
     stripe_receipt_url NVARCHAR(500) NULL,
-    payment_status NVARCHAR(50) NULL,
-    currency NVARCHAR(10) NULL,
-    amount_subtotal DECIMAL(10,2) NULL,
-    amount_total DECIMAL(10,2) NULL,
+    payment_status NVARCHAR(50) NULL CHECK (payment_status IN (N'paid', N'unpaid', N'no_payment_required', N'failed')),
+    currency NVARCHAR(10) NULL CHECK (currency IN (N'usd', N'vnd')),
+    amount_subtotal DECIMAL(10,2) NOT NULL,
+    amount_total DECIMAL(10,2) NOT NULL,
     UNIQUE (invoice_id, plan_registerations_id),
     FOREIGN KEY (plan_registerations_id) REFERENCES plan_registerations(registration_id)
         ON DELETE CASCADE

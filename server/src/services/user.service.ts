@@ -111,7 +111,6 @@ const getMenteeInvoiceStatsService = async (menteeId: number, year?: number, mon
       .input("month", currentMonth).query(`
         SELECT
           i.invoice_id,
-          i.amount,
           i.method,
           i.paid_time,
           i.payment_status,
@@ -145,7 +144,7 @@ const getMenteeInvoiceStatsService = async (menteeId: number, year?: number, mon
       .input("year", currentYear)
       .input("month", currentMonth).query(`
         SELECT
-          ISNULL(SUM(amount), 0) as total_spent
+          ISNULL(SUM(amount_total), 0) as total_spent
         FROM invoices
         WHERE mentee_id = @menteeId
           AND YEAR(paid_time) = @year
@@ -184,7 +183,6 @@ const getMentorInvoiceStatsService = async (mentorId: number, year?: number, mon
       .input("month", currentMonth).query(`
         SELECT
           i.invoice_id,
-          i.amount,
           i.method,
           i.paid_time,
           i.payment_status,
@@ -218,7 +216,7 @@ const getMentorInvoiceStatsService = async (mentorId: number, year?: number, mon
       .input("year", currentYear)
       .input("month", currentMonth).query(`
         SELECT
-          ISNULL(SUM(i.amount), 0) as total_received
+          ISNULL(SUM(i.amount_total), 0) as total_received
         FROM invoices i
         INNER JOIN plan_registerations pr ON i.plan_registerations_id = pr.registration_id
         INNER JOIN bookings b ON b.plan_registerations_id = pr.registration_id

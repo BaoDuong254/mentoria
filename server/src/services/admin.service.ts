@@ -601,7 +601,6 @@ const getInvoiceStatsService = async (
     let query = `
       SELECT
         i.invoice_id,
-        i.amount,
         i.method,
         i.paid_time,
         i.payment_status,
@@ -635,7 +634,7 @@ const getInvoiceStatsService = async (
 
     let totalQuery = `
       SELECT
-        ISNULL(SUM(i.amount), 0) as total_amount,
+        ISNULL(SUM(i.amount_total), 0) as total_amount,
         COUNT(*) as total_count
       FROM invoices i
     `;
