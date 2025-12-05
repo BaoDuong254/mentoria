@@ -10,6 +10,7 @@ import {
   deleteMentor,
   reviewMentor,
   getInvoiceStats,
+  getSystemStats,
 } from "@/controllers/admin.controller";
 import { isAdmin, protectRoute } from "@/middlewares/auth.middleware";
 import express, { Router } from "express";
@@ -34,5 +35,8 @@ router.post("/mentors/:id/review", protectRoute, isAdmin, reviewMentor);
 
 // Invoice route
 router.get("/invoices", protectRoute, isAdmin, getInvoiceStats);
+
+// System statistics route
+router.get("/stats", protectRoute, isAdmin, getSystemStats);
 
 export default router;

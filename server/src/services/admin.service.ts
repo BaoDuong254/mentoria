@@ -8,6 +8,7 @@ import {
   UpdateAdminMenteeRequest,
   UpdateAdminMentorRequest,
   ReviewAction,
+  SystemStats,
 } from "@/types/admin.type";
 
 const listMenteesService = async (
@@ -704,6 +705,155 @@ const getInvoiceStatsService = async (
   }
 };
 
+// ==================== SYSTEM STATISTICS SERVICE ====================
+
+const getSystemStatsService = async (): Promise<AdminServiceResponse<SystemStats>> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const firstDayOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+    const lastDayOfLastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+    // Get user statistics
+    const userStatsResult = await pool.request().query(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN role = 'Mentor' THEN 1 ELSE 0 END) as mentors,
+        SUM(CASE WHEN role = 'Mentee' THEN 1 ELSE 0 END) as mentees,
+        SUM(CASE WHEN role = 'Admin' THEN 1 ELSE 0 END) as admins
+      FROM users
+    `);
+
+    // Get mentor status statistics
+    const mentorStatsResult = await pool.request().query(`
+      SELECT
+        SUM(CASE WHEN status = 'Active' THEN 1 ELSE 0 END) as active,
+        SUM(CASE WHEN status = 'Pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'Inactive' THEN 1 ELSE 0 END) as inactive,
+        SUM(CASE WHEN status = 'Banned' THEN 1 ELSE 0 END) as banned
+      FROM users
+      WHERE role = 'Mentor'
+    `);
+
+    // Get mentee status statistics
+    const menteeStatsResult = await pool.request().query(`
+      SELECT
+        SUM(CASE WHEN status = 'Active' THEN 1 ELSE 0 END) as active,
+        SUM(CASE WHEN status = 'Inactive' THEN 1 ELSE 0 END) as inactive,
+        SUM(CASE WHEN status = 'Banned' THEN 1 ELSE 0 END) as banned
+      FROM users
+      WHERE role = 'Mentee'
+    `);
+
+    // Get booking statistics (using invoice paid_time as proxy for booking date)
+    const bookingStatsResult = await pool
+      .request()
+      .input("firstDayOfMonth", firstDayOfMonth)
+      .input("firstDayOfLastMonth", firstDayOfLastMonth)
+      .input("lastDayOfLastMonth", lastDayOfLastMonth).query(`
+        SELECT
+          COUNT(*) as total,
+          SUM(CASE WHEN i.paid_time >= @firstDayOfMonth THEN 1 ELSE 0 END) as thisMonth,
+          SUM(CASE WHEN i.paid_time >= @firstDayOfLastMonth AND i.paid_time <= @lastDayOfLastMonth THEN 1 ELSE 0 END) as lastMonth
+        FROM bookings b
+        JOIN invoices i ON b.plan_registerations_id = i.plan_registerations_id AND b.mentee_id = i.mentee_id
+        WHERE i.payment_status = 'paid'
+      `);
+
+    // Get invoice statistics
+    const invoiceStatsResult = await pool
+      .request()
+      .input("firstDayOfMonth", firstDayOfMonth)
+      .input("firstDayOfLastMonth", firstDayOfLastMonth)
+      .input("lastDayOfLastMonth", lastDayOfLastMonth).query(`
+        SELECT
+          COUNT(*) as total,
+          ISNULL(SUM(amount), 0) as totalRevenue,
+          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfMonth THEN amount ELSE 0 END), 0) as thisMonthRevenue,
+          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfLastMonth AND paid_time <= @lastDayOfLastMonth THEN amount ELSE 0 END), 0) as lastMonthRevenue,
+          ISNULL(AVG(amount), 0) as averageAmount
+        FROM invoices
+        WHERE payment_status = 'paid'
+      `);
+
+    // Get plan statistics
+    const planStatsResult = await pool.request().query(`
+      SELECT
+        COUNT(*) as totalPlans,
+        SUM(CASE WHEN ps.sessions_id IS NOT NULL THEN 1 ELSE 0 END) as sessionPlans,
+        SUM(CASE WHEN pm.mentorships_id IS NOT NULL THEN 1 ELSE 0 END) as mentorshipPlans
+      FROM plans p
+      LEFT JOIN plan_sessions ps ON p.plan_id = ps.sessions_id
+      LEFT JOIN plan_mentorships pm ON p.plan_id = pm.mentorships_id
+    `);
+
+    // Get meeting statistics
+    const meetingStatsResult = await pool.request().query(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed,
+        SUM(CASE WHEN status IN ('Pending', 'Scheduled') AND start_time > GETDATE() THEN 1 ELSE 0 END) as upcoming,
+        SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) as cancelled
+      FROM meetings
+    `);
+
+    const stats: SystemStats = {
+      users: {
+        total: userStatsResult.recordset[0].total,
+        mentors: userStatsResult.recordset[0].mentors,
+        mentees: userStatsResult.recordset[0].mentees,
+        admins: userStatsResult.recordset[0].admins,
+      },
+      mentors: {
+        active: mentorStatsResult.recordset[0].active || 0,
+        pending: mentorStatsResult.recordset[0].pending || 0,
+        inactive: mentorStatsResult.recordset[0].inactive || 0,
+        banned: mentorStatsResult.recordset[0].banned || 0,
+      },
+      mentees: {
+        active: menteeStatsResult.recordset[0].active || 0,
+        inactive: menteeStatsResult.recordset[0].inactive || 0,
+        banned: menteeStatsResult.recordset[0].banned || 0,
+      },
+      bookings: {
+        total: bookingStatsResult.recordset[0].total,
+        thisMonth: bookingStatsResult.recordset[0].thisMonth,
+        lastMonth: bookingStatsResult.recordset[0].lastMonth,
+      },
+      invoices: {
+        total: invoiceStatsResult.recordset[0].total,
+        totalRevenue: parseFloat(invoiceStatsResult.recordset[0].totalRevenue),
+        thisMonthRevenue: parseFloat(invoiceStatsResult.recordset[0].thisMonthRevenue),
+        lastMonthRevenue: parseFloat(invoiceStatsResult.recordset[0].lastMonthRevenue),
+        averageInvoiceAmount: parseFloat(invoiceStatsResult.recordset[0].averageAmount),
+      },
+      plans: {
+        totalPlans: planStatsResult.recordset[0].totalPlans,
+        sessionPlans: planStatsResult.recordset[0].sessionPlans,
+        mentorshipPlans: planStatsResult.recordset[0].mentorshipPlans,
+      },
+      meetings: {
+        total: meetingStatsResult.recordset[0].total,
+        completed: meetingStatsResult.recordset[0].completed || 0,
+        upcoming: meetingStatsResult.recordset[0].upcoming || 0,
+        cancelled: meetingStatsResult.recordset[0].cancelled || 0,
+      },
+    };
+
+    return {
+      success: true,
+      message: "System statistics retrieved successfully",
+      data: stats,
+    };
+  } catch (error) {
+    console.error("Error in getSystemStatsService:", error);
+    throw error;
+  }
+};
+
 export {
   listMenteesService,
   getMenteeService,
@@ -716,4 +866,5 @@ export {
   deleteMentorService,
   reviewMentorService,
   getInvoiceStatsService,
+  getSystemStatsService,
 };

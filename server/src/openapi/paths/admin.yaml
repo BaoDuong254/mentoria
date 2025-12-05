@@ -600,3 +600,40 @@ invoiceStats:
           application/json:
             schema:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
+
+systemStats:
+  get:
+    tags:
+      - admin
+    summary: Get system statistics
+    description: |-
+      Retrieve comprehensive system statistics including:
+      - Total users breakdown (mentors, mentees, admins)
+      - Mentor status distribution (active, pending, inactive, banned)
+      - Mentee status distribution (active, inactive, banned)
+      - Booking statistics (total, this month, last month)
+      - Invoice and revenue statistics
+      - Plan statistics (sessions vs mentorships)
+      - Meeting statistics (completed, upcoming, cancelled)
+      Requires admin authentication.
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: System statistics retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/admin.yaml#/SystemStatsResponse"
+      "401":
+        description: Unauthorized - Invalid or missing authentication
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"

@@ -5214,6 +5214,155 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/stats:
+    get:
+      tags:
+        - admin
+      summary: Get system statistics
+      description: |-
+        Retrieve comprehensive system statistics including:
+        - Total users breakdown (mentors, mentees, admins)
+        - Mentor status distribution (active, pending, inactive, banned)
+        - Mentee status distribution (active, inactive, banned)
+        - Booking statistics (total, this month, last month)
+        - Invoice and revenue statistics
+        - Plan statistics (sessions vs mentorships)
+        - Meeting statistics (completed, upcoming, cancelled)
+        Requires admin authentication.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: System statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: System statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 100
+                          mentors:
+                            type: integer
+                            example: 30
+                          mentees:
+                            type: integer
+                            example: 68
+                          admins:
+                            type: integer
+                            example: 2
+                      mentors:
+                        type: object
+                        properties:
+                          active:
+                            type: integer
+                            example: 25
+                          pending:
+                            type: integer
+                            example: 3
+                          inactive:
+                            type: integer
+                            example: 1
+                          banned:
+                            type: integer
+                            example: 1
+                      mentees:
+                        type: object
+                        properties:
+                          active:
+                            type: integer
+                            example: 65
+                          inactive:
+                            type: integer
+                            example: 2
+                          banned:
+                            type: integer
+                            example: 1
+                      bookings:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 150
+                          thisMonth:
+                            type: integer
+                            example: 25
+                          lastMonth:
+                            type: integer
+                            example: 20
+                      invoices:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 145
+                          totalRevenue:
+                            type: number
+                            format: decimal
+                            example: 14550.75
+                          thisMonthRevenue:
+                            type: number
+                            format: decimal
+                            example: 2500
+                          lastMonthRevenue:
+                            type: number
+                            format: decimal
+                            example: 2000
+                          averageInvoiceAmount:
+                            type: number
+                            format: decimal
+                            example: 100.35
+                      plans:
+                        type: object
+                        properties:
+                          totalPlans:
+                            type: integer
+                            example: 45
+                          sessionPlans:
+                            type: integer
+                            example: 30
+                          mentorshipPlans:
+                            type: integer
+                            example: 15
+                      meetings:
+                        type: object
+                        properties:
+                          total:
+                            type: integer
+                            example: 200
+                          completed:
+                            type: integer
+                            example: 150
+                          upcoming:
+                            type: integer
+                            example: 40
+                          cancelled:
+                            type: integer
+                            example: 10
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     RegisterRequest:

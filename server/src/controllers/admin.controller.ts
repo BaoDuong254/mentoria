@@ -12,6 +12,7 @@ import {
   deleteMentorService,
   reviewMentorService,
   getInvoiceStatsService,
+  getSystemStatsService,
 } from "@/services/admin.service";
 import { sendMentorApproved, sendMentorRejected } from "@/mailtrap/mailSend";
 import { ReviewAction } from "@/types/admin.type";
@@ -338,6 +339,23 @@ const getInvoiceStats = async (req: Request, res: Response) => {
   }
 };
 
+// ==================== SYSTEM STATISTICS CONTROLLER ====================
+
+const getSystemStats = async (req: Request, res: Response) => {
+  try {
+    const result = await getSystemStatsService();
+
+    if (!result.success) {
+      return res.status(500).json(result);
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("[Admin] getSystemStats error:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 export {
   listMentees,
   getMentee,
@@ -350,4 +368,5 @@ export {
   deleteMentor,
   reviewMentor,
   getInvoiceStats,
+  getSystemStats,
 };

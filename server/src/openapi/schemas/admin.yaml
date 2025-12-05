@@ -317,6 +317,123 @@ InvoiceStatsResponse:
         pagination:
           $ref: "#/PaginationInfo"
 
+# System Statistics Response
+SystemStatsResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "System statistics retrieved successfully"
+    data:
+      type: object
+      properties:
+        users:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 100
+            mentors:
+              type: integer
+              example: 30
+            mentees:
+              type: integer
+              example: 68
+            admins:
+              type: integer
+              example: 2
+        mentors:
+          type: object
+          properties:
+            active:
+              type: integer
+              example: 25
+            pending:
+              type: integer
+              example: 3
+            inactive:
+              type: integer
+              example: 1
+            banned:
+              type: integer
+              example: 1
+        mentees:
+          type: object
+          properties:
+            active:
+              type: integer
+              example: 65
+            inactive:
+              type: integer
+              example: 2
+            banned:
+              type: integer
+              example: 1
+        bookings:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 150
+            thisMonth:
+              type: integer
+              example: 25
+            lastMonth:
+              type: integer
+              example: 20
+        invoices:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 145
+            totalRevenue:
+              type: number
+              format: decimal
+              example: 14550.75
+            thisMonthRevenue:
+              type: number
+              format: decimal
+              example: 2500.00
+            lastMonthRevenue:
+              type: number
+              format: decimal
+              example: 2000.00
+            averageInvoiceAmount:
+              type: number
+              format: decimal
+              example: 100.35
+        plans:
+          type: object
+          properties:
+            totalPlans:
+              type: integer
+              example: 45
+            sessionPlans:
+              type: integer
+              example: 30
+            mentorshipPlans:
+              type: integer
+              example: 15
+        meetings:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 200
+            completed:
+              type: integer
+              example: 150
+            upcoming:
+              type: integer
+              example: 40
+            cancelled:
+              type: integer
+              example: 10
+
 # Common response schemas
 AdminSuccessResponse:
   type: object

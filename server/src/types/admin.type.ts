@@ -57,6 +57,50 @@ export interface PaginationInfo {
   hasPreviousPage: boolean;
 }
 
+// System Statistics Types
+export interface SystemStats {
+  users: {
+    total: number;
+    mentors: number;
+    mentees: number;
+    admins: number;
+  };
+  mentors: {
+    active: number;
+    pending: number;
+    inactive: number;
+    banned: number;
+  };
+  mentees: {
+    active: number;
+    inactive: number;
+    banned: number;
+  };
+  bookings: {
+    total: number;
+    thisMonth: number;
+    lastMonth: number;
+  };
+  invoices: {
+    total: number;
+    totalRevenue: number;
+    thisMonthRevenue: number;
+    lastMonthRevenue: number;
+    averageInvoiceAmount: number;
+  };
+  plans: {
+    totalPlans: number;
+    sessionPlans: number;
+    mentorshipPlans: number;
+  };
+  meetings: {
+    total: number;
+    completed: number;
+    upcoming: number;
+    cancelled: number;
+  };
+}
+
 // Service Response Types
 export interface AdminServiceResponse<T = undefined> {
   success: boolean;
