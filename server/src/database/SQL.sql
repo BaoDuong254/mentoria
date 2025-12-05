@@ -336,7 +336,7 @@ CREATE TABLE invoices(
     stripe_charge_id NVARCHAR(255) NULL,
     stripe_balance_transaction_id NVARCHAR(255) NULL,
     stripe_receipt_url NVARCHAR(500) NULL,
-    payment_status NVARCHAR(50) NULL CHECK (payment_status IN (N'paid', N'unpaid', N'no_payment_required', N'failed')),
+    payment_status NVARCHAR(50) NULL CHECK (payment_status IN (N'paid', N'failed')),
     currency NVARCHAR(10) NULL CHECK (currency IN (N'usd', N'vnd')),
     amount_subtotal DECIMAL(10,2) NOT NULL,
     amount_total DECIMAL(10,2) NOT NULL,
