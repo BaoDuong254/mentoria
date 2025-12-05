@@ -15,8 +15,8 @@ const listMenteesService = async (): Promise<AdminListResponse<AdminMenteeItem>>
   if (!pool) throw new Error("Database connection not established");
 
   const result = await pool.request().query(`
-    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal 
-    FROM users u 
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal
+    FROM users u
     JOIN mentees m ON u.user_id = m.user_id
   `);
 
@@ -32,9 +32,9 @@ const getMenteeService = async (userId: number): Promise<AdminServiceResponse<Ad
   if (!pool) throw new Error("Database connection not established");
 
   const result = await pool.request().input("userId", userId).query(`
-    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal 
-    FROM users u 
-    JOIN mentees m ON u.user_id = m.user_id 
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, m.goal
+    FROM users u
+    JOIN mentees m ON u.user_id = m.user_id
     WHERE u.user_id = @userId
   `);
 
@@ -189,9 +189,9 @@ const listMentorsService = async (): Promise<AdminListResponse<AdminMentorItem>>
   if (!pool) throw new Error("Database connection not established");
 
   const result = await pool.request().query(`
-    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, 
-           m.bio, m.cv_url, m.headline, m.response_time 
-    FROM users u 
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role,
+           m.bio, m.cv_url, m.headline, m.response_time
+    FROM users u
     JOIN mentors m ON u.user_id = m.user_id
   `);
 
@@ -207,10 +207,10 @@ const getPendingMentorsService = async (): Promise<AdminListResponse<AdminMentor
   if (!pool) throw new Error("Database connection not established");
 
   const result = await pool.request().input("status", Status.Pending).query(`
-    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, u.created_at, 
-           m.bio, m.cv_url, m.headline, m.response_time 
-    FROM users u 
-    JOIN mentors m ON u.user_id = m.user_id 
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, u.created_at,
+           m.bio, m.cv_url, m.headline, m.response_time
+    FROM users u
+    JOIN mentors m ON u.user_id = m.user_id
     WHERE u.status = @status
     ORDER BY u.created_at DESC
   `);
@@ -227,10 +227,10 @@ const getMentorService = async (userId: number): Promise<AdminServiceResponse<Ad
   if (!pool) throw new Error("Database connection not established");
 
   const result = await pool.request().input("userId", userId).query(`
-    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role, 
-           m.bio, m.cv_url, m.headline, m.response_time 
-    FROM users u 
-    JOIN mentors m ON u.user_id = m.user_id 
+    SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role,
+           m.bio, m.cv_url, m.headline, m.response_time
+    FROM users u
+    JOIN mentors m ON u.user_id = m.user_id
     WHERE u.user_id = @userId
   `);
 
@@ -307,7 +307,7 @@ const updateMentorService = async (userId: number, data: UpdateAdminMentorReques
     }
 
     // Build dynamic update for mentors table
-    const mentorFields: { [key: string]: any } = {};
+    const mentorFields: { [key: string]: string | number | null | undefined } = {};
     const mentorUpdates: string[] = [];
 
     if ("bio" in data) {

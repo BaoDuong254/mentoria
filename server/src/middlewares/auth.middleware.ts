@@ -1,5 +1,6 @@
 import poolPromise from "@/config/database";
 import envConfig from "@/config/env";
+import { Role } from "@/constants/type";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
@@ -53,4 +54,11 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
     console.log("Error in protectRoute middleware: ", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== Role.Admin) {
+    return res.status(403).json({ success: false, message: "Forbidden: Admin access required" });
+  }
+  next();
 };

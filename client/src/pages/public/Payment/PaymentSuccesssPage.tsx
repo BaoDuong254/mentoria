@@ -20,7 +20,7 @@ function PaymentSuccessPage() {
       scale: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: "easeOut" as const,
         staggerChildren: 0.15, // Thời gian trễ giữa các phần tử con
       },
     },
@@ -37,7 +37,7 @@ function PaymentSuccessPage() {
       scale: 1,
       rotate: 0,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         stiffness: 260,
         damping: 20,
       },

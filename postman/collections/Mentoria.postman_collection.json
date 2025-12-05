@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "30d8fb3b-ba85-4177-9d4a-59ffce63c54a",
+		"_postman_id": "8c7e7d1b-fdad-456d-96ab-864c33ab56d2",
 		"name": "Mentoria",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "41961051",
-		"_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/49766515-30d8fb3b-ba85-4177-9d4a-59ffce63c54a?action=share&source=collection_link&creator=41961051"
+		"_collection_link": "https://mentoria-7549.postman.co/workspace/Mentoria~f3a7e870-327a-42de-adaa-8d9badaca01c/collection/49766515-8c7e7d1b-fdad-456d-96ab-864c33ab56d2?action=share&source=collection_link&creator=41961051"
 	},
 	"item": [
 		{
@@ -64,7 +64,7 @@
 							"urlencoded": [
 								{
 									"key": "otp",
-									"value": "612376",
+									"value": "463874",
 									"type": "text"
 								}
 							]
@@ -93,12 +93,12 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "duonggiabao254@gmail.com",
+									"value": "admin@mentoria.com",
 									"type": "text"
 								},
 								{
 									"key": "password",
-									"value": "123456789",
+									"value": "Password123!",
 									"type": "text"
 								}
 							]
@@ -414,6 +414,127 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get all plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors/1/plans",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"1",
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get detail plan",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors/2/plans/5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"2",
+								"plans",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a plan",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/mentors/2/plans/5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"2",
+								"plans",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a plan",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//   \"planDescription\": \"45-minute career coaching session\",\r\n//   \"planCharge\": 75,\r\n//   \"planType\": \"Extreme\",\r\n//   \"sessionsDuration\": 45\r\n// }\r\n{\r\n  \"planDescription\": \"Standard mentorship - 4 calls per month\",\r\n  \"planCharge\": 349,\r\n  \"planType\": \"Standard\",\r\n  \"callsPerMonth\": 4,\r\n  \"minutesPerCall\": 60,\r\n  \"benefits\": [\r\n    \"4 calls per month (60min/call)\",\r\n    \"Unlimited chat support\",\r\n    \"Code review\",\r\n    \"Career guidance\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/mentors/1/plans",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"1",
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a plan",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//   \"planDescription\": \"45-minute career coaching session\",\r\n//   \"planCharge\": 75,\r\n//   \"planType\": \"Extreme\",\r\n//   \"sessionsDuration\": 45\r\n// }\r\n{\r\n  \"planDescription\": \"Standard mentorship - 4 calls per month\",\r\n  \"planCharge\": 349,\r\n  \"planType\": \"Standard\",\r\n  \"callsPerMonth\": 5,\r\n  \"minutesPerCall\": 60,\r\n  \"benefits\": [\r\n    \"5 calls per month (60min/call)\",\r\n    \"Unlimited chat support\",\r\n    \"Code review\",\r\n    \"Career guidance\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/mentors/1/plans/82",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"mentors",
+								"1",
+								"plans",
+								"82"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -483,6 +604,66 @@
 								"api",
 								"users",
 								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get mentee's invoice stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/users/mentee/invoice-stats?year=2025&month=12",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"mentee",
+								"invoice-stats"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2025"
+								},
+								{
+									"key": "month",
+									"value": "12"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get mentor's invoice stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/users/mentor/invoice-stats?month=12&year=2025",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"mentor",
+								"invoice-stats"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "12"
+								},
+								{
+									"key": "year",
+									"value": "2025"
+								}
 							]
 						}
 					},
@@ -618,7 +799,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/search/skills?keyword=javascript",
+							"raw": "{{host}}/api/search/skills?keyword=TypeScript",
 							"host": [
 								"{{host}}"
 							],
@@ -630,7 +811,7 @@
 							"query": [
 								{
 									"key": "keyword",
-									"value": "javascript"
+									"value": "TypeScript"
 								},
 								{
 									"key": "page",
@@ -1273,7 +1454,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"menteeId\": 7,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-11-27T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-11-27T09:00:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"FIXED20\"\r\n}",
+							"raw": "{\r\n  \"menteeId\": 52,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-12-04T04:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-12-04T04:30:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"WELCOME10\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1337,7 +1518,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "1",
+									"value": "31",
 									"description": "ID của mentee"
 								}
 							]
@@ -1357,7 +1538,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"email\": \"updated.mentee@example.com\",\n  \"goal\": \"New learning goal\"\n}",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"goal\": \"New learning goal\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1382,8 +1563,7 @@
 									"description": "ID của mentee cần update"
 								}
 							]
-						},
-						"description": "Cập nhật thông tin mentee. Tất cả các fields đều là optional: first_name, last_name, email, goal. Email phải unique và không được trùng với user khác."
+						}
 					},
 					"response": []
 				},
@@ -1493,7 +1673,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Mentor\",\n  \"email\": \"updated.mentor@example.com\",\n  \"bio\": \"Updated bio with more details about experience and expertise\",\n  \"headline\": \"Senior Developer | Tech Lead\",\n  \"response_time\": \"within 24 hours\",\n  \"cv_url\": \"https://example.com/cv.pdf\"\n}",
+							"raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Mentor\",\n  \"bio\": \"Updated bio\",\n  \"headline\": \"Senior Developer\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1518,8 +1698,7 @@
 									"description": "ID của mentor cần update"
 								}
 							]
-						},
-						"description": "Cập nhật thông tin mentor. Tất cả các fields đều là optional: first_name, last_name, email, bio, headline, response_time, cv_url. Email phải unique và không được trùng với user khác."
+						}
 					},
 					"response": []
 				},

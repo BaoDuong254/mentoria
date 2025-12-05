@@ -1,6 +1,6 @@
 # Mentoria
 
-Mentoria is a full-stack application built with React + TypeScript (client) and Node.js + Express + TypeScript + MySQL (server).
+Mentoria is a full-stack application built with React + TypeScript (client) and Node.js + Express + TypeScript + SQL Server (server).
 
 ## 📋 Table of Contents
 

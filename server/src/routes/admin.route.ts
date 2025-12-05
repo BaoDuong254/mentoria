@@ -10,19 +10,10 @@ import {
   deleteMentor,
   reviewMentor,
 } from "@/controllers/admin.controller";
-import { protectRoute } from "@/middlewares/auth.middleware";
-import { Role } from "@/constants/type";
-import express, { Router, Request, Response, NextFunction } from "express";
+import { isAdmin, protectRoute } from "@/middlewares/auth.middleware";
+import express, { Router } from "express";
 
 const router: Router = express.Router();
-
-// Admin authorization middleware
-const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if ((req.user as any)?.role !== Role.Admin) {
-    return res.status(403).json({ success: false, message: "Forbidden: Admin access required" });
-  }
-  next();
-};
 
 // Mentee routes
 router.get("/mentees", protectRoute, isAdmin, listMentees);
