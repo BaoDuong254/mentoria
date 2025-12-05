@@ -58,7 +58,7 @@ const updateMentee = async (req: Request, res: Response) => {
     const data = UpdateMenteeSchema.parse(req.body);
 
     // Check if at least one field is provided
-    if (!("first_name" in data) && !("last_name" in data) && !("email" in data) && !("goal" in data)) {
+    if (Object.keys(data).length === 0) {
       return res.status(400).json({
         success: false,
         message: "At least one field must be provided for update",
