@@ -283,7 +283,7 @@ CREATE TABLE discounts(
 CREATE TABLE plan_registerations(
     registration_id INT IDENTITY(1,1) PRIMARY KEY,
     message NVARCHAR(MAX) NOT NULL,
-    discount_id INT NOT NULL,
+    discount_id INT NULL,
     FOREIGN KEY (discount_id) REFERENCES discounts(discount_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE

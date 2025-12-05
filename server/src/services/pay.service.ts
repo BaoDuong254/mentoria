@@ -233,6 +233,9 @@ const createInvoiceService = async (
   if (!pool) throw new Error("Database connection not established");
 
   try {
+    const amountTotal = data.amountTotal / 100;
+    const amountSubtotal = data.amountSubtotal || amountTotal; // If no discount, subtotal = total
+
     const result = await pool
       .request()
       .input("registrationId", registrationId)
@@ -247,8 +250,8 @@ const createInvoiceService = async (
       .input("stripeReceiptUrl", data.stripeReceiptUrl || null)
       .input("paymentStatus", data.paymentStatus || null)
       .input("currency", data.currency || null)
-      .input("amountSubtotal", data.amountSubtotal || null)
-      .input("amountTotal", data.amountTotal / 100).query(`
+      .input("amountSubtotal", amountSubtotal)
+      .input("amountTotal", amountTotal).query(`
       INSERT INTO invoices (
         plan_registerations_id, method, mentee_id,
         stripe_session_id, stripe_customer_id, stripe_customer_email,
@@ -417,7 +420,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     let discountAmount = 0;
     let originalSubtotal = (session.amount_total || 0) / 100; // Default: no discount applied
 
-    if (discountId && session.amount_total) {
+    if (discountId && discountId !== "null" && session.amount_total) {
       const discountResult = await pool.request().input("discountId", parseInt(discountId)).query(`
         SELECT discount_type, discount_value FROM discounts WHERE discount_id = @discountId
       `);
@@ -506,7 +509,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
         currency: session.currency || "usd",
         discountAmount: discountAmount,
         finalAmount: (session.amount_total || 0) / 100,
-        discountId: discountId ? parseInt(discountId) : undefined,
+        discountId: discountId && discountId !== "null" ? parseInt(discountId) : undefined,
         stripeSessionId: session.id,
         stripeCustomerId: customerId,
         stripeCustomerEmail: session.customer_details?.email || session.customer_email || undefined,
@@ -545,7 +548,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     );
 
     // 7. Increment discount usage if discount was applied
-    if (discountId) {
+    if (discountId && discountId !== "null") {
       await incrementDiscountUsageService(parseInt(discountId));
     }
 
