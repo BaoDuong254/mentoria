@@ -1,0 +1,85 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Completed</title>
+  </head>
+  <body
+    style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;"
+  >
+    <div style="background: linear-gradient(to right, #4CAF50, #45a049); padding: 20px; text-align: center;">
+      <h1 style="color: white; margin: 0;">🎉 Meeting Completed!</h1>
+    </div>
+    <div
+      style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+    >
+      <p>Hello {{menteeName}},</p>
+      <p>Your mentorship session with <strong>{{mentorName}}</strong> has been successfully completed!</p>
+
+      <div style="background-color: white; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h2 style="color: #4CAF50; margin-top: 0;">Session Summary</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Mentor:</td>
+            <td style="padding: 8px 0;">{{mentorName}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Plan:</td>
+            <td style="padding: 8px 0;">{{planType}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Date:</td>
+            <td style="padding: 8px 0;">{{meetingDate}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Time:</td>
+            <td style="padding: 8px 0;">{{startTime}} - {{endTime}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Status:</td>
+            <td style="padding: 8px 0; color: #4CAF50; font-weight: bold;">✓ Completed</td>
+          </tr>
+        </table>
+      </div>
+
+      <div
+        style="background-color: #E8F5E9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4CAF50;"
+      >
+        <h3 style="color: #2E7D32; margin-top: 0;">📝 Share Your Experience</h3>
+        <p style="margin: 10px 0; color: #1B5E20;">
+          We'd love to hear about your mentorship experience! Your feedback helps us improve and helps other mentees
+          make informed decisions.
+        </p>
+        <p style="margin: 10px 0; color: #1B5E20;">
+          Please take a moment to rate your session and share your thoughts about working with
+          {{mentorName}}.
+        </p>
+      </div>
+
+      <div style="margin: 30px 0; text-align: center;">
+        <a
+          href="{{feedbackUrl}}"
+          style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;"
+        >
+          Leave Feedback
+        </a>
+      </div>
+
+      <div
+        style="background-color: #FFF9C4; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #FBC02D;"
+      >
+        <p style="margin: 0; color: #F57F17;">
+          <strong>💡 Tip:</strong>
+          Continue your learning journey by booking another session or exploring other mentors on Mentoria!
+        </p>
+      </div>
+
+      <p>Thank you for choosing Mentoria for your mentorship needs!</p>
+
+      <p>Best regards,<br />The Mentoria Team</p>
+    </div>
+    <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+      <p>This is an automated message, please do not reply to this email.</p>
+    </div>
+  </body>
+</html>

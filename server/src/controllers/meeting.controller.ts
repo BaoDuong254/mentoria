@@ -8,12 +8,11 @@ import {
 } from "@/services/meeting.service";
 import { Role } from "@/constants/type";
 
-/**
- * Get all meetings for the current mentee
- */
 export const getMeetingsForMentee = async (req: Request, res: Response) => {
   try {
     const menteeId = req.user?.user_id;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
     if (!menteeId) {
       return res.status(401).json({
@@ -30,12 +29,17 @@ export const getMeetingsForMentee = async (req: Request, res: Response) => {
       });
     }
 
-    const meetings = await getMeetingsByMenteeIdService(Number(menteeId));
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      data: meetings,
-    });
+    const result = await getMeetingsByMenteeIdService(Number(menteeId), page, limit);
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Error in getMeetingsForMentee:", error);
     return res.status(500).json({
@@ -45,12 +49,11 @@ export const getMeetingsForMentee = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Get all meetings for the current mentor
- */
 export const getMeetingsForMentor = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
     if (!mentorId) {
       return res.status(401).json({
@@ -67,12 +70,17 @@ export const getMeetingsForMentor = async (req: Request, res: Response) => {
       });
     }
 
-    const meetings = await getMeetingsByMentorIdService(Number(mentorId));
+    // Validate pagination params
+    if (page < 1 || limit < 1 || limit > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters. Page must be >= 1, limit must be between 1 and 100",
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      data: meetings,
-    });
+    const result = await getMeetingsByMentorIdService(Number(mentorId), page, limit);
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Error in getMeetingsForMentor:", error);
     return res.status(500).json({
@@ -82,9 +90,6 @@ export const getMeetingsForMentor = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Get a single meeting by ID
- */
 export const getMeetingById = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
@@ -134,10 +139,6 @@ export const getMeetingById = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Update meeting location (add Google Meet link)
- * Only mentor can update this
- */
 export const updateMeetingLocation = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;
@@ -196,10 +197,6 @@ export const updateMeetingLocation = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Update meeting status (Completed or Cancelled)
- * Only mentor can update this
- */
 export const updateMeetingStatus = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;

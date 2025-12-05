@@ -1,17 +1,38 @@
 import poolPromise from "@/config/database";
-import { MeetingResponse } from "@/types/meeting.type";
+import { MeetingResponse, MeetingListResponse } from "@/types/meeting.type";
 import sql from "mssql";
+import envConfig from "@/config/env";
+import { sendMeetingLocationUpdated, sendMeetingCompleted, sendMeetingCancelled } from "@/mailtrap/mailSend";
+import { MeetingLocationUpdatedData, MeetingCompletedData, MeetingCancelledData } from "@/types/mail.type";
 
-/**
- * Get all meetings for a mentee
- */
-export const getMeetingsByMenteeIdService = async (menteeId: number): Promise<MeetingResponse[]> => {
+export const getMeetingsByMenteeIdService = async (
+  menteeId: number,
+  page: number = 1,
+  limit: number = 10
+): Promise<MeetingListResponse> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    const result = await pool.request().input("menteeId", sql.Int, menteeId).query(`
-      SELECT 
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countResult = await pool.request().input("menteeId", sql.Int, menteeId).query(`
+      SELECT COUNT(*) as total
+      FROM meetings m
+      INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+      WHERE i.mentee_id = @menteeId
+    `);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const result = await pool
+      .request()
+      .input("menteeId", sql.Int, menteeId)
+      .input("limit", sql.Int, limit)
+      .input("offset", sql.Int, offset).query(`
+      SELECT
         m.meeting_id,
         m.invoice_id,
         m.plan_registerations_id,
@@ -42,25 +63,56 @@ export const getMeetingsByMenteeIdService = async (menteeId: number): Promise<Me
       INNER JOIN plans p ON b.plan_id = p.plan_id
       WHERE i.mentee_id = @menteeId
       ORDER BY m.date DESC, m.start_time DESC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
     `);
 
-    return result.recordset;
+    return {
+      success: true,
+      message: "Meetings retrieved successfully",
+      data: result.recordset,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.error("Error in getMeetingsByMenteeIdService:", error);
     throw error;
   }
 };
 
-/**
- * Get all meetings for a mentor
- */
-export const getMeetingsByMentorIdService = async (mentorId: number): Promise<MeetingResponse[]> => {
+export const getMeetingsByMentorIdService = async (
+  mentorId: number,
+  page: number = 1,
+  limit: number = 10
+): Promise<MeetingListResponse> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    const result = await pool.request().input("mentorId", sql.Int, mentorId).query(`
-      SELECT 
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countResult = await pool.request().input("mentorId", sql.Int, mentorId).query(`
+      SELECT COUNT(*) as total
+      FROM meetings m
+      WHERE m.mentor_id = @mentorId
+    `);
+    const totalItems = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Get paginated results
+    const result = await pool
+      .request()
+      .input("mentorId", sql.Int, mentorId)
+      .input("limit", sql.Int, limit)
+      .input("offset", sql.Int, offset).query(`
+      SELECT
         m.meeting_id,
         m.invoice_id,
         m.plan_registerations_id,
@@ -91,25 +143,36 @@ export const getMeetingsByMentorIdService = async (mentorId: number): Promise<Me
       INNER JOIN plans p ON b.plan_id = p.plan_id
       WHERE m.mentor_id = @mentorId
       ORDER BY m.date DESC, m.start_time DESC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
     `);
 
-    return result.recordset;
+    return {
+      success: true,
+      message: "Meetings retrieved successfully",
+      data: result.recordset,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   } catch (error) {
     console.error("Error in getMeetingsByMentorIdService:", error);
     throw error;
   }
 };
 
-/**
- * Get a single meeting by ID
- */
 export const getMeetingByIdService = async (meetingId: number): Promise<MeetingResponse | null> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
 
   try {
     const result = await pool.request().input("meetingId", sql.Int, meetingId).query(`
-      SELECT 
+      SELECT
         m.meeting_id,
         m.invoice_id,
         m.plan_registerations_id,
@@ -148,10 +211,6 @@ export const getMeetingByIdService = async (meetingId: number): Promise<MeetingR
   }
 };
 
-/**
- * Update meeting location and set status to Scheduled
- * Only mentor can update this
- */
 export const updateMeetingLocationService = async (
   meetingId: number,
   mentorId: number,
@@ -166,7 +225,7 @@ export const updateMeetingLocationService = async (
       .request()
       .input("meetingId", sql.Int, meetingId)
       .input("mentorId", sql.Int, mentorId).query(`
-      SELECT meeting_id FROM meetings 
+      SELECT meeting_id FROM meetings
       WHERE meeting_id = @meetingId AND mentor_id = @mentorId
     `);
 
@@ -180,23 +239,56 @@ export const updateMeetingLocationService = async (
       .input("meetingId", sql.Int, meetingId)
       .input("location", sql.NVarChar(255), location)
       .input("status", sql.NVarChar(20), "Scheduled").query(`
-      UPDATE meetings 
+      UPDATE meetings
       SET location = @location, status = @status
       WHERE meeting_id = @meetingId
     `);
 
-    // Return updated meeting
-    return await getMeetingByIdService(meetingId);
+    // Get updated meeting with full details
+    const updatedMeeting = await getMeetingByIdService(meetingId);
+
+    // Send email notification to mentee
+    if (envConfig.MAIL_SEND && updatedMeeting) {
+      try {
+        const startDateTime = new Date(updatedMeeting.start_time);
+        const endDateTime = new Date(updatedMeeting.end_time);
+
+        const emailData: MeetingLocationUpdatedData = {
+          menteeName: `${updatedMeeting.mentee_first_name} ${updatedMeeting.mentee_last_name}`,
+          mentorName: `${updatedMeeting.mentor_first_name} ${updatedMeeting.mentor_last_name}`,
+          planType: updatedMeeting.plan_type,
+          meetingDate: startDateTime.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          startTime: startDateTime.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          endTime: endDateTime.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          location: location,
+        };
+
+        await sendMeetingLocationUpdated(emailData, updatedMeeting.mentee_email);
+        console.log(`Meeting location email sent to: ${updatedMeeting.mentee_email}`);
+      } catch (emailError) {
+        console.error("Error sending meeting location email:", emailError);
+        // Don't fail the entire operation if email fails
+      }
+    }
+
+    return updatedMeeting;
   } catch (error) {
     console.error("Error in updateMeetingLocationService:", error);
     throw error;
   }
 };
 
-/**
- * Update meeting status
- * Mentor can mark as Completed or Cancelled
- */
 export const updateMeetingStatusService = async (
   meetingId: number,
   mentorId: number,
@@ -211,7 +303,7 @@ export const updateMeetingStatusService = async (
       .request()
       .input("meetingId", sql.Int, meetingId)
       .input("mentorId", sql.Int, mentorId).query(`
-      SELECT meeting_id, status FROM meetings 
+      SELECT meeting_id, status FROM meetings
       WHERE meeting_id = @meetingId AND mentor_id = @mentorId
     `);
 
@@ -221,13 +313,63 @@ export const updateMeetingStatusService = async (
 
     // Update status
     await pool.request().input("meetingId", sql.Int, meetingId).input("status", sql.NVarChar(20), status).query(`
-      UPDATE meetings 
+      UPDATE meetings
       SET status = @status
       WHERE meeting_id = @meetingId
     `);
 
-    // Return updated meeting
-    return await getMeetingByIdService(meetingId);
+    // Get updated meeting with full details
+    const updatedMeeting = await getMeetingByIdService(meetingId);
+
+    // Send email notification to mentee based on status
+    if (envConfig.MAIL_SEND && updatedMeeting) {
+      try {
+        const startDateTime = new Date(updatedMeeting.start_time);
+        const endDateTime = new Date(updatedMeeting.end_time);
+
+        const commonData = {
+          menteeName: `${updatedMeeting.mentee_first_name} ${updatedMeeting.mentee_last_name}`,
+          mentorName: `${updatedMeeting.mentor_first_name} ${updatedMeeting.mentor_last_name}`,
+          planType: updatedMeeting.plan_type,
+          meetingDate: startDateTime.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          startTime: startDateTime.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          endTime: endDateTime.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+
+        if (status === "Completed") {
+          const emailData: MeetingCompletedData = {
+            ...commonData,
+            feedbackUrl: `${envConfig.CLIENT_URL}/mentee/feedback/${updatedMeeting.mentor_id}`,
+          };
+          await sendMeetingCompleted(emailData, updatedMeeting.mentee_email);
+          console.log(`Meeting completed email sent to: ${updatedMeeting.mentee_email}`);
+        } else if (status === "Cancelled") {
+          const emailData: MeetingCancelledData = {
+            ...commonData,
+            refundNote: "Please contact support for refund information if applicable.",
+            exploreMentorsUrl: `${envConfig.CLIENT_URL}/mentors`,
+          };
+          await sendMeetingCancelled(emailData, updatedMeeting.mentee_email);
+          console.log(`Meeting cancelled email sent to: ${updatedMeeting.mentee_email}`);
+        }
+      } catch (emailError) {
+        console.error("Error sending meeting status email:", emailError);
+        // Don't fail the entire operation if email fails
+      }
+    }
+
+    return updatedMeeting;
   } catch (error) {
     console.error("Error in updateMeetingStatusService:", error);
     throw error;

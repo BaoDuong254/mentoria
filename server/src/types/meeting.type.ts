@@ -44,3 +44,17 @@ export interface UpdateMeetingStatusRequest {
   meetingId: number;
   status: "Scheduled" | "Completed" | "Cancelled";
 }
+
+export interface MeetingListResponse {
+  success: boolean;
+  message: string;
+  data: MeetingResponse[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}

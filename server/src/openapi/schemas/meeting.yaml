@@ -1,5 +1,63 @@
 # Meeting schemas
 
+PaginationInfo:
+  type: object
+  description: Pagination metadata
+  properties:
+    currentPage:
+      type: integer
+      description: Current page number
+      example: 1
+    totalPages:
+      type: integer
+      description: Total number of pages
+      example: 5
+    totalItems:
+      type: integer
+      description: Total number of items
+      example: 48
+    itemsPerPage:
+      type: integer
+      description: Number of items per page
+      example: 10
+    hasNextPage:
+      type: boolean
+      description: Whether there is a next page
+      example: true
+    hasPreviousPage:
+      type: boolean
+      description: Whether there is a previous page
+      example: false
+  required:
+    - currentPage
+    - totalPages
+    - totalItems
+    - itemsPerPage
+    - hasNextPage
+    - hasPreviousPage
+
+MeetingListResponse:
+  type: object
+  description: Paginated list of meetings
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Meetings retrieved successfully"
+    data:
+      type: array
+      items:
+        $ref: "#/MeetingResponse"
+    pagination:
+      $ref: "#/PaginationInfo"
+  required:
+    - success
+    - message
+    - data
+    - pagination
+
 MeetingResponse:
   type: object
   description: Complete meeting information with mentor, mentee, and plan details

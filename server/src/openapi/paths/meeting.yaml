@@ -6,27 +6,45 @@ getMeetingsForMentee:
       - meeting
     summary: Get meetings for mentee
     description: |
-      Retrieve all meetings for the currently authenticated mentee.
+      Retrieve all meetings for the currently authenticated mentee with pagination support.
       Returns meetings with full details including mentor info, plan details, and payment info.
       Results are ordered by date (descending) and start time (descending).
     operationId: getMeetingsForMentee
     security:
       - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (default 10, max 100)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          example: 10
     responses:
       "200":
         description: Meetings retrieved successfully
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                  example: true
-                data:
-                  type: array
-                  items:
-                    $ref: "../schemas/meeting.yaml#/MeetingResponse"
+              $ref: "../schemas/meeting.yaml#/MeetingListResponse"
+      "400":
+        description: Invalid pagination parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
       "401":
         description: Unauthorized - user not logged in
         content:
@@ -52,27 +70,45 @@ getMeetingsForMentor:
       - meeting
     summary: Get meetings for mentor
     description: |
-      Retrieve all meetings for the currently authenticated mentor.
+      Retrieve all meetings for the currently authenticated mentor with pagination support.
       Returns meetings with full details including mentee info, plan details, and payment info.
       Results are ordered by date (descending) and start time (descending).
     operationId: getMeetingsForMentor
     security:
       - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination (default 1)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          example: 1
+      - name: limit
+        in: query
+        description: Number of items per page (default 10, max 100)
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          example: 10
     responses:
       "200":
         description: Meetings retrieved successfully
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                success:
-                  type: boolean
-                  example: true
-                data:
-                  type: array
-                  items:
-                    $ref: "../schemas/meeting.yaml#/MeetingResponse"
+              $ref: "../schemas/meeting.yaml#/MeetingListResponse"
+      "400":
+        description: Invalid pagination parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
       "401":
         description: Unauthorized - user not logged in
         content:
@@ -156,7 +192,7 @@ getMeetingById:
               $ref: "../schemas/_index.yaml#/ErrorResponse"
 
 updateMeetingLocation:
-  patch:
+  put:
     tags:
       - meeting
     summary: Update meeting location
@@ -235,7 +271,7 @@ updateMeetingLocation:
               $ref: "../schemas/_index.yaml#/ErrorResponse"
 
 updateMeetingStatus:
-  patch:
+  put:
     tags:
       - meeting
     summary: Update meeting status

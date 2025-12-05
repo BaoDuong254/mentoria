@@ -13,7 +13,7 @@ const router: Router = express.Router();
 router.get("/mentee", protectRoute, getMeetingsForMentee);
 router.get("/mentor", protectRoute, getMeetingsForMentor);
 router.get("/:meetingId", protectRoute, getMeetingById);
-router.patch("/:meetingId/location", protectRoute, updateMeetingLocation);
-router.patch("/:meetingId/status", protectRoute, updateMeetingStatus);
+router.put("/:meetingId/location", protectRoute, updateMeetingLocation);
+router.put("/:meetingId/status", protectRoute, updateMeetingStatus);
 
 export default router;

@@ -3,7 +3,12 @@ import fs from "fs";
 import path from "path";
 import handlebars from "handlebars";
 import mailConfig from "@/mailtrap/mail.config";
-import { BookingConfirmationData } from "@/types/mail.type";
+import {
+  BookingConfirmationData,
+  MeetingLocationUpdatedData,
+  MeetingCompletedData,
+  MeetingCancelledData,
+} from "@/types/mail.type";
 
 export const verifyMail = async (otp: string, email: string) => {
   const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/verify-otp.hbs"), "utf8");
@@ -29,7 +34,7 @@ export const sendBookingConfirmation = async (data: BookingConfirmationData, ema
   const template = handlebars.compile(emailTemplateSource);
   const htmlToSend = template(data);
 
-  await mailConfig(htmlToSend, email, "Booking Confirmation");
+  await mailConfig(htmlToSend, email, "Mentoria Booking Confirmation");
 };
 
 export const sendMentorApproved = async (mentorName: string, email: string) => {
@@ -48,4 +53,31 @@ export const sendMentorRejected = async (mentorName: string, email: string) => {
   const htmlToSend = template({ name: mentorName });
 
   await mailConfig(htmlToSend, email, "Mentoria Mentor Application Rejected");
+};
+
+export const sendMeetingLocationUpdated = async (data: MeetingLocationUpdatedData, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/meeting-location-updated.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template(data);
+
+  await mailConfig(htmlToSend, email, "Mentoria Meeting Location Updated");
+};
+
+export const sendMeetingCompleted = async (data: MeetingCompletedData, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/meeting-completed.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template(data);
+
+  await mailConfig(htmlToSend, email, "Mentoria Meeting Completed - Share Your Feedback");
+};
+
+export const sendMeetingCancelled = async (data: MeetingCancelledData, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/meeting-cancelled.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template(data);
+
+  await mailConfig(htmlToSend, email, "Mentoria Meeting Cancelled");
 };

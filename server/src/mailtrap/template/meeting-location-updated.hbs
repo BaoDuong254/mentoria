@@ -1,0 +1,76 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Location Updated</title>
+  </head>
+  <body
+    style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;"
+  >
+    <div style="background: linear-gradient(to right, #2196F3, #1976D2); padding: 20px; text-align: center;">
+      <h1 style="color: white; margin: 0;">Meeting Location Updated</h1>
+    </div>
+    <div
+      style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+    >
+      <p>Hello {{menteeName}},</p>
+      <p>Great news! Your mentor
+        <strong>{{mentorName}}</strong>
+        has scheduled your mentorship session and added the meeting location.</p>
+
+      <div style="background-color: white; padding: 20px; border-radius: 5px; margin: 20px 0;">
+        <h2 style="color: #2196F3; margin-top: 0;">Meeting Details</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Mentor:</td>
+            <td style="padding: 8px 0;">{{mentorName}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Plan:</td>
+            <td style="padding: 8px 0;">{{planType}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Date:</td>
+            <td style="padding: 8px 0;">{{meetingDate}}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-weight: bold; color: #666;">Time:</td>
+            <td style="padding: 8px 0;">{{startTime}} - {{endTime}}</td>
+          </tr>
+          <tr style="background-color: #E3F2FD;">
+            <td style="padding: 8px 0; font-weight: bold; color: #1976D2;">Meeting Link:</td>
+            <td style="padding: 8px 0;">
+              <a href="{{location}}" style="color: #2196F3; word-break: break-all;">{{location}}</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div
+        style="background-color: #E3F2FD; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #2196F3;"
+      >
+        <p style="margin: 0; color: #1565C0;">
+          <strong>📅 Important:</strong>
+          Please mark your calendar and join the meeting on time. Click the meeting link above to join.
+        </p>
+      </div>
+
+      <div style="margin: 30px 0; text-align: center;">
+        <a
+          href="{{location}}"
+          style="background-color: #2196F3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;"
+        >
+          Join Meeting
+        </a>
+      </div>
+
+      <p>If you have any questions, feel free to reach out to your mentor.</p>
+      <p>We wish you a productive mentorship session!</p>
+
+      <p>Best regards,<br />The Mentoria Team</p>
+    </div>
+    <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+      <p>This is an automated message, please do not reply to this email.</p>
+    </div>
+  </body>
+</html>

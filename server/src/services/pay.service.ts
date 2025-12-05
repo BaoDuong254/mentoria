@@ -414,8 +414,10 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     // 1. Create plan registration first (required by invoice foreign key)
     const registrationId = await createPlanRegistrationService(message, discountId ? parseInt(discountId) : undefined);
 
-    // Calculate discount amount
+    // Calculate discount amount and original subtotal
     let discountAmount = 0;
+    let originalSubtotal = (session.amount_total || 0) / 100; // Default: no discount applied
+
     if (discountId && session.amount_total) {
       const discountResult = await pool.request().input("discountId", parseInt(discountId)).query(`
         SELECT discount_type, discount_value FROM discounts WHERE discount_id = @discountId
@@ -423,11 +425,16 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
 
       if (discountResult.recordset.length > 0) {
         const discount = discountResult.recordset[0];
-        const totalBeforeDiscount = (session.amount_total || 0) / 100;
+        const finalAmount = (session.amount_total || 0) / 100; // This is the amount after discount
 
         if (discount.discount_type === "Percentage") {
-          discountAmount = (totalBeforeDiscount * discount.discount_value) / (100 - discount.discount_value);
+          // finalAmount = originalSubtotal * (1 - discount_value/100)
+          // originalSubtotal = finalAmount / (1 - discount_value/100)
+          originalSubtotal = finalAmount / (1 - discount.discount_value / 100);
+          discountAmount = originalSubtotal - finalAmount;
         } else {
+          // Fixed discount
+          originalSubtotal = finalAmount + discount.discount_value;
           discountAmount = discount.discount_value;
         }
       }
@@ -510,7 +517,7 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
         stripeBalanceTransactionId: balanceTransactionId,
         stripeReceiptUrl: receiptUrl,
         paymentStatus: session.payment_status,
-        amountSubtotal: session.amount_subtotal ? session.amount_subtotal / 100 : undefined,
+        amountSubtotal: originalSubtotal, // Use calculated original price before discount
       },
       registrationId,
       parseInt(menteeId)

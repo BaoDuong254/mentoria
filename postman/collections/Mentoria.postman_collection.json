@@ -64,7 +64,7 @@
 							"urlencoded": [
 								{
 									"key": "otp",
-									"value": "463874",
+									"value": "723940",
 									"type": "text"
 								}
 							]
@@ -93,7 +93,7 @@
 							"urlencoded": [
 								{
 									"key": "email",
-									"value": "admin@mentoria.com",
+									"value": "john.doe@example.com",
 									"type": "text"
 								},
 								{
@@ -1454,7 +1454,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"menteeId\": 52,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-12-04T04:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-12-04T04:30:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"WELCOME10\"\r\n}",
+							"raw": "{\r\n  \"menteeId\": 52,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-12-06T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-12-06T08:30:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"WELCOME10\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1486,7 +1486,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/mentees",
+							"raw": "{{host}}/api/admin/mentees?page=1&limit=5",
 							"host": [
 								"{{host}}"
 							],
@@ -1494,6 +1494,16 @@
 								"api",
 								"admin",
 								"mentees"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
 							]
 						}
 					},
@@ -1600,7 +1610,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/mentors",
+							"raw": "{{host}}/api/admin/mentors?page=1&limit=5",
 							"host": [
 								"{{host}}"
 							],
@@ -1608,6 +1618,16 @@
 								"api",
 								"admin",
 								"mentors"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
 							]
 						}
 					},
@@ -1619,7 +1639,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/admin/mentors/pending",
+							"raw": "{{host}}/api/admin/mentors/pending?page=1&limit=5",
 							"host": [
 								"{{host}}"
 							],
@@ -1628,6 +1648,16 @@
 								"admin",
 								"mentors",
 								"pending"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
 							]
 						},
 						"description": "Lấy danh sách tất cả mentor có status Pending (chờ duyệt)"
@@ -1814,6 +1844,72 @@
 						"description": "Duyệt hồ sơ mentor - từ chối. Mentor sẽ nhận email thông báo và bị xóa khỏi hệ thống."
 					},
 					"response": []
+				},
+				{
+					"name": "Get invoice stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/invoices?year=2025&month=12&page=1&limit=5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"invoices"
+							],
+							"query": [
+								{
+									"key": "year",
+									"value": "2025"
+								},
+								{
+									"key": "month",
+									"value": "12"
+								},
+								{
+									"key": "userId",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "userType",
+									"value": "mentor",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get stats of system",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/stats",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"stats"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1826,7 +1922,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/meetings/mentee",
+							"raw": "{{host}}/api/meetings/mentee?page=1&limit=5",
 							"host": [
 								"{{host}}"
 							],
@@ -1834,6 +1930,16 @@
 								"api",
 								"meetings",
 								"mentee"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
 							]
 						},
 						"description": "Lấy danh sách meetings của mentee đang đăng nhập"
@@ -1846,7 +1952,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/meetings/mentor",
+							"raw": "{{host}}/api/meetings/mentor?page=1&limit=5",
 							"host": [
 								"{{host}}"
 							],
@@ -1854,6 +1960,16 @@
 								"api",
 								"meetings",
 								"mentor"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
 							]
 						},
 						"description": "Lấy danh sách meetings của mentor đang đăng nhập"
@@ -1890,7 +2006,7 @@
 				{
 					"name": "Update meeting location",
 					"request": {
-						"method": "PATCH",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -1920,7 +2036,7 @@
 							"variable": [
 								{
 									"key": "meetingId",
-									"value": "1",
+									"value": "32",
 									"description": "ID của meeting cần update"
 								}
 							]
@@ -1932,7 +2048,7 @@
 				{
 					"name": "Update meeting status",
 					"request": {
-						"method": "PATCH",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -1962,7 +2078,7 @@
 							"variable": [
 								{
 									"key": "meetingId",
-									"value": "1",
+									"value": "32",
 									"description": "ID của meeting cần update"
 								}
 							]
