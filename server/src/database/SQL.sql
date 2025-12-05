@@ -37,9 +37,7 @@ CREATE TABLE users (
     email NVARCHAR(100) UNIQUE NOT NULL CHECK (
         email LIKE '%_@__%.__%'
     ),
-    password NVARCHAR(255) NULL CHECK (
-        password IS NULL OR LEN(password) >= 60
-    ),
+    password NVARCHAR(255) NULL,
     avatar_url NVARCHAR(255) NULL CHECK (
         avatar_url IS NULL OR avatar_url LIKE 'http://%' OR avatar_url LIKE 'https://%'
     ),
@@ -53,7 +51,11 @@ CREATE TABLE users (
     reset_password_token NVARCHAR(255) NULL,
     reset_password_token_expiration DATETIME NULL,
     google_id NVARCHAR(255) NULL,
-    provider NVARCHAR(50) CHECK (provider IN (N'Local', N'Google')) DEFAULT N'Local'
+    provider NVARCHAR(50) CHECK (provider IN (N'Local', N'Google')) DEFAULT N'Local',
+    CHECK (
+        (provider = N'Local' AND password IS NOT NULL AND LEN(password) >= 60) OR
+        (provider = N'Google' AND password IS NULL)
+    )
 );
 
 CREATE TABLE user_social_links (
