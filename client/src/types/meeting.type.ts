@@ -3,11 +3,11 @@ export interface Meeting {
   invoice_id: number;
   plan_registerations_id: number;
   status: "Pending" | "Scheduled" | "Completed" | "Cancelled";
-  location: string;
+  location: string | null;
   review_link: string | null;
-  start_time: Date;
-  end_time: Date;
-  date: Date;
+  start_time: string;
+  end_time: string;
+  date: string;
   mentor_id: number;
 }
 
@@ -16,11 +16,11 @@ export interface MeetingResponse {
   invoice_id: number;
   plan_registerations_id: number;
   status: "Pending" | "Scheduled" | "Completed" | "Cancelled";
-  location: string;
+  location: string | null;
   review_link: string | null;
-  start_time: Date;
-  end_time: Date;
-  date: Date;
+  start_time: string;
+  end_time: string;
+  date: string;
   mentor_id: number;
   mentor_first_name: string;
   mentor_last_name: string;
@@ -37,30 +37,19 @@ export interface MeetingResponse {
   amount_paid: number;
 }
 
+export interface GetMeetingsResponse {
+  success: boolean;
+  data: MeetingResponse[];
+}
+
 export interface UpdateMeetingLocationRequest {
-  meetingId: number;
   location: string;
 }
 
 export interface UpdateMeetingStatusRequest {
-  meetingId: number;
   status: "Scheduled" | "Completed" | "Cancelled";
 }
 
-export interface MeetingListResponse {
-  success: boolean;
-  message: string;
-  data: MeetingResponse[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-}
 export interface UpdateReviewLinkRequest {
-  meetingId: number;
   reviewLink: string;
 }

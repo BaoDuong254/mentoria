@@ -2,12 +2,21 @@ import { useBookingStore } from "@/store/useBookingStore";
 import { Clock, Globe, Star, Users, Video } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { format, isSameDay, parseISO } from "date-fns";
+import { format, isSameDay, parseISO, addHours } from "date-fns";
 import type { Slot } from "@/types/booking.type";
-import Calendar from "react-calendar";
+import Calendar from "@/components/Calendar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSearchStore } from "@/store/useSearchStore";
 import { createCheckoutSession } from "@/apis/payment.api";
+
+// Helper function to convert UTC time to Vietnam timezone (UTC+7)
+const toVietnamTime = (isoString: string): Date => {
+  // Remove 'Z' suffix if present and parse as local time
+  const cleanedTime = isoString.replace("Z", "");
+  const date = parseISO(cleanedTime);
+  // Add 7 hours to convert from UTC to Vietnam time
+  return addHours(date, 7);
+};
 
 function Booking() {
   const { planId } = useParams();
@@ -37,7 +46,8 @@ function Booking() {
     if (!selectedDate) return [];
 
     return slots.filter((slot: Slot) => {
-      const slotDate = parseISO(slot.start_time);
+      // Use Vietnam timezone for comparison
+      const slotDate = toVietnamTime(slot.start_time);
       return isSameDay(slotDate, selectedDate);
     });
   }, [selectedDate, slots]);
@@ -152,11 +162,11 @@ function Booking() {
               <div className='w-11/12 rounded-xl border border-gray-500 bg-gray-800 p-6'>
                 <h3 className='mb-4 font-bold text-white'>{format(selectedDate ?? new Date(), "dd MMMM yyyy")}</h3>
                 <Calendar
-                  className='w-full border-none bg-transparent text-white'
-                  onChange={(val) => {
-                    setSelectedDate(val as Date);
+                  selectedDate={selectedDate ?? new Date()}
+                  onDateChange={(date) => {
+                    setSelectedDate(date);
                   }}
-                  tileClassName='text-white hover:bg-gray-700 rounded-lg'
+                  variant='mentee'
                 />
               </div>
             </div>
@@ -173,8 +183,9 @@ function Booking() {
                   <div className='grid grid-cols-3 gap-4'>
                     {slotsForSelectedDate.length > 0 ? (
                       slotsForSelectedDate.map((slot) => {
-                        const fixedTime = slot.start_time.replace("Z", "");
-                        const timeLabel = format(parseISO(fixedTime), "h:mm a");
+                        // Convert to Vietnam timezone (UTC+7)
+                        const vietnamTime = toVietnamTime(slot.start_time);
+                        const timeLabel = format(vietnamTime, "h:mm a");
                         const isSelected = selectedSlotId === slot.slot_id;
 
                         return (
