@@ -13,7 +13,7 @@ export const UpdateMentorSchema = z.object({
   email: z.string().email().optional(),
   bio: z.string().max(1000).optional(),
   headline: z.string().max(200).optional(),
-  response_time: z.string().max(100).optional(),
+  response_time: z.string().min(1).max(100).optional(),
   cv_url: z.string().url().optional(),
 });
 
