@@ -161,8 +161,6 @@ pnpm build
 pnpm start       # Start production server
 ```
 
-Dưới đây là đoạn **README** được viết lại rõ ràng, chuyên nghiệp và bổ sung thông tin về Stripe CLI để test webhook trên localhost:
-
 ## 🔧 Testing Stripe Webhooks on Localhost
 
 To test Stripe webhooks in your local development environment, you need to install the **Stripe CLI** and forward incoming webhook events to your local API endpoint.
