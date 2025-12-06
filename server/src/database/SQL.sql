@@ -120,7 +120,10 @@ CREATE TABLE mentors (
         bank_branch IS NULL OR LEN(LTRIM(RTRIM(bank_branch))) >= 2
     ),
     swift_code NVARCHAR(50) NULL CHECK (
-        swift_code IS NULL OR (LEN(swift_code) IN (8, 11) AND swift_code LIKE '[A-Z][A-Z][A-Z][A-Z][A-Z][A-Z]%')
+      swift_code IS NULL OR (
+        LEN(swift_code) IN (8, 11) AND
+        swift_code COLLATE Latin1_General_BIN LIKE '[A-Z][A-Z][A-Z][A-Z][A-Z][A-Z]%'
+      )
     ),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
         ON DELETE CASCADE
