@@ -105,3 +105,8 @@ export interface getMentorProfileResponse {
   message: string;
   data?: MentorProfile;
 }
+
+export interface putMentorProfile {
+  success: boolean;
+  message: string;
+}

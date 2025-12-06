@@ -14,3 +14,11 @@ export interface User {
   google_id: string | null;
   provider: string;
 }
+
+export interface uploadAvatarResponse {
+  success: boolean;
+  message: string;
+  data: {
+    avatar_url: string;
+  };
+}
