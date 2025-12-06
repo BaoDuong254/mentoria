@@ -163,13 +163,20 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
           <>
             <button
               onClick={handleJoinMeeting}
-              className='flex flex-1 items-center justify-center gap-2 rounded bg-cyan-700 py-2 text-white transition-colors hover:bg-cyan-600'
+              className='flex cursor-pointer items-center justify-center gap-2 rounded bg-cyan-700 px-4 py-2 text-white transition-colors hover:bg-cyan-600'
             >
               <Video className='h-4 w-4' />
               Join Meeting
             </button>
-            <button className='rounded bg-transparent px-6 py-2 text-white outline-1 outline-gray-600 transition-colors hover:bg-gray-700'>
-              Reschedule
+            <button className='flex cursor-pointer items-center gap-2 rounded bg-teal-600 px-4 py-2 text-white transition-colors hover:bg-teal-500'>
+              <MessageCircle className='h-4 w-4' />
+              Contact mentor
+            </button>
+            <button
+              onClick={handleBookAnother}
+              className='cursor-pointer rounded bg-gray-700 px-4 py-2 text-white transition-colors hover:bg-gray-600'
+            >
+              Book another course
             </button>
           </>
         )}
@@ -179,14 +186,14 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className='flex items-center gap-2 rounded bg-red-600 px-6 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50'
+              className='flex cursor-pointer items-center gap-2 rounded bg-red-600 px-6 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50'
             >
               <Trash2 className='h-4 w-4' />
               {isDeleting ? "Deleting..." : "Delete"}
             </button>
             <button
               onClick={handleBookAnother}
-              className='flex-1 rounded bg-purple-800 py-2 text-white transition-colors hover:bg-purple-700'
+              className='flex-1 cursor-pointer rounded bg-purple-800 py-2 text-white transition-colors hover:bg-purple-700'
             >
               Book Another Mentorship
             </button>
@@ -198,7 +205,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
             {meeting.review_link && (
               <button
                 onClick={handleReviewCourse}
-                className='flex flex-1 items-center justify-center gap-2 rounded bg-purple-600 py-2 text-white transition-colors hover:bg-purple-500'
+                className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-purple-600 py-2 text-white transition-colors hover:bg-purple-500'
               >
                 <ExternalLink className='h-4 w-4' />
                 Review Course
@@ -206,14 +213,14 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
             )}
             <button
               onClick={handleReviewMeeting}
-              className='flex flex-1 items-center justify-center gap-2 rounded bg-cyan-700 py-2 text-white transition-colors hover:bg-cyan-600'
+              className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-cyan-700 py-2 text-white transition-colors hover:bg-cyan-600'
             >
               <Star className='h-4 w-4' />
               Rate Mentor
             </button>
             <button
               onClick={handleBookAnother}
-              className='rounded bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700'
+              className='cursor-pointer rounded bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700'
             >
               Book another course
             </button>
@@ -224,14 +231,14 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
           <>
             <button
               onClick={handleBookAnother}
-              className='flex-1 rounded bg-purple-800 py-2 text-white transition-colors hover:bg-purple-700'
+              className='flex-1 cursor-pointer rounded bg-purple-800 py-2 text-white transition-colors hover:bg-purple-700'
             >
               Book Another Mentorship
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className='rounded bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
+              className='cursor-pointer rounded bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
             >
               <Trash2 className='h-4 w-4' />
             </button>
@@ -247,7 +254,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
               <Clock className='h-4 w-4' />
               Waiting for Confirmation
             </button>
-            <button className='flex items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-white transition-colors hover:bg-cyan-600'>
+            <button className='flex cursor-pointer items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-white transition-colors hover:bg-cyan-600'>
               <MessageCircle className='h-4 w-4' />
               Contact Mentor
             </button>

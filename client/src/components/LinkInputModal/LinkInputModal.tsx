@@ -84,14 +84,14 @@ function LinkInputModalContent({
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className='rounded-lg bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
+            className='cursor-pointer rounded-lg bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isLoading}
-            className='rounded-lg bg-cyan-700 px-6 py-2 text-white transition-colors hover:bg-cyan-600 disabled:opacity-50'
+            className='cursor-pointer rounded-lg bg-cyan-700 px-6 py-2 text-white transition-colors hover:bg-cyan-600 disabled:opacity-50'
           >
             {isLoading ? "Saving..." : submitText}
           </button>

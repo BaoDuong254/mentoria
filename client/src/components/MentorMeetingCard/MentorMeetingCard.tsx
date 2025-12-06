@@ -1,4 +1,4 @@
-import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck } from "lucide-react";
+import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck, MessageCircle } from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useMeetingStore } from "@/store/useMeetingStore";
 import { useState } from "react";
@@ -174,7 +174,7 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
                   void handleAcceptMeeting();
                 }}
                 disabled={isAccepting}
-                className='flex flex-1 items-center justify-center gap-2 rounded bg-green-600 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
+                className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-green-600 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
               >
                 <UserCheck className='h-4 w-4' />
                 {isAccepting ? "Accepting..." : "Accept Mentee"}
@@ -188,7 +188,7 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
               <button
                 onClick={handleEditLink}
                 disabled={isUpdating}
-                className='flex items-center justify-center gap-2 rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-500 disabled:opacity-50'
+                className='flex cursor-pointer items-center justify-center gap-2 rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-500 disabled:opacity-50'
               >
                 <LinkIcon className='h-4 w-4' />
                 {meeting.location ? "Edit Link" : "Add Link"}
@@ -198,10 +198,16 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
               <button
                 onClick={handleJoinMeeting}
                 disabled={!meeting.location}
-                className='flex flex-1 items-center justify-center gap-2 rounded bg-cyan-700 py-2 text-white transition-colors hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50'
+                className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-cyan-700 py-2 text-white transition-colors hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-50'
               >
                 <Video className='h-4 w-4' />
                 Join Meeting
+              </button>
+
+              {/* Contact Mentee Button */}
+              <button className='flex cursor-pointer items-center gap-2 rounded bg-teal-600 px-4 py-2 text-white transition-colors hover:bg-teal-500'>
+                <MessageCircle className='h-4 w-4' />
+                Contact Mentee
               </button>
 
               {/* Mark Completed Button */}
@@ -210,7 +216,7 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
                   void handleMarkCompleted();
                 }}
                 disabled={isMarkingCompleted}
-                className='flex items-center justify-center gap-2 rounded bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
+                className='flex cursor-pointer items-center justify-center gap-2 rounded bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
               >
                 <Check className='h-4 w-4' />
                 {isMarkingCompleted ? "Marking..." : "Mark Completed"}
@@ -224,7 +230,7 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
                 onClick={() => {
                   setShowReviewLinkModal(true);
                 }}
-                className='flex flex-1 items-center justify-center gap-2 rounded bg-purple-600 py-2 text-white transition-colors hover:bg-purple-500'
+                className='flex cursor-pointer items-center justify-center gap-2 rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-500'
               >
                 <LinkIcon className='h-4 w-4' />
                 {meeting.review_link ? "Edit Review Link" : "Add Review Link"}
@@ -234,12 +240,18 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
                   onClick={() => {
                     window.open(meeting.review_link ?? "", "_blank");
                   }}
-                  className='flex items-center justify-center gap-2 rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-500'
+                  className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-blue-600 py-2 text-white transition-colors hover:bg-blue-500'
                 >
                   <Video className='h-4 w-4' />
                   Open Review
                 </button>
               )}
+
+              {/* Contact Mentee Button */}
+              <button className='flex cursor-pointer items-center gap-2 rounded bg-teal-600 px-4 py-2 text-white transition-colors hover:bg-teal-500'>
+                <MessageCircle className='h-4 w-4' />
+                Contact Mentee
+              </button>
             </>
           )}
         </div>
