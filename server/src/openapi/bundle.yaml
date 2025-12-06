@@ -4596,6 +4596,88 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}/review-link":
+    patch:
+      tags:
+        - meeting
+      summary: Update meeting review link
+      description: |
+        Add or update the review link for a completed meeting.
+        Only the mentor who owns the meeting can update the review link.
+        This endpoint is typically used after a meeting is marked as completed.
+
+        **Workflow:**
+        1. Mentor marks a meeting as 'Completed' using the status update endpoint
+        2. Mentor adds a review/course link using this endpoint (optional)
+        3. Mentee can access the review link from the completed meeting card
+        4. The review link can be updated multiple times until the mentor decides
+
+        **Note:**
+        - Review link should be a valid URL (e.g., course platform link, learning materials link)
+        - This is optional and can be added/updated at any time after meeting is created
+      operationId: updateMeetingReviewLink
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewLinkRequest"
+      responses:
+        "200":
+          description: Review link updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Review link updated successfully
+                  data:
+                    $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Invalid meeting ID or missing review link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentors can update review link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found or user does not have permission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/admin/mentees:
     get:
       tags:
@@ -6650,6 +6732,15 @@ components:
           type: string
           description: Google Meet link or meeting location URL
           example: "https://meet.google.com/abc-defg-hij"
+        review_link:
+          type: string
+          nullable: true
+          format: uri
+          description: |
+            URL link to the course review or learning materials.
+            This is optional and can be added by the mentor after the meeting is completed.
+            Can be null if not yet added.
+          example: "https://example-learning-platform.com/course/mentorship-review-123"
         start_time:
           type: string
           format: date-time
@@ -6776,6 +6867,23 @@ components:
           example: Completed
       required:
         - status
+    UpdateReviewLinkRequest:
+      type: object
+      description: Request body for updating meeting review link
+      properties:
+        reviewLink:
+          type: string
+          format: uri
+          description: |
+            URL link to the course review or learning materials.
+            This can be a link to:
+            - Course review platform (e.g., Udemy course link)
+            - Learning materials repository
+            - Video recording of the session
+            - Assessment or feedback document
+          example: https://example-learning-platform.com/course/mentorship-review-123
+      required:
+        - reviewLink
     AdminMenteeItem:
       type: object
       properties:

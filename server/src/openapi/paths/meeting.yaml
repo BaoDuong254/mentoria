@@ -352,3 +352,86 @@ updateMeetingStatus:
           application/json:
             schema:
               $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+updateMeetingReviewLink:
+  patch:
+    tags:
+      - meeting
+    summary: Update meeting review link
+    description: |
+      Add or update the review link for a completed meeting.
+      Only the mentor who owns the meeting can update the review link.
+      This endpoint is typically used after a meeting is marked as completed.
+
+      **Workflow:**
+      1. Mentor marks a meeting as 'Completed' using the status update endpoint
+      2. Mentor adds a review/course link using this endpoint (optional)
+      3. Mentee can access the review link from the completed meeting card
+      4. The review link can be updated multiple times until the mentor decides
+
+      **Note:**
+      - Review link should be a valid URL (e.g., course platform link, learning materials link)
+      - This is optional and can be added/updated at any time after meeting is created
+    operationId: updateMeetingReviewLink
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The unique identifier of the meeting
+        schema:
+          type: integer
+          example: 1
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/meeting.yaml#/UpdateReviewLinkRequest"
+    responses:
+      "200":
+        description: Review link updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Review link updated successfully"
+                data:
+                  $ref: "../schemas/meeting.yaml#/MeetingResponse"
+      "400":
+        description: Invalid meeting ID or missing review link
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentors can update review link
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Meeting not found or user does not have permission
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"

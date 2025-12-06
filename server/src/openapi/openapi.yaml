@@ -145,6 +145,8 @@ paths:
     $ref: "./paths/meeting.yaml#/updateMeetingLocation"
   /api/meetings/{meetingId}/status:
     $ref: "./paths/meeting.yaml#/updateMeetingStatus"
+  /api/meetings/{meetingId}/review-link:
+    $ref: "./paths/meeting.yaml#/updateMeetingReviewLink"
   # Admin Endpoints
   /api/admin/mentees:
     $ref: "./paths/admin.yaml#/menteesList"
