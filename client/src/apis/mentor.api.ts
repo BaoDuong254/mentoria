@@ -19,6 +19,5 @@ export async function getMentor(id: number | string): Promise<getMentorProfileRe
     withCredentials: true,
   });
 
-  console.log(res.data);
   return res.data;
 }
