@@ -38,6 +38,7 @@ export const getMeetingsByMenteeIdService = async (
         m.plan_registerations_id,
         m.status,
         m.location,
+        m.review_link,
         m.start_time,
         m.end_time,
         m.date,
@@ -118,6 +119,7 @@ export const getMeetingsByMentorIdService = async (
         m.plan_registerations_id,
         m.status,
         m.location,
+        m.review_link,
         m.start_time,
         m.end_time,
         m.date,
@@ -178,6 +180,7 @@ export const getMeetingByIdService = async (meetingId: number): Promise<MeetingR
         m.plan_registerations_id,
         m.status,
         m.location,
+        m.review_link,
         m.start_time,
         m.end_time,
         m.date,
@@ -372,6 +375,48 @@ export const updateMeetingStatusService = async (
     return updatedMeeting;
   } catch (error) {
     console.error("Error in updateMeetingStatusService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update meeting review link
+ * Only mentor can update this after meeting is completed
+ */
+export const updateMeetingReviewLinkService = async (
+  meetingId: number,
+  mentorId: number,
+  reviewLink: string
+): Promise<MeetingResponse | null> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // First verify the meeting belongs to the mentor
+    const verifyResult = await pool
+      .request()
+      .input("meetingId", sql.Int, meetingId)
+      .input("mentorId", sql.Int, mentorId).query(`
+      SELECT meeting_id, status FROM meetings 
+      WHERE meeting_id = @meetingId AND mentor_id = @mentorId
+    `);
+
+    if (verifyResult.recordset.length === 0) {
+      return null;
+    }
+
+    // Update review_link
+    await pool.request().input("meetingId", sql.Int, meetingId).input("reviewLink", sql.NVarChar(500), reviewLink)
+      .query(`
+      UPDATE meetings 
+      SET review_link = @reviewLink
+      WHERE meeting_id = @meetingId
+    `);
+
+    // Return updated meeting
+    return await getMeetingByIdService(meetingId);
+  } catch (error) {
+    console.error("Error in updateMeetingReviewLinkService:", error);
     throw error;
   }
 };

@@ -88,6 +88,15 @@ MeetingResponse:
       type: string
       description: Google Meet link or meeting location URL
       example: "https://meet.google.com/abc-defg-hij"
+    review_link:
+      type: string
+      nullable: true
+      format: uri
+      description: |
+        URL link to the course review or learning materials.
+        This is optional and can be added by the mentor after the meeting is completed.
+        Can be null if not yet added.
+      example: "https://example-learning-platform.com/course/mentorship-review-123"
     start_time:
       type: string
       format: date-time
@@ -213,3 +222,21 @@ UpdateMeetingStatusRequest:
       example: "Completed"
   required:
     - status
+
+UpdateReviewLinkRequest:
+  type: object
+  description: Request body for updating meeting review link
+  properties:
+    reviewLink:
+      type: string
+      format: uri
+      description: |
+        URL link to the course review or learning materials.
+        This can be a link to:
+        - Course review platform (e.g., Udemy course link)
+        - Learning materials repository
+        - Video recording of the session
+        - Assessment or feedback document
+      example: "https://example-learning-platform.com/course/mentorship-review-123"
+  required:
+    - reviewLink

@@ -358,6 +358,7 @@ CREATE TABLE meetings(
     plan_registerations_id INT NOT NULL,
     status NVARCHAR(20) CHECK (status IN (N'Pending',N'Scheduled', N'Completed', N'Cancelled')) DEFAULT N'Pending',
     location NVARCHAR(255) NOT NULL,
+    review_link NVARCHAR(500) NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
     date DATE NOT NULL,

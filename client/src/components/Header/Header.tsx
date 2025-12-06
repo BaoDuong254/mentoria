@@ -92,7 +92,7 @@ export default function Header() {
                   </button>
 
                   {showMenu && (
-                    <div className='absolute right-0 mt-2 w-40 rounded-md border border-amber-50/50 bg-(--secondary) shadow-lg'>
+                    <div className='absolute right-0 z-[100] mt-2 w-40 rounded-md border border-amber-50/50 bg-(--secondary) shadow-lg'>
                       <Link to={path.MENTEE} className='block rounded-md px-4 py-2 hover:bg-(--primary)'>
                         Profile
                       </Link>
