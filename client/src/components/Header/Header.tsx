@@ -40,7 +40,7 @@ export default function Header() {
                   to={`${path.MENTOR}/${path.MENTOR_PLANS}`}
                   className='cursor-pointer transition hover:underline hover:decoration-white'
                 >
-                  Your Plan
+                  My Plans
                 </Link>
               </>
             ) : (
