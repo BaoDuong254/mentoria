@@ -175,16 +175,46 @@ const deleteMenteeService = async (userId: number): Promise<AdminServiceResponse
   await transaction.begin();
 
   try {
-    // Delete related records with NO ACTION FK constraints
+    // Delete in proper order to respect FK constraints
+
+    // 1. Delete messages (NO ACTION FK)
     await transaction.request().input("userId", userId).query(`
       DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
     `);
 
+    // 2. Delete feedbacks (NO ACTION FK)
     await transaction.request().input("userId", userId).query(`
       DELETE FROM feedbacks WHERE mentee_id = @userId
     `);
 
-    // Delete user (cascades to mentees table)
+    // 3. Delete meetings related to mentee's bookings
+    await transaction.request().input("userId", userId).query(`
+      DELETE m
+      FROM meetings m
+      INNER JOIN invoices i ON m.invoice_id = i.invoice_id
+      WHERE i.mentee_id = @userId
+    `);
+
+    // 4. Delete invoices (CASCADE from plan_registerations)
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM invoices WHERE mentee_id = @userId
+    `);
+
+    // 5. Delete bookings (CASCADE from plan_registerations and mentees)
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM bookings WHERE mentee_id = @userId
+    `);
+
+    // 6. Delete plan_registerations (CASCADE from bookings/invoices deleted)
+    await transaction.request().input("userId", userId).query(`
+      DELETE pr
+      FROM plan_registerations pr
+      LEFT JOIN bookings b ON pr.registration_id = b.plan_registerations_id
+      LEFT JOIN invoices i ON pr.registration_id = i.plan_registerations_id
+      WHERE b.mentee_id = @userId OR i.mentee_id = @userId
+    `);
+
+    // 7. Delete user (cascades to mentees table)
     const result = await transaction.request().input("userId", userId).query(`
       DELETE FROM users WHERE user_id = @userId
     `);
@@ -208,8 +238,6 @@ const deleteMenteeService = async (userId: number): Promise<AdminServiceResponse
     throw error;
   }
 };
-
-// ==================== MENTOR SERVICES ====================
 
 const listMentorsService = async (
   page: number = 1,
@@ -448,21 +476,88 @@ const deleteMentorService = async (userId: number): Promise<AdminServiceResponse
   await transaction.begin();
 
   try {
-    // Delete related records with NO ACTION FK constraints
+    // Delete in proper order to respect FK constraints
+
+    // 1. Delete messages (NO ACTION FK)
     await transaction.request().input("userId", userId).query(`
       DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
     `);
 
+    // 2. Delete feedbacks (NO ACTION FK)
     await transaction.request().input("userId", userId).query(`
       DELETE FROM feedbacks WHERE mentor_id = @userId
     `);
 
-    // Delete meetings that reference this mentor's slots
+    // 3. Delete meetings (NO ACTION FK to slots)
     await transaction.request().input("userId", userId).query(`
       DELETE FROM meetings WHERE mentor_id = @userId
     `);
 
-    // Delete user (cascades to mentors, slots, plans, etc.)
+    // 4. Delete invoices related to mentor's plans via bookings
+    await transaction.request().input("userId", userId).query(`
+      DELETE i
+      FROM invoices i
+      INNER JOIN bookings b ON i.plan_registerations_id = b.plan_registerations_id
+      INNER JOIN plans p ON b.plan_id = p.plan_id
+      WHERE p.mentor_id = @userId
+    `);
+
+    // 5. Delete bookings (NO ACTION FK to plans)
+    await transaction.request().input("userId", userId).query(`
+      DELETE b
+      FROM bookings b
+      INNER JOIN plans p ON b.plan_id = p.plan_id
+      WHERE p.mentor_id = @userId
+    `);
+
+    // 6. Delete plan_registerations that belonged to deleted bookings/invoices
+    await transaction.request().input("userId", userId).query(`
+      DELETE pr
+      FROM plan_registerations pr
+      WHERE NOT EXISTS (
+        SELECT 1 FROM bookings b WHERE b.plan_registerations_id = pr.registration_id
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM invoices i WHERE i.plan_registerations_id = pr.registration_id
+      )
+    `);
+
+    // 7. Delete slots (NO ACTION FK to plans)
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM slots WHERE mentor_id = @userId
+    `);
+
+    // 8. Delete plan benefits (CASCADE from plan_mentorships)
+    await transaction.request().input("userId", userId).query(`
+      DELETE mb
+      FROM mentorships_benefits mb
+      INNER JOIN plan_mentorships pm ON mb.mentorships_id = pm.mentorships_id
+      INNER JOIN plans p ON pm.mentorships_id = p.plan_id
+      WHERE p.mentor_id = @userId
+    `);
+
+    // 9. Delete plan_mentorships (CASCADE from plans)
+    await transaction.request().input("userId", userId).query(`
+      DELETE pm
+      FROM plan_mentorships pm
+      INNER JOIN plans p ON pm.mentorships_id = p.plan_id
+      WHERE p.mentor_id = @userId
+    `);
+
+    // 10. Delete plan_sessions (CASCADE from plans)
+    await transaction.request().input("userId", userId).query(`
+      DELETE ps
+      FROM plan_sessions ps
+      INNER JOIN plans p ON ps.sessions_id = p.plan_id
+      WHERE p.mentor_id = @userId
+    `);
+
+    // 11. Delete plans
+    await transaction.request().input("userId", userId).query(`
+      DELETE FROM plans WHERE mentor_id = @userId
+    `);
+
+    // 12. Delete user (cascades to mentors, mentor_languages, work_for, set_skill, user_social_links)
     const result = await transaction.request().input("userId", userId).query(`
       DELETE FROM users WHERE user_id = @userId
     `);
@@ -486,8 +581,6 @@ const deleteMentorService = async (userId: number): Promise<AdminServiceResponse
     throw error;
   }
 };
-
-// ==================== REVIEW MENTOR SERVICE ====================
 
 const reviewMentorService = async (
   userId: number,
@@ -544,19 +637,59 @@ const reviewMentorService = async (
     await transaction.begin();
 
     try {
-      // Delete related records with NO ACTION FK constraints
+      // Delete in proper order (pending mentors shouldn't have bookings/invoices, but be safe)
+
+      // 1. Delete messages (NO ACTION FK)
       await transaction.request().input("userId", userId).query(`
         DELETE FROM messages WHERE sender_id = @userId OR receiver_id = @userId
       `);
 
+      // 2. Delete feedbacks (NO ACTION FK)
       await transaction.request().input("userId", userId).query(`
         DELETE FROM feedbacks WHERE mentor_id = @userId
       `);
 
+      // 3. Delete meetings (NO ACTION FK)
       await transaction.request().input("userId", userId).query(`
         DELETE FROM meetings WHERE mentor_id = @userId
       `);
 
+      // 4. Delete slots (NO ACTION FK to plans)
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM slots WHERE mentor_id = @userId
+      `);
+
+      // 5. Delete plan benefits
+      await transaction.request().input("userId", userId).query(`
+        DELETE mb
+        FROM mentorships_benefits mb
+        INNER JOIN plan_mentorships pm ON mb.mentorships_id = pm.mentorships_id
+        INNER JOIN plans p ON pm.mentorships_id = p.plan_id
+        WHERE p.mentor_id = @userId
+      `);
+
+      // 6. Delete plan_mentorships
+      await transaction.request().input("userId", userId).query(`
+        DELETE pm
+        FROM plan_mentorships pm
+        INNER JOIN plans p ON pm.mentorships_id = p.plan_id
+        WHERE p.mentor_id = @userId
+      `);
+
+      // 7. Delete plan_sessions
+      await transaction.request().input("userId", userId).query(`
+        DELETE ps
+        FROM plan_sessions ps
+        INNER JOIN plans p ON ps.sessions_id = p.plan_id
+        WHERE p.mentor_id = @userId
+      `);
+
+      // 8. Delete plans
+      await transaction.request().input("userId", userId).query(`
+        DELETE FROM plans WHERE mentor_id = @userId
+      `);
+
+      // 9. Delete user (cascades to mentors, mentor_languages, work_for, set_skill)
       await transaction.request().input("userId", userId).query(`
         DELETE FROM users WHERE user_id = @userId
       `);
@@ -579,8 +712,6 @@ const reviewMentorService = async (
     message: "Invalid action",
   };
 };
-
-// ==================== INVOICE SERVICES ====================
 
 const getInvoiceStatsService = async (
   year?: number,
@@ -704,8 +835,6 @@ const getInvoiceStatsService = async (
   }
 };
 
-// ==================== SYSTEM STATISTICS SERVICE ====================
-
 const getSystemStatsService = async (): Promise<AdminServiceResponse<SystemStats>> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
@@ -770,10 +899,10 @@ const getSystemStatsService = async (): Promise<AdminServiceResponse<SystemStats
       .input("lastDayOfLastMonth", lastDayOfLastMonth).query(`
         SELECT
           COUNT(*) as total,
-          ISNULL(SUM(amount), 0) as totalRevenue,
-          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfMonth THEN amount ELSE 0 END), 0) as thisMonthRevenue,
-          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfLastMonth AND paid_time <= @lastDayOfLastMonth THEN amount ELSE 0 END), 0) as lastMonthRevenue,
-          ISNULL(AVG(amount), 0) as averageAmount
+          ISNULL(SUM(amount_total), 0) as totalRevenue,
+          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfMonth THEN amount_total ELSE 0 END), 0) as thisMonthRevenue,
+          ISNULL(SUM(CASE WHEN paid_time >= @firstDayOfLastMonth AND paid_time <= @lastDayOfLastMonth THEN amount_total ELSE 0 END), 0) as lastMonthRevenue,
+          ISNULL(AVG(amount_total), 0) as averageAmount
         FROM invoices
         WHERE payment_status = 'paid'
       `);
