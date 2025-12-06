@@ -2,6 +2,7 @@ import { useRoutes } from "react-router-dom";
 import path from "@/constants/path";
 
 import PublicLayout from "@/layouts/PublicLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 
 import Home from "@/pages/public/Home";
 import Login from "@/pages/public/Login";
@@ -19,6 +20,9 @@ import ProtectedMenteeRoute from "@/layouts/ProtectedMenteeRoute";
 import ProtectedMentorRoute from "@/layouts/ProtectedMentorRoute";
 import PaymentSuccessPage from "@/pages/public/Payment";
 import ProtectedAdminRoute from "@/layouts/ProtectedAdminRoute";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminInvoices from "@/pages/admin/AdminInvoices";
 import MentorPlans from "@/pages/mentor/MentorPlans/MentorPlans";
 
 export default function useRoutesConfig() {
@@ -51,10 +55,16 @@ export default function useRoutesConfig() {
     },
     {
       element: <ProtectedAdminRoute />,
-      childre: [
+      children: [
         {
           path: path.ADMIN,
-          element: <PublicLayout />,
+          element: <AdminLayout />,
+          children: [
+            { index: true, element: <AdminDashboard /> },
+            { path: path.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+            { path: path.ADMIN_USERS, element: <AdminUsers /> },
+            { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
+          ],
         },
       ],
     },
