@@ -1,4 +1,4 @@
-import { Calendar, Clock, Star, Trash2, Video, ExternalLink } from "lucide-react";
+import { Calendar, Clock, Star, Trash2, Video, ExternalLink, MessageCircle } from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useNavigate } from "react-router-dom";
 import { useMeetingStore } from "@/store/useMeetingStore";
@@ -247,12 +247,9 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
               <Clock className='h-4 w-4' />
               Waiting for Confirmation
             </button>
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className='rounded bg-red-600 px-6 py-2 text-white transition-colors hover:bg-red-700 disabled:opacity-50'
-            >
-              <Trash2 className='h-4 w-4' />
+            <button className='flex items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-white transition-colors hover:bg-cyan-600'>
+              <MessageCircle className='h-4 w-4' />
+              Contact Mentor
             </button>
           </>
         )}

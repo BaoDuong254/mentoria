@@ -11,6 +11,7 @@ function MenteeDashboard() {
     meetings,
     fetchMeetingsForMentee,
     setSelectedDate,
+    getPendingMeetings,
     getAcceptedMeetings,
     getOutOfDateMeetings,
     getCompletedMeetings,
@@ -21,12 +22,14 @@ function MenteeDashboard() {
     void fetchMeetingsForMentee();
   }, [fetchMeetingsForMentee]);
 
+  const pendingMeetings = getPendingMeetings();
   const acceptedMeetings = getAcceptedMeetings();
   const outOfDateMeetings = getOutOfDateMeetings();
   const completedMeetings = getCompletedMeetings();
   const cancelledMeetings = getCancelledMeetings();
 
   const hasAnyMeetings =
+    pendingMeetings.length > 0 ||
     acceptedMeetings.length > 0 ||
     outOfDateMeetings.length > 0 ||
     completedMeetings.length > 0 ||
@@ -59,6 +62,23 @@ function MenteeDashboard() {
               <EmptyState />
             ) : (
               <>
+                {/* Pending Section */}
+                {pendingMeetings.length > 0 && (
+                  <div>
+                    <div className='mb-4 flex items-center justify-between'>
+                      <h2 className='text-xl font-medium text-yellow-500'>Pending</h2>
+                      <span className='flex h-8 w-8 items-center justify-center rounded-full bg-yellow-600 text-sm text-white'>
+                        {pendingMeetings.length}
+                      </span>
+                    </div>
+                    <div className='space-y-4'>
+                      {pendingMeetings.map((meeting) => (
+                        <MeetingCard key={meeting.meeting_id} meeting={meeting} type='pending' />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Accepted Section */}
                 {acceptedMeetings.length > 0 && (
                   <div>

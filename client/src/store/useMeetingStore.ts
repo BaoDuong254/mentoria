@@ -43,6 +43,7 @@ interface MeetingState {
   setSelectedDate: (date: Date) => void;
   setMeetingLocation: (meetingId: number, location: string) => Promise<boolean>;
   markMeetingAsCompleted: (meetingId: number) => Promise<boolean>;
+  acceptMeeting: (meetingId: number) => Promise<boolean>;
   setReviewLink: (meetingId: number, reviewLink: string) => Promise<boolean>;
   deleteMeeting: (meetingId: number) => Promise<boolean>;
 
@@ -161,6 +162,26 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
     }
   },
 
+  acceptMeeting: async (meetingId: number) => {
+    try {
+      const response = await updateMeetingStatus(meetingId, {
+        status: "Scheduled",
+      });
+      if (response.success) {
+        set((state) => ({
+          meetings: state.meetings.map((m) =>
+            m.meeting_id === meetingId ? { ...m, status: "Scheduled" as const } : m
+          ),
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error accepting meeting:", error);
+      return false;
+    }
+  },
+
   setReviewLink: async (meetingId: number, reviewLink: string) => {
     try {
       const response = await updateReviewLink(meetingId, { reviewLink });
@@ -242,11 +263,10 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
     return meetings.filter((m) => m.status === "Cancelled");
   },
 
-  // Get pending meetings for selected date
+  // Get pending meetings (future meetings waiting for confirmation)
   getPendingMeetings: () => {
-    const { meetings, selectedDate } = get();
+    const { meetings } = get();
     const now = new Date();
-    const selectedDateStr = formatLocalDateString(selectedDate);
 
     return meetings.filter((m) => {
       const { hours, minutes } = parseTimeFromString(m.start_time);
@@ -254,9 +274,7 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
       const [year, month, day] = meetingDateStr.split("-").map(Number);
       const meetingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
-      const isSameDay = meetingDateStr === selectedDateStr;
-
-      return m.status === "Pending" && meetingDateTime > now && isSameDay;
+      return m.status === "Pending" && meetingDateTime > now;
     });
   },
 

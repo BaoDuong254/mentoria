@@ -200,6 +200,23 @@ function MentorDashboard() {
               </div>
             ) : (
               <>
+                {/* Pending Section */}
+                {pendingMeetings.length > 0 && (
+                  <div>
+                    <div className='mb-4 flex items-center justify-between'>
+                      <h2 className='text-xl font-medium text-yellow-500'>Pending</h2>
+                      <span className='flex h-8 w-8 items-center justify-center rounded-full bg-yellow-600 text-sm text-white'>
+                        {pendingMeetings.length}
+                      </span>
+                    </div>
+                    <div className='space-y-4'>
+                      {pendingMeetings.map((meeting) => (
+                        <MentorMeetingCard key={meeting.meeting_id} meeting={meeting} type='pending' />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Accepted Section */}
                 {acceptedMeetings.length > 0 && (
                   <div>

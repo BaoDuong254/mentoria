@@ -1,4 +1,4 @@
-import { Calendar, Clock, Video, Check, Link as LinkIcon } from "lucide-react";
+import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck } from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useMeetingStore } from "@/store/useMeetingStore";
 import { useState } from "react";
@@ -6,15 +6,16 @@ import LinkInputModal from "@/components/LinkInputModal";
 
 interface MentorMeetingCardProps {
   meeting: MeetingResponse;
-  type: "accepted" | "completed";
+  type: "accepted" | "completed" | "pending";
 }
 
 export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardProps) {
-  const { setMeetingLocation, markMeetingAsCompleted, setReviewLink } = useMeetingStore();
+  const { setMeetingLocation, markMeetingAsCompleted, setReviewLink, acceptMeeting } = useMeetingStore();
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showReviewLinkModal, setShowReviewLinkModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMarkingCompleted, setIsMarkingCompleted] = useState(false);
+  const [isAccepting, setIsAccepting] = useState(false);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,6 +76,15 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     }
   };
 
+  const handleAcceptMeeting = async () => {
+    setIsAccepting(true);
+    const success = await acceptMeeting(meeting.meeting_id);
+    setIsAccepting(false);
+    if (!success) {
+      alert("Failed to accept meeting");
+    }
+  };
+
   const handleSaveReviewLink = async (link: string) => {
     setIsUpdating(true);
     const success = await setReviewLink(meeting.meeting_id, link);
@@ -88,6 +98,8 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
 
   const getBadgeColor = () => {
     switch (type) {
+      case "pending":
+        return "bg-yellow-600 text-yellow-100";
       case "accepted":
         return "bg-green-600 text-green-100";
       case "completed":
@@ -99,6 +111,8 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
 
   const getBadgeText = () => {
     switch (type) {
+      case "pending":
+        return "Pending";
       case "accepted":
         return "Confirmed";
       case "completed":
@@ -152,6 +166,22 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
 
         {/* Action Buttons */}
         <div className='flex gap-3'>
+          {type === "pending" && (
+            <>
+              {/* Accept Mentee Button */}
+              <button
+                onClick={() => {
+                  void handleAcceptMeeting();
+                }}
+                disabled={isAccepting}
+                className='flex flex-1 items-center justify-center gap-2 rounded bg-green-600 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
+              >
+                <UserCheck className='h-4 w-4' />
+                {isAccepting ? "Accepting..." : "Accept Mentee"}
+              </button>
+            </>
+          )}
+
           {type === "accepted" && (
             <>
               {/* Edit/Add Link Button */}
