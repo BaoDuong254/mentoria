@@ -276,7 +276,7 @@ export const updateMeetingReviewLink = async (req: Request, res: Response) => {
     }
 
     // Verify user is a mentor
-    if (req.user?.role !== "Mentor") {
+    if (req.user?.role !== Role.Mentor) {
       return res.status(403).json({
         success: false,
         message: "Access denied. Only mentors can update review link.",
