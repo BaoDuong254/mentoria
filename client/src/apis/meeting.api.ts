@@ -39,7 +39,7 @@ export async function updateMeetingLocation(
   meetingId: number,
   data: UpdateMeetingLocationRequest
 ): Promise<{ success: boolean; message: string }> {
-  const res = await axios.patch<{ success: boolean; message: string }>(
+  const res = await axios.put<{ success: boolean; message: string }>(
     `${BASE_URL}/${String(meetingId)}/location`,
     data,
     {
@@ -54,13 +54,9 @@ export async function updateMeetingStatus(
   meetingId: number,
   data: UpdateMeetingStatusRequest
 ): Promise<{ success: boolean; message: string }> {
-  const res = await axios.patch<{ success: boolean; message: string }>(
-    `${BASE_URL}/${String(meetingId)}/status`,
-    data,
-    {
-      withCredentials: true,
-    }
-  );
+  const res = await axios.put<{ success: boolean; message: string }>(`${BASE_URL}/${String(meetingId)}/status`, data, {
+    withCredentials: true,
+  });
   return res.data;
 }
 
@@ -69,7 +65,7 @@ export async function updateReviewLink(
   meetingId: number,
   data: UpdateReviewLinkRequest
 ): Promise<{ success: boolean; message: string }> {
-  const res = await axios.patch<{ success: boolean; message: string }>(
+  const res = await axios.put<{ success: boolean; message: string }>(
     `${BASE_URL}/${String(meetingId)}/review-link`,
     data,
     {

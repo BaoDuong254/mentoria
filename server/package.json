@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "pnpm exec nodemon",
     "clean": "rimraf dist/",
-    "copy-files": "copyfiles -u 1 src/openapi/**/* dist/",
+    "copy-files": "copyfiles -u 1 src/openapi/**/* src/mailtrap/template/** dist/",
     "build": "pnpm clean && tsc && pnpm copy-files && tsc-alias",
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",

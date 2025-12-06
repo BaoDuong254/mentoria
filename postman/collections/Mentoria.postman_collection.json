@@ -64,7 +64,7 @@
 							"urlencoded": [
 								{
 									"key": "otp",
-									"value": "723940",
+									"value": "596457",
 									"type": "text"
 								}
 							]
@@ -346,7 +346,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"DuongGia\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"Kien\",\r\n    \"lastName\": \"Nguyen\",\r\n    \"sex\": \"Female\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -354,14 +354,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/mentors/13",
+							"raw": "{{host}}/api/mentors/1",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"mentors",
-								"13"
+								"1"
 							]
 						}
 					},
@@ -1454,7 +1454,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"menteeId\": 52,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-12-06T08:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-12-06T08:30:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\",\r\n  \"discountCode\": \"WELCOME10\"\r\n}",
+							"raw": "{\r\n  \"menteeId\": 52,\r\n  \"mentorId\": 1,\r\n  \"planId\": 1,\r\n  \"slotStartTime\": \"2025-12-06T15:00:00.000Z\",\r\n  \"slotEndTime\": \"2025-12-06T15:30:00.000Z\",\r\n  \"message\": \"I would like to discuss career transition strategies.\"\r\n//   \"discountCode\": \"\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2084,6 +2084,32 @@
 							]
 						},
 						"description": "Cập nhật status của meeting (Pending, Scheduled, Completed, Cancelled)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update review link",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/meetings/:meetingId/review-link",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								":meetingId",
+								"review-link"
+							],
+							"variable": [
+								{
+									"key": "meetingId",
+									"value": "1"
+								}
+							]
+						}
 					},
 					"response": []
 				}

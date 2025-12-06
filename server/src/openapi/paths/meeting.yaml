@@ -354,7 +354,7 @@ updateMeetingStatus:
               $ref: "../schemas/_index.yaml#/ErrorResponse"
 
 updateMeetingReviewLink:
-  patch:
+  put:
     tags:
       - meeting
     summary: Update meeting review link
