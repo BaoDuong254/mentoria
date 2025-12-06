@@ -136,7 +136,7 @@ export const getMeetingsByMentorIdService = async (
         p.plan_type,
         p.plan_description,
         p.plan_charge,
-        i.amount AS amount_paid
+        i.amount_total AS amount_paid
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
       INNER JOIN users mentor_user ON m.mentor_id = mentor_user.user_id
@@ -197,7 +197,7 @@ export const getMeetingByIdService = async (meetingId: number): Promise<MeetingR
         p.plan_type,
         p.plan_description,
         p.plan_charge,
-        i.amount AS amount_paid
+        i.amount_total AS amount_paid
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
       INNER JOIN users mentor_user ON m.mentor_id = mentor_user.user_id

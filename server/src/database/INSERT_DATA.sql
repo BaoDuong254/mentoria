@@ -186,7 +186,7 @@ VALUES
 (1, N'Experienced full-stack developer with 10+ years in web development. Specialized in React, Node.js, and cloud architecture. Passionate about helping developers grow their careers.', N'Senior Full-Stack Developer & Tech Lead', N'Within 24 hours', N'https://example.com/cv/johndoe.pdf', N'Chase Bank', N'1234567890', N'John Doe', N'New York Main Branch', N'CHASUS33'),
 (2, N'Product designer with expertise in creating user-centered digital experiences. Worked with startups and Fortune 500 companies.', N'Lead Product Designer', N'Within 12 hours', N'https://example.com/cv/sarahjohnson.pdf', N'Barclays Bank', N'2345678901', N'Sarah Johnson', N'London Central', N'BARCGB22'),
 (3, N'Data scientist and ML engineer specializing in NLP and computer vision. Published researcher and conference speaker.', N'Senior Data Scientist & ML Engineer', N'Within 48 hours', N'https://example.com/cv/michaelchen.pdf', N'DBS Bank', N'3456789012', N'Michael Chen', N'Singapore Marina Bay', N'DBSSSGSG'),
-(4, N'Digital marketing strategist with experience in growth hacking and content marketing. Helped 50+ startups scale.', N'Growth Marketing Lead', N'Within 18 hours', N'https://example.com/cv/emilyrodriguez.pdf', N'Santander Bank', N'4567890123', N'Emily Rodriguez', N'Madrid Centro', N'BSCHESMM'),
+(4, N'Digital marketing strategist with experience in growth hacking and content marketing. Helped 50+ startups scale.', N'Growth Marketing Lead', N'Within 24 hours', N'https://example.com/cv/emilyrodriguez.pdf', N'Santander Bank', N'4567890123', N'Emily Rodriguez', N'Madrid Centro', N'BSCHESMM'),
 (5, N'Career coach and leadership consultant. Former tech executive with 15+ years of experience guiding professionals.', N'Career Coach & Leadership Consultant', N'Within 24 hours', N'https://example.com/cv/davidkim.pdf', N'Kookmin Bank', N'5678901234', N'David Kim', N'Seoul Gangnam', N'CZNBKRSE'),
 (6, N'Cloud architect and DevOps specialist. Expert in AWS, Azure, and Kubernetes. Helped companies migrate to cloud.', N'Senior Cloud Architect', N'Within 24 hours', N'https://example.com/cv/lisaanderson.pdf', N'Royal Bank of Canada', N'6789012345', N'Lisa Anderson', N'Toronto Downtown', N'ROYCCAT2'),
 (7, N'Mobile developer with expertise in iOS and Android. Published 20+ apps with millions of downloads.', N'Senior Mobile Developer', N'Within 36 hours', N'https://example.com/cv/jamesmartinez.pdf', N'BBVA Bancomer', N'7890123456', N'James Martinez', N'Mexico City Reforma', N'BCMRMXMM'),
@@ -194,13 +194,13 @@ VALUES
 (9, N'Backend engineer specializing in scalable systems. Expert in microservices and distributed architecture.', N'Senior Backend Engineer', N'Within 24 hours', N'https://example.com/cv/robertthompson.pdf', N'Commonwealth Bank', N'9012345678', N'Robert Thompson', N'Sydney CBD', N'CTBAAU2S'),
 (10, N'Digital transformation consultant. Helping businesses leverage technology for growth and innovation.', N'Digital Transformation Consultant', N'Within 48 hours', N'https://example.com/cv/mariagarcia.pdf', N'Banco Galicia', N'0123456789', N'Maria Garcia', N'Buenos Aires Centro', N'GABSARAR'),
 (11, N'Software architect with deep knowledge in system design. Expert in building high-performance applications.', N'Principal Software Architect', N'Within 24 hours', N'https://example.com/cv/thomaslee.pdf', N'MUFG Bank', N'1122334455', N'Thomas Lee', N'Tokyo Marunouchi', N'BOTKJPJT'),
-(12, N'Creative director and brand strategist. Worked with global brands on digital campaigns and rebranding.', N'Creative Director & Brand Strategist', N'Within 18 hours', N'https://example.com/cv/sophiedubois.pdf', N'BNP Paribas', N'2233445566', N'Sophie Dubois', N'Paris Opera', N'BNPAFRPP'),
+(12, N'Creative director and brand strategist. Worked with global brands on digital campaigns and rebranding.', N'Creative Director & Brand Strategist', N'Within 24 hours', N'https://example.com/cv/sophiedubois.pdf', N'BNP Paribas', N'2233445566', N'Sophie Dubois', N'Paris Opera', N'BNPAFRPP'),
 (13, N'Cybersecurity expert with certifications in ethical hacking. Protected Fortune 500 companies from threats.', N'Senior Cybersecurity Consultant', N'Within 24 hours', N'https://example.com/cv/kevinwalsh.pdf', N'AIB Bank', N'3344556677', N'Kevin Walsh', N'Dublin O''Connell Street', N'AIBKIE2D'),
 (14, N'Product manager with strong technical background. Led multiple successful product launches at tech companies.', N'Senior Product Manager', N'Within 12 hours', N'https://example.com/cv/lauramuller.pdf', N'Deutsche Bank', N'4455667788', N'Laura Muller', N'Berlin Alexanderplatz', N'DEUTDEFF'),
 (15, N'AI researcher and engineer. Published papers on deep learning and neural networks. Industry speaker.', N'AI Research Engineer', N'Within 48 hours', N'https://example.com/cv/danielsantos.pdf', N'Banco do Brasil', N'5566778899', N'Daniel Santos', N'Sao Paulo Paulista', N'BRASBRRJ'),
 (16, N'Graphic designer and illustrator. Specialized in branding, UI design, and creative visual storytelling.', N'Senior Graphic Designer', N'Within 24 hours', N'https://example.com/cv/emmawilson.pdf', N'ANZ Bank', N'6677889900', N'Emma Wilson', N'Auckland Queen Street', N'ANZBNZ22'),
 (17, N'Full-stack developer with passion for clean code. Mentor to 100+ junior developers. Open source contributor.', N'Lead Full-Stack Developer', N'Within 24 hours', N'https://example.com/cv/marcorossi.pdf', N'UniCredit', N'7788990011', N'Marco Rossi', N'Rome Via Veneto', N'UNCRITMM'),
-(18, N'SEO and content marketing specialist. Helped brands achieve 10x organic growth through strategic content.', N'SEO & Content Marketing Lead', N'Within 18 hours', N'https://example.com/cv/oliviabrown.pdf', N'Standard Bank', N'8899001122', N'Olivia Brown', N'Johannesburg Sandton', N'SBZAZAJJ'),
+(18, N'SEO and content marketing specialist. Helped brands achieve 10x organic growth through strategic content.', N'SEO & Content Marketing Lead', N'Within 24 hours', N'https://example.com/cv/oliviabrown.pdf', N'Standard Bank', N'8899001122', N'Olivia Brown', N'Johannesburg Sandton', N'SBZAZAJJ'),
 (19, N'Game developer with 12 years experience. Worked on AAA titles and indie games. Unity and Unreal expert.', N'Senior Game Developer', N'Within 36 hours', N'https://example.com/cv/alexpetrov.pdf', N'Sberbank', N'9900112233', N'Alex Petrov', N'Moscow Red Square', N'SABRRUMM'),
 (20, N'Business analyst and data visualization expert. Transform complex data into actionable business insights.', N'Senior Business Analyst', N'Within 24 hours', N'https://example.com/cv/ninasingh.pdf', N'State Bank of India', N'0011223344', N'Nina Singh', N'Mumbai Fort', N'SBININBB'),
 (21, N'Engineering manager with experience leading distributed teams. Focus on agile methodologies and team growth.', N'Engineering Manager', N'Within 24 hours', N'https://example.com/cv/patrickobrien.pdf', N'Bank of Ireland', N'1122334455', N'Patrick OBrien', N'Dublin College Green', N'BOFIIE2D'),
@@ -208,7 +208,7 @@ VALUES
 (23, N'Blockchain developer and Web3 enthusiast. Built DeFi and NFT platforms. Smart contract expert.', N'Senior Blockchain Developer', N'Within 48 hours', N'https://example.com/cv/henrikandersson.pdf', N'Swedbank', N'3344556677', N'Henrik Andersson', N'Stockholm Sergels Torg', N'SWEDSESS'),
 (24, N'Motion designer and video editor. Created animations for top brands. Expert in After Effects and Cinema 4D.', N'Senior Motion Designer', N'Within 24 hours', N'https://example.com/cv/rachelcohen.pdf', N'Bank Hapoalim', N'4455667788', N'Rachel Cohen', N'Tel Aviv Rothschild', N'POALILIT'),
 (25, N'IoT engineer and embedded systems developer. Built connected devices for smart home and industrial IoT.', N'Senior IoT Engineer', N'Within 36 hours', N'https://example.com/cv/mohammedahmed.pdf', N'Emirates NBD', N'5566778899', N'Mohammed Ahmed', N'Dubai Marina', N'EBILAEAD'),
-(26, N'Technical writer and documentation specialist. Created docs for major tech companies. Clear communication expert.', N'Senior Technical Writer', N'Within 18 hours', N'https://example.com/cv/yukitanaka.pdf', N'Mizuho Bank', N'6677889900', N'Yuki Tanaka', N'Tokyo Shibuya', N'MHCBJPJT'),
+(26, N'Technical writer and documentation specialist. Created docs for major tech companies. Clear communication expert.', N'Senior Technical Writer', N'Within 24 hours', N'https://example.com/cv/yukitanaka.pdf', N'Mizuho Bank', N'6677889900', N'Yuki Tanaka', N'Tokyo Shibuya', N'MHCBJPJT'),
 (27, N'QA engineer and test automation specialist. Built testing frameworks used by enterprise companies.', N'Senior QA Engineer', N'Within 24 hours', N'https://example.com/cv/lucassilva.pdf', N'Millennium BCP', N'7788990011', N'Lucas Silva', N'Lisbon Avenida da Liberdade', N'BCOMPTPL'),
 (28, N'E-commerce specialist and conversion optimization expert. Increased revenue for 100+ online stores.', N'E-commerce Strategy Lead', N'Within 24 hours', N'https://example.com/cv/chloemartin.pdf', N'KBC Bank', N'8899001122', N'Chloe Martin', N'Brussels Grand Place', N'KREDBEBB'),
 (29, N'Site reliability engineer. Expert in monitoring, observability, and building resilient systems at scale.', N'Senior SRE', N'Within 24 hours', N'https://example.com/cv/erikhansen.pdf', N'Danske Bank', N'9900112233', N'Erik Hansen', N'Copenhagen Kongens Nytorv', N'DABADKKK'),
@@ -1353,7 +1353,7 @@ VALUES
 ('2025-12-11 13:00:00', '2025-12-11 14:00:00', '2025-12-11', 2, N'Available', 5),
 ('2025-12-12 11:00:00', '2025-12-12 12:00:00', '2025-12-12', 2, N'Available', 6),
 ('2025-12-13 09:00:00', '2025-12-13 10:00:00', '2025-12-13', 2, N'Available', 4),
-('2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 2, N'Available', 5),
+('2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 2, N'Booked', 5),
 ('2025-12-15 10:00:00', '2025-12-15 11:00:00', '2025-12-15', 2, N'Available', 6),
 
 -- Michael Chen's slots (mentor_id 3) - Plans: 7 (75min), 8 (130min), 9 (Standard), 10 (Premium)
@@ -1381,168 +1381,168 @@ VALUES
 ('2025-12-15 11:00:00', '2025-12-15 13:00:00', '2025-12-15', 5, N'Available', 15),
 
 -- Lisa Anderson's slots (mentor_id 6) - Plans: 18 (85min), 19 (Lite), 20 (Standard)
-('2025-12-10 14:00:00', '2025-12-10 15:25:00', '2025-12-10', 6, N'Available', 18),
+('2025-12-10 14:00:00', '2025-12-10 15:25:00', '2025-12-10', 6, N'Booked', 18),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 6, N'Available', 19),
 ('2025-12-12 13:00:00', '2025-12-12 14:30:00', '2025-12-12', 6, N'Available', 20),
 ('2025-12-13 09:00:00', '2025-12-13 10:25:00', '2025-12-13', 6, N'Available', 18),
 ('2025-12-14 15:00:00', '2025-12-14 16:00:00', '2025-12-14', 6, N'Available', 19),
 
 -- James Martinez's slots (mentor_id 7) - Plans: 21 (65min), 22 (Lite), 23 (Standard)
-('2025-12-10 09:00:00', '2025-12-10 10:05:00', '2025-12-10', 7, N'Available', 21),
+('2025-12-10 09:00:00', '2025-12-10 10:05:00', '2025-12-10', 7, N'Booked', 21),
 ('2025-12-11 14:00:00', '2025-12-11 15:00:00', '2025-12-11', 7, N'Available', 22),
 ('2025-12-12 10:00:00', '2025-12-12 11:15:00', '2025-12-12', 7, N'Available', 23),
 ('2025-12-13 13:00:00', '2025-12-13 14:05:00', '2025-12-13', 7, N'Available', 21),
 ('2025-12-14 11:00:00', '2025-12-14 12:00:00', '2025-12-14', 7, N'Available', 22),
 
 -- Anna Kowalski's slots (mentor_id 8) - Plans: 24 (55min), 25 (Lite), 26 (Standard)
-('2025-12-10 10:00:00', '2025-12-10 10:55:00', '2025-12-10', 8, N'Available', 24),
+('2025-12-10 10:00:00', '2025-12-10 10:55:00', '2025-12-10', 8, N'Booked', 24),
 ('2025-12-11 13:00:00', '2025-12-11 14:00:00', '2025-12-11', 8, N'Available', 25),
 ('2025-12-12 15:00:00', '2025-12-12 16:00:00', '2025-12-12', 8, N'Available', 26),
 ('2025-12-13 09:00:00', '2025-12-13 09:55:00', '2025-12-13', 8, N'Available', 24),
 ('2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 8, N'Available', 25),
 
 -- Robert Thompson's slots (mentor_id 9) - Plans: 27 (70min), 28 (Lite), 29 (Standard)
-('2025-12-10 11:00:00', '2025-12-10 12:10:00', '2025-12-10', 9, N'Available', 27),
+('2025-12-10 11:00:00', '2025-12-10 12:10:00', '2025-12-10', 9, N'Booked', 27),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 9, N'Available', 28),
 ('2025-12-12 14:00:00', '2025-12-12 15:30:00', '2025-12-12', 9, N'Available', 29),
 ('2025-12-13 10:00:00', '2025-12-13 11:10:00', '2025-12-13', 9, N'Available', 27),
 ('2025-12-14 13:00:00', '2025-12-14 14:00:00', '2025-12-14', 9, N'Available', 28),
 
 -- Maria Garcia's slots (mentor_id 10) - Plans: 30 (80min), 31 (Lite)
-('2025-12-10 13:00:00', '2025-12-10 14:20:00', '2025-12-10', 10, N'Available', 30),
+('2025-12-10 13:00:00', '2025-12-10 14:20:00', '2025-12-10', 10, N'Booked', 30),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 10, N'Available', 31),
 ('2025-12-12 15:00:00', '2025-12-12 16:20:00', '2025-12-12', 10, N'Available', 30),
 ('2025-12-13 11:00:00', '2025-12-13 12:00:00', '2025-12-13', 10, N'Available', 31),
 ('2025-12-14 09:00:00', '2025-12-14 10:20:00', '2025-12-14', 10, N'Available', 30),
 
 -- Thomas Lee's slots (mentor_id 11) - Plans: 32 (90min), 33 (Lite), 34 (Premium)
-('2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 11, N'Available', 32),
+('2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 11, N'Booked', 32),
 ('2025-12-11 14:00:00', '2025-12-11 15:15:00', '2025-12-11', 11, N'Available', 33),
 ('2025-12-12 10:00:00', '2025-12-12 11:30:00', '2025-12-12', 11, N'Available', 34),
 ('2025-12-13 13:00:00', '2025-12-13 14:30:00', '2025-12-13', 11, N'Available', 32),
 ('2025-12-14 09:00:00', '2025-12-14 10:15:00', '2025-12-14', 11, N'Available', 33),
 
 -- Sophie Dubois's slots (mentor_id 12) - Plans: 35 (75min), 36 (Lite)
-('2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 12, N'Available', 35),
+('2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 12, N'Booked', 35),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 12, N'Available', 36),
 ('2025-12-12 14:00:00', '2025-12-12 15:15:00', '2025-12-12', 12, N'Available', 35),
 ('2025-12-13 10:00:00', '2025-12-13 11:00:00', '2025-12-13', 12, N'Available', 36),
 ('2025-12-14 15:00:00', '2025-12-14 16:15:00', '2025-12-14', 12, N'Available', 35),
 
 -- Kevin Walsh's slots (mentor_id 13) - Plans: 37 (95min), 38 (Lite), 39 (Standard)
-('2025-12-10 10:00:00', '2025-12-10 11:35:00', '2025-12-10', 13, N'Available', 37),
+('2025-12-10 10:00:00', '2025-12-10 11:35:00', '2025-12-10', 13, N'Booked', 37),
 ('2025-12-11 13:00:00', '2025-12-11 14:00:00', '2025-12-11', 13, N'Available', 38),
 ('2025-12-12 09:00:00', '2025-12-12 10:30:00', '2025-12-12', 13, N'Available', 39),
 ('2025-12-13 14:00:00', '2025-12-13 15:35:00', '2025-12-13', 13, N'Available', 37),
 ('2025-12-14 11:00:00', '2025-12-14 12:00:00', '2025-12-14', 13, N'Available', 38),
 
 -- Laura Muller's slots (mentor_id 14) - Plans: 40 (65min), 41 (Lite), 42 (Standard)
-('2025-12-10 13:00:00', '2025-12-10 14:05:00', '2025-12-10', 14, N'Available', 40),
+('2025-12-10 13:00:00', '2025-12-10 14:05:00', '2025-12-10', 14, N'Booked', 40),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 14, N'Available', 41),
 ('2025-12-12 15:00:00', '2025-12-12 16:15:00', '2025-12-12', 14, N'Available', 42),
 ('2025-12-13 09:00:00', '2025-12-13 10:05:00', '2025-12-13', 14, N'Available', 40),
 ('2025-12-14 13:00:00', '2025-12-14 14:00:00', '2025-12-14', 14, N'Available', 41),
 
 -- Daniel Santos's slots (mentor_id 15) - Plans: 43 (85min), 44 (Standard), 45 (Premium)
-('2025-12-10 09:00:00', '2025-12-10 10:25:00', '2025-12-10', 15, N'Available', 43),
+('2025-12-10 09:00:00', '2025-12-10 10:25:00', '2025-12-10', 15, N'Booked', 43),
 ('2025-12-11 14:00:00', '2025-12-11 15:30:00', '2025-12-11', 15, N'Available', 44),
 ('2025-12-12 10:00:00', '2025-12-12 11:30:00', '2025-12-12', 15, N'Available', 45),
 ('2025-12-13 13:00:00', '2025-12-13 14:25:00', '2025-12-13', 15, N'Available', 43),
 ('2025-12-14 09:00:00', '2025-12-14 10:30:00', '2025-12-14', 15, N'Available', 44),
 
 -- Emma Wilson's slots (mentor_id 16) - Plans: 46 (50min), 47 (Lite)
-('2025-12-10 11:00:00', '2025-12-10 11:50:00', '2025-12-10', 16, N'Available', 46),
+('2025-12-10 11:00:00', '2025-12-10 11:50:00', '2025-12-10', 16, N'Booked', 46),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 16, N'Available', 47),
 ('2025-12-12 14:00:00', '2025-12-12 14:50:00', '2025-12-12', 16, N'Available', 46),
 ('2025-12-13 10:00:00', '2025-12-13 11:00:00', '2025-12-13', 16, N'Available', 47),
 ('2025-12-14 15:00:00', '2025-12-14 15:50:00', '2025-12-14', 16, N'Available', 46),
 
 -- Marco Rossi's slots (mentor_id 17) - Plans: 48 (60min), 49 (Lite), 50 (Standard)
-('2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 17, N'Available', 48),
+('2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 17, N'Booked', 48),
 ('2025-12-11 13:00:00', '2025-12-11 14:00:00', '2025-12-11', 17, N'Available', 49),
 ('2025-12-12 09:00:00', '2025-12-12 10:15:00', '2025-12-12', 17, N'Available', 50),
 ('2025-12-13 14:00:00', '2025-12-13 15:00:00', '2025-12-13', 17, N'Available', 48),
 ('2025-12-14 11:00:00', '2025-12-14 12:00:00', '2025-12-14', 17, N'Available', 49),
 
 -- Olivia Brown's slots (mentor_id 18) - Plans: 51 (55min), 52 (Lite)
-('2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 18, N'Available', 51),
+('2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 18, N'Booked', 51),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 18, N'Available', 52),
 ('2025-12-12 15:00:00', '2025-12-12 15:55:00', '2025-12-12', 18, N'Available', 51),
 ('2025-12-13 09:00:00', '2025-12-13 10:00:00', '2025-12-13', 18, N'Available', 52),
 ('2025-12-14 14:00:00', '2025-12-14 14:55:00', '2025-12-14', 18, N'Available', 51),
 
 -- Alex Petrov's slots (mentor_id 19) - Plans: 53 (70min), 54 (Lite), 55 (Standard)
-('2025-12-10 09:00:00', '2025-12-10 10:10:00', '2025-12-10', 19, N'Available', 53),
+('2025-12-10 09:00:00', '2025-12-10 10:10:00', '2025-12-10', 19, N'Booked', 53),
 ('2025-12-11 14:00:00', '2025-12-11 15:15:00', '2025-12-11', 19, N'Available', 54),
 ('2025-12-12 10:00:00', '2025-12-12 11:30:00', '2025-12-12', 19, N'Available', 55),
 ('2025-12-13 13:00:00', '2025-12-13 14:10:00', '2025-12-13', 19, N'Available', 53),
 ('2025-12-14 09:00:00', '2025-12-14 10:15:00', '2025-12-14', 19, N'Available', 54),
 
 -- Nina Singh's slots (mentor_id 20) - Plans: 56 (60min), 57 (Lite)
-('2025-12-10 11:00:00', '2025-12-10 12:00:00', '2025-12-10', 20, N'Available', 56),
+('2025-12-10 11:00:00', '2025-12-10 12:00:00', '2025-12-10', 20, N'Booked', 56),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 20, N'Available', 57),
 ('2025-12-12 14:00:00', '2025-12-12 15:00:00', '2025-12-12', 20, N'Available', 56),
 ('2025-12-13 10:00:00', '2025-12-13 11:00:00', '2025-12-13', 20, N'Available', 57),
 ('2025-12-14 15:00:00', '2025-12-14 16:00:00', '2025-12-14', 20, N'Available', 56),
 
 -- Patrick OBrien's slots (mentor_id 21) - Plans: 58 (75min), 59 (Lite), 60 (Standard)
-('2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 21, N'Available', 58),
+('2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 21, N'Booked', 58),
 ('2025-12-11 13:00:00', '2025-12-11 14:00:00', '2025-12-11', 21, N'Available', 59),
 ('2025-12-12 09:00:00', '2025-12-12 10:30:00', '2025-12-12', 21, N'Available', 60),
 ('2025-12-13 14:00:00', '2025-12-13 15:15:00', '2025-12-13', 21, N'Available', 58),
 ('2025-12-14 11:00:00', '2025-12-14 12:00:00', '2025-12-14', 21, N'Available', 59),
 
 -- Isabella Lopez's slots (mentor_id 22) - Plans: 61 (50min), 62 (Lite)
-('2025-12-10 13:00:00', '2025-12-10 13:50:00', '2025-12-10', 22, N'Available', 61),
+('2025-12-10 13:00:00', '2025-12-10 13:50:00', '2025-12-10', 22, N'Booked', 61),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 22, N'Available', 62),
 ('2025-12-12 15:00:00', '2025-12-12 15:50:00', '2025-12-12', 22, N'Available', 61),
 ('2025-12-13 09:00:00', '2025-12-13 10:00:00', '2025-12-13', 22, N'Available', 62),
 ('2025-12-14 14:00:00', '2025-12-14 14:50:00', '2025-12-14', 22, N'Available', 61),
 
 -- Henrik Andersson's slots (mentor_id 23) - Plans: 63 (90min), 64 (Lite), 65 (Standard)
-('2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 23, N'Available', 63),
+('2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 23, N'Booked', 63),
 ('2025-12-11 14:00:00', '2025-12-11 15:15:00', '2025-12-11', 23, N'Available', 64),
 ('2025-12-12 10:00:00', '2025-12-12 11:30:00', '2025-12-12', 23, N'Available', 65),
 ('2025-12-13 13:00:00', '2025-12-13 14:30:00', '2025-12-13', 23, N'Available', 63),
 ('2025-12-14 09:00:00', '2025-12-14 10:15:00', '2025-12-14', 23, N'Available', 64),
 
 -- Rachel Cohen's slots (mentor_id 24) - Plans: 66 (65min), 67 (Lite)
-('2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 24, N'Available', 66),
+('2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 24, N'Booked', 66),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 24, N'Available', 67),
 ('2025-12-12 14:00:00', '2025-12-12 15:05:00', '2025-12-12', 24, N'Available', 66),
 ('2025-12-13 10:00:00', '2025-12-13 11:00:00', '2025-12-13', 24, N'Available', 67),
 ('2025-12-14 15:00:00', '2025-12-14 16:05:00', '2025-12-14', 24, N'Available', 66),
 
 -- Mohammed Ahmed's slots (mentor_id 25) - Plans: 68 (75min), 69 (Lite)
-('2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 25, N'Available', 68),
+('2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 25, N'Booked', 68),
 ('2025-12-11 13:00:00', '2025-12-11 14:15:00', '2025-12-11', 25, N'Available', 69),
 ('2025-12-12 09:00:00', '2025-12-12 10:15:00', '2025-12-12', 25, N'Available', 68),
 ('2025-12-13 14:00:00', '2025-12-13 15:15:00', '2025-12-13', 25, N'Available', 69),
 ('2025-12-14 11:00:00', '2025-12-14 12:15:00', '2025-12-14', 25, N'Available', 68),
 
 -- Yuki Tanaka's slots (mentor_id 26) - Plans: 70 (55min), 71 (Lite)
-('2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 26, N'Available', 70),
+('2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 26, N'Booked', 70),
 ('2025-12-11 10:00:00', '2025-12-11 11:00:00', '2025-12-11', 26, N'Available', 71),
 ('2025-12-12 15:00:00', '2025-12-12 15:55:00', '2025-12-12', 26, N'Available', 70),
 ('2025-12-13 09:00:00', '2025-12-13 10:00:00', '2025-12-13', 26, N'Available', 71),
 ('2025-12-14 14:00:00', '2025-12-14 14:55:00', '2025-12-14', 26, N'Available', 70),
 
 -- Lucas Silva's slots (mentor_id 27) - Plans: 72 (60min), 73 (Lite)
-('2025-12-10 09:00:00', '2025-12-10 10:00:00', '2025-12-10', 27, N'Available', 72),
+('2025-12-10 09:00:00', '2025-12-10 10:00:00', '2025-12-10', 27, N'Booked', 72),
 ('2025-12-11 14:00:00', '2025-12-11 15:00:00', '2025-12-11', 27, N'Available', 73),
 ('2025-12-12 10:00:00', '2025-12-12 11:00:00', '2025-12-12', 27, N'Available', 72),
 ('2025-12-13 13:00:00', '2025-12-13 14:00:00', '2025-12-13', 27, N'Available', 73),
 ('2025-12-14 09:00:00', '2025-12-14 10:00:00', '2025-12-14', 27, N'Available', 72),
 
 -- Chloe Martin's slots (mentor_id 28) - Plans: 74 (65min), 75 (Lite)
-('2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 28, N'Available', 74),
+('2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 28, N'Booked', 74),
 ('2025-12-11 09:00:00', '2025-12-11 10:00:00', '2025-12-11', 28, N'Available', 75),
 ('2025-12-12 14:00:00', '2025-12-12 15:05:00', '2025-12-12', 28, N'Available', 74),
 ('2025-12-13 10:00:00', '2025-12-13 11:00:00', '2025-12-13', 28, N'Available', 75),
 ('2025-12-14 15:00:00', '2025-12-14 16:05:00', '2025-12-14', 28, N'Available', 74),
 
 -- Erik Hansen's slots (mentor_id 29) - Plans: 76 (80min), 77 (Lite)
-('2025-12-10 10:00:00', '2025-12-10 11:20:00', '2025-12-10', 29, N'Available', 76),
+('2025-12-10 10:00:00', '2025-12-10 11:20:00', '2025-12-10', 29, N'Booked', 76),
 ('2025-12-11 13:00:00', '2025-12-11 14:15:00', '2025-12-11', 29, N'Available', 77),
 ('2025-12-12 09:00:00', '2025-12-12 10:20:00', '2025-12-12', 29, N'Available', 76),
 ('2025-12-13 14:00:00', '2025-12-13 15:15:00', '2025-12-13', 29, N'Available', 77),
@@ -1556,40 +1556,40 @@ VALUES
 ('2025-12-14 14:00:00', '2025-12-14 15:30:00', '2025-12-14', 30, N'Available', 79);
 
 -- Insert Invoices
-INSERT INTO invoices (plan_registerations_id, amount, method, paid_time, mentee_id, payment_status, currency, amount_subtotal, amount_total)
+INSERT INTO invoices (plan_registerations_id, method, paid_time, mentee_id, payment_status, currency, amount_subtotal, amount_total)
 VALUES
 -- Invoices for all 31 plan registrations
-(1, 45.00, N'Credit Card', '2025-12-05 10:30:00', 31, N'paid', N'usd', 50.00, 45.00),    -- Alice's first booking (50 - 10% = 45)
-(2, 48.00, N'PayPal', '2025-12-05 11:15:00', 32, N'paid', N'usd', 60.00, 48.00),         -- Bob's booking (60 - 20% = 48)
-(3, 25.00, N'Credit Card', '2025-12-05 12:00:00', 33, N'paid', N'usd', 75.00, 25.00),    -- Carol's booking (75 - 50 = 25)
-(4, 33.75, N'Debit Card', '2025-12-05 13:45:00', 34, N'paid', N'usd', 45.00, 33.75),     -- Daniel's booking (45 - 25% = 33.75)
-(5, 63.00, N'Credit Card', '2025-12-05 14:20:00', 35, N'paid', N'usd', 70.00, 63.00),    -- Emma's booking (70 - 10% = 63)
-(6, 72.00, N'PayPal', '2025-12-06 09:00:00', 31, N'paid', N'usd', 90.00, 72.00),         -- Alice's second booking (90 - 20% = 72)
-(7, 149.00, N'Credit Card', '2025-12-06 10:30:00', 32, N'paid', N'usd', 199.00, 149.00), -- Bob's mentorship (199 - 50 = 149)
-(8, 76.50, N'Credit Card', '2025-12-06 11:00:00', 36, N'paid', N'usd', 85.00, 76.50),    -- Frank's booking (85 - 10% = 76.5)
-(9, 52.00, N'PayPal', '2025-12-06 12:00:00', 37, N'paid', N'usd', 65.00, 52.00),         -- Grace's booking (65 - 20% = 52)
-(10, 5.00, N'Debit Card', '2025-12-06 13:00:00', 38, N'paid', N'usd', 55.00, 5.00),      -- Henry's booking (55 - 50 = 5)
-(11, 52.50, N'Credit Card', '2025-12-06 14:00:00', 39, N'paid', N'usd', 70.00, 52.50),   -- Iris's booking (70 - 25% = 52.5)
-(12, 72.00, N'PayPal', '2025-12-06 15:00:00', 40, N'paid', N'usd', 80.00, 72.00),        -- Jack's booking (80 - 10% = 72)
-(13, 81.00, N'Credit Card', '2025-12-07 09:00:00', 41, N'paid', N'usd', 90.00, 81.00),   -- Kate's booking (90 - 10% = 81)
-(14, 60.00, N'Debit Card', '2025-12-07 10:00:00', 42, N'paid', N'usd', 75.00, 60.00),    -- Liam's booking (75 - 20% = 60)
-(15, 45.00, N'Credit Card', '2025-12-07 11:00:00', 43, N'paid', N'usd', 95.00, 45.00),   -- Mia's booking (95 - 50 = 45)
-(16, 48.75, N'PayPal', '2025-12-07 12:00:00', 44, N'paid', N'usd', 65.00, 48.75),        -- Noah's booking (65 - 25% = 48.75)
-(17, 76.50, N'Credit Card', '2025-12-07 13:00:00', 45, N'paid', N'usd', 85.00, 76.50),   -- Olivia's booking (85 - 10% = 76.5)
-(18, 40.00, N'Debit Card', '2025-12-07 14:00:00', 46, N'paid', N'usd', 50.00, 40.00),    -- Paul's booking (50 - 20% = 40)
-(19, 10.00, N'Credit Card', '2025-12-07 15:00:00', 47, N'paid', N'usd', 60.00, 10.00),   -- Quinn's booking (60 - 50 = 10)
-(20, 41.25, N'PayPal', '2025-12-07 16:00:00', 48, N'paid', N'usd', 55.00, 41.25),        -- Ryan's booking (55 - 25% = 41.25)
-(21, 63.00, N'Credit Card', '2025-12-08 09:00:00', 49, N'paid', N'usd', 70.00, 63.00),   -- Stella's booking (70 - 10% = 63)
-(22, 48.00, N'Debit Card', '2025-12-08 10:00:00', 50, N'paid', N'usd', 60.00, 48.00),    -- Tyler's booking (60 - 20% = 48)
-(23, 25.00, N'Credit Card', '2025-12-08 11:00:00', 31, N'paid', N'usd', 75.00, 25.00),   -- Alice's third booking (75 - 50 = 25)
-(24, 37.50, N'PayPal', '2025-12-08 12:00:00', 32, N'paid', N'usd', 50.00, 37.50),        -- Bob's second booking (50 - 25% = 37.5)
-(25, 81.00, N'Credit Card', '2025-12-08 13:00:00', 33, N'paid', N'usd', 90.00, 81.00),   -- Carol's booking (90 - 10% = 81)
-(26, 52.00, N'Debit Card', '2025-12-08 14:00:00', 34, N'paid', N'usd', 65.00, 52.00),    -- Daniel's booking (65 - 20% = 52)
-(27, 25.00, N'Credit Card', '2025-12-08 15:00:00', 35, N'paid', N'usd', 75.00, 25.00),   -- Emma's booking (75 - 50 = 25)
-(28, 41.25, N'PayPal', '2025-12-08 16:00:00', 36, N'paid', N'usd', 55.00, 41.25),        -- Frank's booking (55 - 25% = 41.25)
-(29, 54.00, N'Credit Card', '2025-12-09 09:00:00', 37, N'paid', N'usd', 60.00, 54.00),   -- Grace's booking (60 - 10% = 54)
-(30, 52.00, N'Debit Card', '2025-12-09 10:00:00', 38, N'paid', N'usd', 65.00, 52.00),    -- Henry's booking (65 - 20% = 52)
-(31, 72.00, N'Credit Card', '2025-12-09 11:00:00', 39, N'paid', N'usd', 80.00, 72.00);   -- Iris's booking (80 - 10% = 72)
+(1, N'Credit Card', '2025-12-05 10:30:00', 31, N'paid', N'usd', 50.00, 45.00),    -- Alice's first booking (50 - 10% = 45)
+(2, N'PayPal', '2025-12-05 11:15:00', 32, N'paid', N'usd', 60.00, 48.00),         -- Bob's booking (60 - 20% = 48)
+(3, N'Credit Card', '2025-12-05 12:00:00', 33, N'paid', N'usd', 75.00, 25.00),    -- Carol's booking (75 - 50 = 25)
+(4, N'Debit Card', '2025-12-05 13:45:00', 34, N'paid', N'usd', 45.00, 33.75),     -- Daniel's booking (45 - 25% = 33.75)
+(5, N'Credit Card', '2025-12-05 14:20:00', 35, N'paid', N'usd', 70.00, 63.00),    -- Emma's booking (70 - 10% = 63)
+(6, N'PayPal', '2025-12-06 09:00:00', 31, N'paid', N'usd', 90.00, 72.00),         -- Alice's second booking (90 - 20% = 72)
+(7, N'Credit Card', '2025-12-06 10:30:00', 32, N'paid', N'usd', 199.00, 149.00), -- Bob's mentorship (199 - 50 = 149)
+(8, N'Credit Card', '2025-12-06 11:00:00', 36, N'paid', N'usd', 85.00, 76.50),    -- Frank's booking (85 - 10% = 76.5)
+(9, N'PayPal', '2025-12-06 12:00:00', 37, N'paid', N'usd', 65.00, 52.00),         -- Grace's booking (65 - 20% = 52)
+(10, N'Debit Card', '2025-12-06 13:00:00', 38, N'paid', N'usd', 55.00, 5.00),      -- Henry's booking (55 - 50 = 5)
+(11, N'Credit Card', '2025-12-06 14:00:00', 39, N'paid', N'usd', 70.00, 52.50),   -- Iris's booking (70 - 25% = 52.5)
+(12, N'PayPal', '2025-12-06 15:00:00', 40, N'paid', N'usd', 80.00, 72.00),        -- Jack's booking (80 - 10% = 72)
+(13, N'Credit Card', '2025-12-07 09:00:00', 41, N'paid', N'usd', 90.00, 81.00),   -- Kate's booking (90 - 10% = 81)
+(14, N'Debit Card', '2025-12-07 10:00:00', 42, N'paid', N'usd', 75.00, 60.00),    -- Liam's booking (75 - 20% = 60)
+(15, N'Credit Card', '2025-12-07 11:00:00', 43, N'paid', N'usd', 95.00, 45.00),   -- Mia's booking (95 - 50 = 45)
+(16, N'PayPal', '2025-12-07 12:00:00', 44, N'paid', N'usd', 65.00, 48.75),        -- Noah's booking (65 - 25% = 48.75)
+(17, N'Credit Card', '2025-12-07 13:00:00', 45, N'paid', N'usd', 85.00, 76.50),   -- Olivia's booking (85 - 10% = 76.5)
+(18, N'Debit Card', '2025-12-07 14:00:00', 46, N'paid', N'usd', 50.00, 40.00),    -- Paul's booking (50 - 20% = 40)
+(19, N'Credit Card', '2025-12-07 15:00:00', 47, N'paid', N'usd', 60.00, 10.00),   -- Quinn's booking (60 - 50 = 10)
+(20, N'PayPal', '2025-12-07 16:00:00', 48, N'paid', N'usd', 55.00, 41.25),        -- Ryan's booking (55 - 25% = 41.25)
+(21, N'Credit Card', '2025-12-08 09:00:00', 49, N'paid', N'usd', 70.00, 63.00),   -- Stella's booking (70 - 10% = 63)
+(22, N'Debit Card', '2025-12-08 10:00:00', 50, N'paid', N'usd', 60.00, 48.00),    -- Tyler's booking (60 - 20% = 48)
+(23, N'Credit Card', '2025-12-08 11:00:00', 31, N'paid', N'usd', 75.00, 25.00),   -- Alice's third booking (75 - 50 = 25)
+(24, N'PayPal', '2025-12-08 12:00:00', 32, N'paid', N'usd', 50.00, 37.50),        -- Bob's second booking (50 - 25% = 37.5)
+(25, N'Credit Card', '2025-12-08 13:00:00', 33, N'paid', N'usd', 90.00, 81.00),   -- Carol's booking (90 - 10% = 81)
+(26, N'Debit Card', '2025-12-08 14:00:00', 34, N'paid', N'usd', 65.00, 52.00),    -- Daniel's booking (65 - 20% = 52)
+(27, N'Credit Card', '2025-12-08 15:00:00', 35, N'paid', N'usd', 75.00, 25.00),   -- Emma's booking (75 - 50 = 25)
+(28, N'PayPal', '2025-12-08 16:00:00', 36, N'paid', N'usd', 55.00, 41.25),        -- Frank's booking (55 - 25% = 41.25)
+(29, N'Credit Card', '2025-12-09 09:00:00', 37, N'paid', N'usd', 60.00, 54.00),   -- Grace's booking (60 - 10% = 54)
+(30, N'Debit Card', '2025-12-09 10:00:00', 38, N'paid', N'usd', 65.00, 52.00),    -- Henry's booking (65 - 20% = 52)
+(31, N'Credit Card', '2025-12-09 11:00:00', 39, N'paid', N'usd', 80.00, 72.00);   -- Iris's booking (80 - 10% = 72)
 
 -- Insert Meetings
 INSERT INTO meetings (invoice_id, plan_registerations_id, status, location, start_time, end_time, date, mentor_id)
@@ -1607,7 +1607,7 @@ VALUES
 -- Meeting 6: Alice's second booking with John Doe (60 min)
 (6, 6, N'Scheduled', N'https://zoom.us/j/111222333', '2025-12-12 09:00:00', '2025-12-12 10:00:00', '2025-12-12', 1),
 -- Meeting 7: Bob's mentorship with Sarah (60 min)
-(7, 7, N'Pending', N'https://meet.google.com/klm-nopq-rst', '2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 2),
+(7, 7, N'Pending', N'', '2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 2),
 -- Meeting 8: Frank's booking with Lisa Anderson (85 min)
 (8, 8, N'Scheduled', N'https://zoom.us/j/888999000', '2025-12-10 14:00:00', '2025-12-10 15:25:00', '2025-12-10', 6),
 -- Meeting 9: Grace's booking with James Martinez (65 min)

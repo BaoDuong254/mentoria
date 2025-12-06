@@ -213,10 +213,6 @@ InvoiceItem:
     invoice_id:
       type: integer
       example: 1
-    amount:
-      type: number
-      format: decimal
-      example: 99.99
     method:
       type: string
       example: "Stripe"

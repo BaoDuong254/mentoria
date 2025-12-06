@@ -93,7 +93,12 @@ async function seedSlots() {
   for (let dayOffset = 0; dayOffset < 14; dayOffset++) {
     const slotDate = new Date(today);
     slotDate.setDate(today.getDate() + dayOffset);
-    const dateStr = slotDate.toISOString().split("T")[0];
+    slotDate.setHours(0, 0, 0, 0); // Reset time to midnight
+
+    // Get date components to ensure consistency
+    const year = slotDate.getFullYear();
+    const month = slotDate.getMonth();
+    const day = slotDate.getDate();
 
     // Track occupied time slots for each mentor on this day
     const mentorOccupiedSlots: {
@@ -122,11 +127,12 @@ async function seedSlots() {
         for (const timeSlot of baseTimeSlots) {
           if (slotsCreated >= numSlotsPerPlan) break;
 
-          const startTime = new Date(slotDate);
-          startTime.setHours(timeSlot.hour, timeSlot.minute, 0, 0);
-
+          const startTime = new Date(Date.UTC(year, month, day, timeSlot.hour, timeSlot.minute, 0, 0)); // Use UTC to avoid time zone issues
           const endTime = new Date(startTime);
           endTime.setMinutes(endTime.getMinutes() + plan.duration);
+
+          // Ensure the date remains consistent
+          const dateStr = startTime.toISOString().split("T")[0]; // Date in YYYY-MM-DD format
 
           // Check if this slot overlaps with any existing slot for this mentor
           const occupied = mentorOccupiedSlots[parseInt(mentorId)];
@@ -165,13 +171,8 @@ async function seedSlots() {
               continue;
             }
 
-            // Determine status: first 2 days have some booked slots
-            let status = "Available";
-            if (dayOffset === 0 && timeSlot.hour === 9) {
-              status = "Booked";
-            } else if (dayOffset === 1 && timeSlot.hour === 14) {
-              status = "Booked";
-            }
+            // All slots are available
+            const status = "Available";
 
             await pool
               .request()

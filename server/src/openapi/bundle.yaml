@@ -1807,10 +1807,6 @@ paths:
                             invoice_id:
                               type: integer
                               example: 123
-                            amount:
-                              type: number
-                              format: decimal
-                              example: 100
                             method:
                               type: string
                               example: card
@@ -1989,10 +1985,6 @@ paths:
                             invoice_id:
                               type: integer
                               example: 123
-                            amount:
-                              type: number
-                              format: decimal
-                              example: 150
                             method:
                               type: string
                               example: card
@@ -5211,10 +5203,6 @@ paths:
                             invoice_id:
                               type: integer
                               example: 1
-                            amount:
-                              type: number
-                              format: decimal
-                              example: 99.99
                             method:
                               type: string
                               example: Stripe

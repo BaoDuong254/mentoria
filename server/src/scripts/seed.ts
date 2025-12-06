@@ -1486,13 +1486,13 @@ async function seedInvoices() {
   console.log(chalk.yellow("Seeding invoices..."));
 
   const invoices = [
-    { registrationIndex: 0, menteeEmail: "alice.smith@example.com", amount: 50.0, method: "Credit Card" },
-    { registrationIndex: 1, menteeEmail: "alice.smith@example.com", amount: 90.0, method: "PayPal" },
-    { registrationIndex: 2, menteeEmail: "bob.wilson@example.com", amount: 60.0, method: "Credit Card" },
-    { registrationIndex: 3, menteeEmail: "carol.taylor@example.com", amount: 75.0, method: "Debit Card" },
-    { registrationIndex: 4, menteeEmail: "daniel.brown@example.com", amount: 130.0, method: "Credit Card" },
-    { registrationIndex: 5, menteeEmail: "emma.davis@example.com", amount: 70.0, method: "PayPal" },
-    { registrationIndex: 6, menteeEmail: "emma.davis@example.com", amount: 120.0, method: "Credit Card" },
+    { registrationIndex: 0, menteeEmail: "alice.smith@example.com", amountTotal: 50.0, method: "Credit Card" },
+    { registrationIndex: 1, menteeEmail: "alice.smith@example.com", amountTotal: 90.0, method: "PayPal" },
+    { registrationIndex: 2, menteeEmail: "bob.wilson@example.com", amountTotal: 60.0, method: "Credit Card" },
+    { registrationIndex: 3, menteeEmail: "carol.taylor@example.com", amountTotal: 75.0, method: "Debit Card" },
+    { registrationIndex: 4, menteeEmail: "daniel.brown@example.com", amountTotal: 130.0, method: "Credit Card" },
+    { registrationIndex: 5, menteeEmail: "emma.davis@example.com", amountTotal: 70.0, method: "PayPal" },
+    { registrationIndex: 6, menteeEmail: "emma.davis@example.com", amountTotal: 120.0, method: "Credit Card" },
   ];
 
   for (const invoice of invoices) {
@@ -1502,12 +1502,12 @@ async function seedInvoices() {
       const result = await pool
         .request()
         .input("plan_registerations_id", sql.Int, registrationId)
-        .input("amount", sql.Decimal(10, 2), invoice.amount)
+        .input("amount_total", sql.Decimal(10, 2), invoice.amountTotal)
         .input("method", sql.NVarChar, invoice.method)
         .input("mentee_id", sql.Int, menteeId).query(`
-          INSERT INTO invoices (plan_registerations_id, amount, method, mentee_id)
+          INSERT INTO invoices (plan_registerations_id, amount_total, method, mentee_id)
           OUTPUT INSERTED.invoice_id
-          VALUES (@plan_registerations_id, @amount, @method, @mentee_id)
+          VALUES (@plan_registerations_id, @amount_total, @method, @mentee_id)
         `);
 
       if (result.recordset && result.recordset[0]) {
