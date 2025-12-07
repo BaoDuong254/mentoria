@@ -74,3 +74,19 @@ export async function updateReviewLink(
   );
   return res.data;
 }
+
+// API CANCEL MEETING (DELETE)
+export async function cancelMeeting(meetingId: number): Promise<{ success: boolean; message: string }> {
+  const res = await axios.delete<{ success: boolean; message: string }>(`${BASE_URL}/${String(meetingId)}`, {
+    withCredentials: true,
+  });
+  return res.data;
+}
+
+// API DELETE MEETING PERMANENTLY (for cancelled meetings)
+export async function deleteMeetingPermanently(meetingId: number): Promise<{ success: boolean; message: string }> {
+  const res = await axios.delete<{ success: boolean; message: string }>(`${BASE_URL}/${String(meetingId)}/permanent`, {
+    withCredentials: true,
+  });
+  return res.data;
+}

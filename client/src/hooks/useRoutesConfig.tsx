@@ -24,6 +24,7 @@ import ProtectedAdminRoute from "@/layouts/ProtectedAdminRoute";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminInvoices from "@/pages/admin/AdminInvoices";
+import AdminComplaints from "@/pages/admin/AdminComplaints";
 import MentorPlans from "@/pages/mentor/MentorPlans/MentorPlans";
 
 export default function useRoutesConfig() {
@@ -49,6 +50,24 @@ export default function useRoutesConfig() {
           element: <PublicLayout />,
           children: [
             { path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> },
+            { path: path.MENTOR_PLANS, element: <MentorPlans /> },
+            { path: path.PROFILE, element: <Profile /> },
+          ],
+        },
+      ],
+    },
+    {
+      element: <ProtectedAdminRoute />,
+      children: [
+        {
+          path: path.ADMIN,
+          element: <AdminLayout />,
+          children: [
+            { index: true, element: <AdminDashboard /> },
+            { path: path.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+            { path: path.ADMIN_USERS, element: <AdminUsers /> },
+            { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
+            { path: path.ADMIN_COMPLAINTS, element: <AdminComplaints /> },
             { path: path.PROFILE, element: <Profile /> },
             { path: path.MENTOR_PLANS, element: <MentorPlans /> },
           ],

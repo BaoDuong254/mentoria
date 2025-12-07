@@ -68,8 +68,8 @@ const AdminInvoices = () => {
         </div>
 
         {/* --- CUSTOM FILTER BOX --- */}
-        <div className='relative z-[50] flex items-center gap-3 rounded-xl bg-gray-800 p-2 backdrop-blur-md transition-all hover:shadow-[0_0_20px_-3px_rgba(106,13,173,0.5)]'>
-          <Filter size={18} className='ml-2 text-gray-400' />
+        <div className='relative z-[50] flex items-center gap-3 rounded-xl border border-(--primary) bg-gray-900/80 p-2 shadow-[0_0_15px_-3px_rgba(106,13,173,0.3)] backdrop-blur-md transition-all hover:shadow-[0_0_20px_-3px_rgba(106,13,173,0.5)]'>
+          <Filter size={18} className='ml-2 text-(--primary)' />
 
           {/* === MONTH DROPDOWN === */}
           <div className='relative'>

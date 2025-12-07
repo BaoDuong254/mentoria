@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Clock, X, Zap, LayoutGrid, List, Loader2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
+import { showToast } from "@/utils/toast";
 import { getMentorPlans, createMentorPlan, updateMentorPlan, deleteMentorPlan } from "@/apis/mentor.api";
-import type { Plan_Manage, PlanSession, CreatePlanSessionRequest, UpdatePlanRequest } from "@/types/mentor.type";
+import type { Plan, PlanSession, CreatePlanSessionRequest, UpdatePlanRequest } from "@/types/mentor.type";
 
 function MentorPlans() {
   const { user } = useAuthStore();
-  const [plans, setPlans] = useState<Plan_Manage[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"session" | "plans">("session");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<Plan_Manage | null>(null);
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
 
   // State cho Popup xóa
   const [deletePlanId, setDeletePlanId] = useState<number | null>(null);
@@ -55,7 +56,7 @@ function MentorPlans() {
   }, [user?.user_id]);
 
   // --- Handlers ---
-  const handleOpenModal = (plan?: Plan_Manage) => {
+  const handleOpenModal = (plan?: Plan) => {
     if (plan) {
       setEditingPlan(plan);
       const sessionPlan = plan as PlanSession;
@@ -84,12 +85,12 @@ function MentorPlans() {
     setIsDeleting(true);
     try {
       await deleteMentorPlan(user.user_id, deletePlanId);
-
+      // Optimistic update: Xóa ngay trên UI
       setPlans((prev) => prev.filter((p) => p.plan_id !== deletePlanId));
       setDeletePlanId(null); // Đóng popup
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete plan.");
+      showToast.error("Failed to delete plan.");
     } finally {
       setIsDeleting(false);
     }
@@ -98,11 +99,11 @@ function MentorPlans() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.user_id) {
-      alert("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
+      showToast.error("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
       return;
     }
     if (isNaN(formData.price) || isNaN(formData.duration)) {
-      alert("Vui lòng nhập đúng định dạng số cho Giá và Thời lượng.");
+      showToast.error("Vui lòng nhập đúng định dạng số cho Giá và Thời lượng.");
       return;
     }
     setIsSubmitting(true);
@@ -140,7 +141,7 @@ function MentorPlans() {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Submit failed:", error);
-      alert("Không thể lưu Plan. Hãy kiểm tra lại kết nối hoặc dữ liệu nhập.");
+      showToast.error("Không thể lưu Plan. Hãy kiểm tra lại kết nối hoặc dữ liệu nhập.");
     } finally {
       setIsSubmitting(false);
     }
@@ -408,7 +409,7 @@ function MentorPlans() {
       {/* --- NEW BEAUTIFUL DELETE MODAL --- */}
       <AnimatePresence>
         {deletePlanId !== null && (
-          <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
+          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
             {/* Backdrop with Blur */}
             <motion.div
               initial={{ opacity: 0 }}

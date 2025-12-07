@@ -23,6 +23,7 @@ const path = {
   ADMIN_DASHBOARD: "dashboard",
   ADMIN_USERS: "users",
   ADMIN_INVOICES: "invoices",
+  ADMIN_COMPLAINTS: "complaints",
 
   //both
   PROFILE: "profile",

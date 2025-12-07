@@ -21,13 +21,26 @@ export interface SocialLink {
   platform: string;
 }
 
-export interface Plan {
+// export interface Plan {
+//   plan_id: number;
+//   plan_description: string;
+//   plan_charge: number;
+//   plan_type: string;
+//   sessions_duration?: number;
+//   benefits?: string[];
+// }
+
+export interface Feedback {
+  mentee_id: number;
+  mentee_first_name: number;
+  mentee_last_name: number;
+  stars: number;
+  content: string;
+  sent_time: string;
   plan_id: number;
+  plan_type: string;
   plan_description: string;
   plan_charge: number;
-  plan_type: string;
-  sessions_duration?: number;
-  benefits?: string[];
 }
 
 export interface Feedback {
@@ -106,11 +119,6 @@ export interface getMentorProfileResponse {
   data?: MentorProfile;
 }
 
-export interface putMentorProfile {
-  success: boolean;
-  message: string;
-}
-
 // --- Plan Interfaces (Response Data) ---
 
 export interface PlanBase {
@@ -119,7 +127,6 @@ export interface PlanBase {
   plan_charge: number;
   plan_type: string;
   mentor_id: number;
-  plan_category: "session" | "mentorship";
 }
 
 export interface PlanSession extends PlanBase {
@@ -134,7 +141,7 @@ export interface PlanMentorship extends PlanBase {
   benefits: string[];
 }
 
-export type Plan_Manage = PlanSession | PlanMentorship;
+export type Plan = PlanSession | PlanMentorship;
 
 // --- API Request Payloads (Sending Data) ---
 
@@ -171,13 +178,13 @@ export interface UpdatePlanRequest {
 export interface MentorPlansResponse {
   success: boolean;
   message: string;
-  data: Plan_Manage[];
+  data: Plan[];
 }
 
 export interface PlanDetailResponse {
   success: boolean;
   message: string;
-  data: Plan_Manage;
+  data: Plan;
 }
 
 export interface CreatePlanResponse {
@@ -189,6 +196,11 @@ export interface CreatePlanResponse {
 }
 
 export interface GenericResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface putMentorProfile {
   success: boolean;
   message: string;
 }
