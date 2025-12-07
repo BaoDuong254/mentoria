@@ -1,9 +1,9 @@
 -- Drop tables if they exist (in reverse order of dependencies)
+IF OBJECT_ID('dbo.complaints', 'U') IS NOT NULL DROP TABLE dbo.complaints;
 IF OBJECT_ID('dbo.meetings', 'U') IS NOT NULL DROP TABLE dbo.meetings;
 IF OBJECT_ID('dbo.invoices', 'U') IS NOT NULL DROP TABLE dbo.invoices;
 IF OBJECT_ID('dbo.slots', 'U') IS NOT NULL DROP TABLE dbo.slots;
 IF OBJECT_ID('dbo.bookings', 'U') IS NOT NULL DROP TABLE dbo.bookings;
-IF OBJECT_ID('dbo.complaints', 'U') IS NOT NULL DROP TABLE dbo.complaints;
 IF OBJECT_ID('dbo.plan_registerations', 'U') IS NOT NULL DROP TABLE dbo.plan_registerations;
 IF OBJECT_ID('dbo.discounts', 'U') IS NOT NULL DROP TABLE dbo.discounts;
 IF OBJECT_ID('dbo.mentorships_benefits', 'U') IS NOT NULL DROP TABLE dbo.mentorships_benefits;
@@ -373,6 +373,7 @@ CREATE TABLE meetings(
         ON DELETE NO ACTION
         ON UPDATE NO ACTION
 );
+
 CREATE TABLE complaints(
     complaint_id INT IDENTITY(1,1) PRIMARY KEY,
     meeting_id INT NOT NULL,

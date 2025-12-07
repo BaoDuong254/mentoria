@@ -1769,7 +1769,7 @@ VALUES
 (10, 38, 8, N'The session content did not match what was advertised on the mentor''s profile.', N'Pending'),
 (15, 43, 13, N'The mentor was unprofessional during the session.', N'Resolved'),
 (20, 48, 18, N'The meeting link provided did not work, causing delays.', N'Pending'),
-(25, 33, 23, N'The mentor seemed distracted and did not focus on my questions.', N'Resolved');
+(25, 33, 23, N'The mentor seemed distracted and did not focus on my questions.', N'Resolved'),
 (26, 34, 24, N'The session was cut short without explanation.', N'Reviewed');
 
 GO

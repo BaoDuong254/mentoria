@@ -5119,7 +5119,7 @@ paths:
         - complaint
       summary: Check if meeting is eligible for complaint
       description: |
-        Checks if a meeting has expired (past 5 minutes after scheduled time) 
+        Checks if a meeting has expired (past 5 minutes after scheduled time)
         and is still in Pending status, making it eligible for a complaint.
         Used to determine whether to show the complaint button to mentees.
       operationId: checkMeetingExpiredPending
@@ -7676,7 +7676,8 @@ components:
         data:
           oneOf:
             - $ref: "#/components/schemas/ComplaintWithDetails"
-            - type: "null"
+            - type: object
+              nullable: true
           description: The complaint object or null if no complaint exists
     MeetingExpiredCheckResponse:
       type: object
