@@ -420,3 +420,129 @@ export const updateMeetingReviewLinkService = async (
     throw error;
   }
 };
+
+/**
+ * Cancel meeting - can be used by both mentee and mentor
+ * Mentee can only cancel their own meetings
+ * Mentor can only cancel meetings they are assigned to
+ */
+export const cancelMeetingService = async (
+  meetingId: number,
+  userId: number,
+  userRole: "Mentee" | "Mentor"
+): Promise<MeetingResponse | null> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify the meeting belongs to the user based on their role
+    // For mentee: join with invoices to get mentee_id
+    // For mentor: check mentor_id directly in meetings table
+    let verifyResult;
+
+    if (userRole === "Mentee") {
+      verifyResult = await pool
+        .request()
+        .input("meetingId", sql.Int, meetingId)
+        .input("userId", sql.Int, userId)
+        .query(
+          `SELECT m.meeting_id, m.status FROM meetings m
+           INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+           WHERE m.meeting_id = @meetingId AND i.mentee_id = @userId`
+        );
+    } else {
+      verifyResult = await pool
+        .request()
+        .input("meetingId", sql.Int, meetingId)
+        .input("userId", sql.Int, userId)
+        .query(`SELECT meeting_id, status FROM meetings WHERE meeting_id = @meetingId AND mentor_id = @userId`);
+    }
+
+    if (verifyResult.recordset.length === 0) {
+      return null;
+    }
+
+    const currentStatus = verifyResult.recordset[0].status;
+
+    // Only allow cancellation of Pending or Scheduled meetings
+    if (currentStatus !== "Pending" && currentStatus !== "Scheduled") {
+      throw new Error(`Cannot cancel meeting with status: ${currentStatus}`);
+    }
+
+    // Update status to Cancelled
+    await pool
+      .request()
+      .input("meetingId", sql.Int, meetingId)
+      .input("status", sql.NVarChar(20), "Cancelled")
+      .query(`UPDATE meetings SET status = @status WHERE meeting_id = @meetingId`);
+
+    // Return updated meeting
+    return await getMeetingByIdService(meetingId);
+  } catch (error) {
+    console.error("Error in cancelMeetingService:", error);
+    throw error;
+  }
+};
+
+/**
+ * Permanently delete a cancelled meeting from database
+ * Only the mentee who owns the meeting can delete it
+ * Meeting must be in "Cancelled" status to be deleted
+ */
+export const deleteMeetingPermanentlyService = async (
+  meetingId: number,
+  userId: number,
+  userRole: "Mentee" | "Mentor"
+): Promise<boolean> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    // Verify the meeting belongs to the user and is in Cancelled status
+    let verifyResult;
+
+    if (userRole === "Mentee") {
+      verifyResult = await pool.request().input("meetingId", sql.Int, meetingId).input("userId", sql.Int, userId)
+        .query(`
+          SELECT m.meeting_id, m.status 
+          FROM meetings m
+          INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+          WHERE m.meeting_id = @meetingId AND i.mentee_id = @userId
+        `);
+    } else {
+      verifyResult = await pool.request().input("meetingId", sql.Int, meetingId).input("userId", sql.Int, userId)
+        .query(`
+          SELECT meeting_id, status FROM meetings
+          WHERE meeting_id = @meetingId AND mentor_id = @userId
+        `);
+    }
+
+    if (verifyResult.recordset.length === 0) {
+      return false;
+    }
+
+    const currentStatus = verifyResult.recordset[0].status;
+
+    // Only allow deletion of Cancelled meetings
+    if (currentStatus !== "Cancelled") {
+      throw new Error(
+        `Cannot delete meeting with status: ${currentStatus}. Only cancelled meetings can be permanently deleted.`
+      );
+    }
+
+    // Delete related complaints first (foreign key constraint)
+    await pool.request().input("meetingId", sql.Int, meetingId).query(`
+        DELETE FROM complaints WHERE meeting_id = @meetingId
+      `);
+
+    // Delete the meeting
+    await pool.request().input("meetingId", sql.Int, meetingId).query(`
+        DELETE FROM meetings WHERE meeting_id = @meetingId
+      `);
+
+    return true;
+  } catch (error) {
+    console.error("Error in deleteMeetingPermanentlyService:", error);
+    throw error;
+  }
+};

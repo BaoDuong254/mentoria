@@ -123,7 +123,10 @@ const getMentorProfileService = async (
           plan_description: string;
           plan_charge: number;
           plan_type: string;
+          plan_category?: "session" | "mentorship";
           sessions_duration?: number;
+          calls_per_month?: number;
+          minutes_per_call?: number;
           benefits?: string[];
         } = {
           plan_id: plan.plan_id,
@@ -140,17 +143,21 @@ const getMentorProfileService = async (
           `);
 
         if (sessionResult.recordset.length > 0) {
+          planData.plan_category = "session";
           planData.sessions_duration = sessionResult.recordset[0].sessions_duration;
         }
 
         // If it's a mentorship plan, get benefits
         const mentorshipCheck = await pool.request().input("planId", plan.plan_id).query(`
-            SELECT mentorships_id
+            SELECT mentorships_id, calls_per_month, minutes_per_call
             FROM plan_mentorships
             WHERE mentorships_id = @planId
           `);
 
         if (mentorshipCheck.recordset.length > 0) {
+          planData.plan_category = "mentorship";
+          planData.calls_per_month = mentorshipCheck.recordset[0].calls_per_month;
+          planData.minutes_per_call = mentorshipCheck.recordset[0].minutes_per_call;
           const benefitsResult = await pool.request().input("planId", plan.plan_id).query(`
               SELECT benefit_description
               FROM mentorships_benefits

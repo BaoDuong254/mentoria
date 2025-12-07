@@ -9,6 +9,7 @@ import {
 import type { AdminMenteeItem, AdminMentorItem } from "@/types/admin.type";
 import { Check, X, Trash2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { showToast } from "@/utils/toast";
 
 type Tab = "mentors" | "mentees" | "pending";
 
@@ -43,15 +44,17 @@ const AdminUsers = () => {
 
   useEffect(() => {
     void fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, page]);
 
   const handleReview = async (id: number, action: "accept" | "reject") => {
     if (!confirm(`Are you sure you want to ${action} this mentor?`)) return;
     try {
       await reviewMentorApplication(id, action);
+      showToast.success(`Mentor ${action}ed successfully`);
       void fetchData();
     } catch {
-      alert("Action failed");
+      showToast.error("Action failed");
     }
   };
 
@@ -66,9 +69,10 @@ const AdminUsers = () => {
       await deleteUser(userToDelete.id, userToDelete.role);
       setData((prev) => prev.filter((u) => u.user_id !== userToDelete.id));
       setUserToDelete(null);
+      showToast.success("User deleted successfully");
     } catch (error) {
       console.error("Delete failed", error);
-      alert("Delete failed");
+      showToast.error("Delete failed");
     } finally {
       setIsDeleting(false);
     }
@@ -244,7 +248,7 @@ const AdminUsers = () => {
       {/* Modal giữ nguyên logic, chỉ chỉnh màu nền cho khớp */}
       <AnimatePresence>
         {userToDelete && (
-          <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
+          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

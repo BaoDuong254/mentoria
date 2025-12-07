@@ -1,0 +1,151 @@
+# Complaint schemas
+
+Complaint:
+  type: object
+  properties:
+    complaint_id:
+      type: integer
+      description: Unique identifier for the complaint
+      example: 1
+    meeting_id:
+      type: integer
+      description: ID of the meeting this complaint is against
+      example: 123
+    mentee_id:
+      type: integer
+      description: ID of the mentee who filed the complaint
+      example: 456
+    content:
+      type: string
+      description: The complaint description
+      example: "The mentor did not show up for the scheduled meeting"
+    status:
+      type: string
+      enum:
+        - Pending
+        - Reviewed
+        - Resolved
+        - Rejected
+      description: Current status of the complaint
+      example: "Pending"
+    admin_response:
+      type: string
+      nullable: true
+      description: Response from admin (if any)
+      example: null
+    created_at:
+      type: string
+      format: date-time
+      description: When the complaint was created
+    updated_at:
+      type: string
+      format: date-time
+      description: When the complaint was last updated
+
+ComplaintWithDetails:
+  allOf:
+    - $ref: "#/Complaint"
+    - type: object
+      properties:
+        mentee_name:
+          type: string
+          description: Name of the mentee who filed the complaint
+          example: "John Doe"
+        mentee_email:
+          type: string
+          description: Email of the mentee
+          example: "john@example.com"
+        mentor_name:
+          type: string
+          description: Name of the mentor
+          example: "Jane Smith"
+        mentor_email:
+          type: string
+          description: Email of the mentor
+          example: "jane@example.com"
+        meeting_link:
+          type: string
+          nullable: true
+          description: Link to the meeting
+          example: "https://meet.google.com/abc-defg-hij"
+        scheduled_start:
+          type: string
+          format: date-time
+          description: Scheduled start time of the meeting
+        scheduled_end:
+          type: string
+          format: date-time
+          description: Scheduled end time of the meeting
+
+ComplaintResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Complaint created successfully"
+    data:
+      $ref: "#/ComplaintWithDetails"
+
+ComplaintListResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      type: array
+      items:
+        $ref: "#/ComplaintWithDetails"
+    pagination:
+      $ref: "_index.yaml#/PaginationInfo"
+
+ComplaintUpdateResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Complaint status updated successfully"
+    data:
+      $ref: "#/ComplaintWithDetails"
+
+ComplaintByMeetingResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      oneOf:
+        - $ref: "#/ComplaintWithDetails"
+        - type: "null"
+      description: The complaint object or null if no complaint exists
+
+MeetingExpiredCheckResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    isExpired:
+      type: boolean
+      description: Whether the meeting is eligible for complaint
+      example: true
+    meetingInfo:
+      type: object
+      description: Basic meeting information
+      properties:
+        meeting_id:
+          type: integer
+          example: 123
+        status:
+          type: string
+          example: "Pending"
+        scheduled_time:
+          type: string
+          format: date-time

@@ -1,0 +1,483 @@
+# Complaint API endpoints
+
+createComplaint:
+  post:
+    tags:
+      - complaint
+    summary: Create a new complaint
+    description: |
+      Allows a mentee to file a complaint against a meeting.
+      The mentee can only file a complaint within 5 minutes after the scheduled meeting time
+      if the mentor has not marked the meeting as completed.
+    operationId: createComplaint
+    security:
+      - cookieAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - meeting_id
+              - content
+            properties:
+              meeting_id:
+                type: integer
+                description: The ID of the meeting to file a complaint against
+                example: 123
+              content:
+                type: string
+                description: The complaint content/description
+                example: "The mentor did not show up for the scheduled meeting"
+    responses:
+      "201":
+        description: Complaint created successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintResponse"
+      "400":
+        description: Bad request - invalid input or complaint conditions not met
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - user not logged in
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentees can file complaints
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getAllComplaints:
+  get:
+    tags:
+      - complaint
+    summary: Get all complaints (Admin only)
+    description: |
+      Retrieves all complaints with pagination and optional status filtering.
+      Only administrators can access this endpoint.
+    operationId: getAllComplaints
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        description: Number of items per page
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+      - name: status
+        in: query
+        description: Filter complaints by status
+        schema:
+          type: string
+          enum:
+            - Pending
+            - Reviewed
+            - Resolved
+            - Rejected
+    responses:
+      "200":
+        description: List of complaints retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintListResponse"
+      "400":
+        description: Invalid pagination parameters or status filter
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only admins can view all complaints
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getMyComplaints:
+  get:
+    tags:
+      - complaint
+    summary: Get my complaints (Mentee only)
+    description: |
+      Retrieves complaints filed by the authenticated mentee.
+      Supports pagination and optional status filtering.
+    operationId: getMyComplaints
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        description: Number of items per page
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+      - name: status
+        in: query
+        description: Filter complaints by status
+        schema:
+          type: string
+          enum:
+            - Pending
+            - Reviewed
+            - Resolved
+            - Rejected
+    responses:
+      "200":
+        description: List of mentee's complaints retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintListResponse"
+      "400":
+        description: Invalid pagination parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentees can view their complaints
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getComplaintsForMentor:
+  get:
+    tags:
+      - complaint
+    summary: Get complaints against mentor (Mentor only)
+    description: |
+      Retrieves complaints filed against the authenticated mentor.
+      Allows mentors to see feedback and issues reported by mentees.
+    operationId: getComplaintsForMentor
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: page
+        in: query
+        description: Page number for pagination
+        schema:
+          type: integer
+          default: 1
+          minimum: 1
+      - name: limit
+        in: query
+        description: Number of items per page
+        schema:
+          type: integer
+          default: 100
+          minimum: 1
+          maximum: 100
+    responses:
+      "200":
+        description: List of complaints against mentor retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintListResponse"
+      "400":
+        description: Invalid pagination parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only mentors can access this endpoint
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+checkMeetingExpiredPending:
+  get:
+    tags:
+      - complaint
+    summary: Check if meeting is eligible for complaint
+    description: |
+      Checks if a meeting has expired (past 5 minutes after scheduled time) 
+      and is still in Pending status, making it eligible for a complaint.
+      Used to determine whether to show the complaint button to mentees.
+    operationId: checkMeetingExpiredPending
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The ID of the meeting to check
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Meeting eligibility status returned
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/MeetingExpiredCheckResponse"
+      "400":
+        description: Invalid meeting ID
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getComplaintByMeetingId:
+  get:
+    tags:
+      - complaint
+    summary: Get complaint by meeting ID
+    description: |
+      Retrieves the complaint associated with a specific meeting, if any.
+      Used to check if a complaint already exists for a meeting.
+    operationId: getComplaintByMeetingId
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: meetingId
+        in: path
+        required: true
+        description: The ID of the meeting to get complaint for
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Complaint information retrieved (or null if no complaint exists)
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintByMeetingResponse"
+      "400":
+        description: Invalid meeting ID
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+getComplaintById:
+  get:
+    tags:
+      - complaint
+    summary: Get complaint by ID
+    description: |
+      Retrieves a specific complaint by its ID.
+      Only the mentee who filed the complaint or an admin can view it.
+    operationId: getComplaintById
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: complaintId
+        in: path
+        required: true
+        description: The ID of the complaint to retrieve
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Complaint retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintResponse"
+      "400":
+        description: Invalid complaint ID
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - user not authorized to view this complaint
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Complaint not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+
+updateComplaintStatus:
+  put:
+    tags:
+      - complaint
+    summary: Update complaint status (Admin only)
+    description: |
+      Updates the status of a complaint and optionally adds an admin response.
+      Only administrators can use this endpoint.
+      When status is changed to "Resolved", the associated meeting is automatically cancelled.
+    operationId: updateComplaintStatus
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: complaintId
+        in: path
+        required: true
+        description: The ID of the complaint to update
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                enum:
+                  - Reviewed
+                  - Resolved
+                  - Rejected
+                description: The new status for the complaint
+                example: "Resolved"
+              admin_response:
+                type: string
+                description: Optional response/notes from the admin
+                example: "Meeting has been cancelled and refund will be processed"
+    responses:
+      "200":
+        description: Complaint status updated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/complaint.yaml#/ComplaintUpdateResponse"
+      "400":
+        description: Invalid complaint ID or status
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "403":
+        description: Forbidden - only admins can update complaint status
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "404":
+        description: Complaint not found
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/_index.yaml#/ErrorResponse"

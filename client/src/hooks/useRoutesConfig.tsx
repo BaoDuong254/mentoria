@@ -24,6 +24,7 @@ import ProtectedAdminRoute from "@/layouts/ProtectedAdminRoute";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/AdminUsers";
 import AdminInvoices from "@/pages/admin/AdminInvoices";
+import AdminComplaints from "@/pages/admin/AdminComplaints";
 import MentorPlans from "@/pages/mentor/MentorPlans/MentorPlans";
 
 export default function useRoutesConfig() {
@@ -66,6 +67,7 @@ export default function useRoutesConfig() {
             { path: path.ADMIN_DASHBOARD, element: <AdminDashboard /> },
             { path: path.ADMIN_USERS, element: <AdminUsers /> },
             { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
+            { path: path.ADMIN_COMPLAINTS, element: <AdminComplaints /> },
             { path: path.PROFILE, element: <Profile /> },
           ],
         },

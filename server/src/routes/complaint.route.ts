@@ -7,6 +7,7 @@ import {
   updateComplaintStatus,
   checkMeetingExpiredPending,
   getComplaintsForMentor,
+  getComplaintByMeetingId,
 } from "@/controllers/complaint.controller";
 import { protectRoute } from "@/middlewares/auth.middleware";
 
@@ -21,6 +22,9 @@ router.get("/mentor", protectRoute, getComplaintsForMentor);
 
 // Check if meeting is expired pending (for showing complaint button)
 router.get("/check-expired/:meetingId", protectRoute, checkMeetingExpiredPending);
+
+// Get complaint by meeting ID
+router.get("/meeting/:meetingId", protectRoute, getComplaintByMeetingId);
 
 // Admin routes
 router.get("/", protectRoute, getAllComplaints);

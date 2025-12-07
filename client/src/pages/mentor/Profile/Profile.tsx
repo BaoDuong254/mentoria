@@ -10,6 +10,7 @@ import { TIMEZONES } from "@/constants/timezones";
 import { LANGUAGES } from "@/constants/languages";
 import { updateMentorProfile } from "@/apis/mentor.api";
 import { uploadAvatar } from "@/apis/user.api";
+import { showToast } from "@/utils/toast";
 export default function Profile() {
   const user = useAuthStore((state) => state.mentor);
   const [formData, setFormData] = useState(() => mapMentorToProfileData(user));
@@ -165,7 +166,7 @@ export default function Profile() {
         const uploadRes = await uploadAvatar(avatarFile);
 
         if (!uploadRes.success) {
-          alert("Error upload avatar:" + uploadRes.message);
+          showToast.error("Error upload avatar: " + uploadRes.message);
           return;
         }
       }
@@ -176,13 +177,13 @@ export default function Profile() {
       const res = await updateMentorProfile(user.user_id, payload);
 
       if (res.success) {
-        alert("Update successfully");
+        showToast.success("Update successfully");
       } else {
-        alert("Error: " + res.message);
+        showToast.error("Error: " + res.message);
       }
     } catch (error) {
       console.log("Update Error: ", error);
-      alert("Update fail");
+      showToast.error("Update failed");
     }
   };
   return (

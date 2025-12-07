@@ -1,8 +1,10 @@
-import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck, MessageCircle } from "lucide-react";
+import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck, MessageCircle, AlertTriangle } from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useMeetingStore } from "@/store/useMeetingStore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LinkInputModal from "@/components/LinkInputModal";
+import { getComplaintByMeetingId } from "@/apis/complaint.api";
+import showToast from "@/utils/toast";
 
 interface MentorMeetingCardProps {
   meeting: MeetingResponse;
@@ -16,6 +18,24 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMarkingCompleted, setIsMarkingCompleted] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
+  const [hasComplaint, setHasComplaint] = useState(false);
+
+  // Check if meeting has a complaint from mentee
+  useEffect(() => {
+    if (type === "pending") {
+      const checkComplaint = async () => {
+        try {
+          const response = await getComplaintByMeetingId(meeting.meeting_id);
+          if (response.success && response.hasComplaint) {
+            setHasComplaint(true);
+          }
+        } catch (error) {
+          console.error("Error checking complaint:", error);
+        }
+      };
+      void checkComplaint();
+    }
+  }, [type, meeting.meeting_id]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -54,8 +74,9 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     setIsUpdating(false);
     if (success) {
       setShowLinkModal(false);
+      showToast.success("Meeting link saved successfully");
     } else {
-      alert("Failed to save meeting link");
+      showToast.error("Failed to save meeting link");
     }
   };
 
@@ -63,16 +84,24 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     if (meeting.location) {
       window.open(meeting.location, "_blank");
     } else {
-      alert("Please add a meeting link first");
+      showToast.warning("Please add a meeting link first");
     }
   };
 
   const handleMarkCompleted = async () => {
+    // Validate that meeting link is set before marking as completed
+    if (!meeting.location) {
+      showToast.error("Please add a meeting link before marking as completed");
+      return;
+    }
+
     setIsMarkingCompleted(true);
     const success = await markMeetingAsCompleted(meeting.meeting_id);
     setIsMarkingCompleted(false);
-    if (!success) {
-      alert("Failed to mark meeting as completed");
+    if (success) {
+      showToast.success("Meeting marked as completed");
+    } else {
+      showToast.error("Failed to mark meeting as completed");
     }
   };
 
@@ -80,8 +109,10 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     setIsAccepting(true);
     const success = await acceptMeeting(meeting.meeting_id);
     setIsAccepting(false);
-    if (!success) {
-      alert("Failed to accept meeting");
+    if (success) {
+      showToast.success("Meeting accepted successfully");
+    } else {
+      showToast.error("Failed to accept meeting");
     }
   };
 
@@ -91,8 +122,9 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     setIsUpdating(false);
     if (success) {
       setShowReviewLinkModal(false);
+      showToast.success("Review link saved successfully");
     } else {
-      alert("Failed to save review link");
+      showToast.error("Failed to save review link");
     }
   };
 
@@ -168,17 +200,37 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
         <div className='flex gap-3'>
           {type === "pending" && (
             <>
-              {/* Accept Mentee Button */}
-              <button
-                onClick={() => {
-                  void handleAcceptMeeting();
-                }}
-                disabled={isAccepting}
-                className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-green-600 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
-              >
-                <UserCheck className='h-4 w-4' />
-                {isAccepting ? "Accepting..." : "Accept Mentee"}
-              </button>
+              {hasComplaint ? (
+                <>
+                  {/* Mentee Complaint Indicator */}
+                  <button
+                    disabled
+                    className='flex flex-1 cursor-not-allowed items-center justify-center gap-2 rounded bg-red-600 py-2 text-white opacity-75'
+                  >
+                    <AlertTriangle className='h-4 w-4' />
+                    Mentee Complaint
+                  </button>
+                  {/* Contact Mentee Button */}
+                  <button className='flex cursor-pointer items-center gap-2 rounded bg-cyan-700 px-4 py-2 text-white transition-colors hover:bg-cyan-600'>
+                    <MessageCircle className='h-4 w-4' />
+                    Contact Mentee
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Accept Mentee Button */}
+                  <button
+                    onClick={() => {
+                      void handleAcceptMeeting();
+                    }}
+                    disabled={isAccepting}
+                    className='flex flex-1 cursor-pointer items-center justify-center gap-2 rounded bg-green-600 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
+                  >
+                    <UserCheck className='h-4 w-4' />
+                    {isAccepting ? "Accepting..." : "Accept Mentee"}
+                  </button>
+                </>
+              )}
             </>
           )}
 

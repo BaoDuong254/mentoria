@@ -8,6 +8,7 @@ import Calendar from "@/components/Calendar";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useSearchStore } from "@/store/useSearchStore";
 import { createCheckoutSession } from "@/apis/payment.api";
+import { showToast } from "@/utils/toast";
 
 // Helper function to convert UTC time to Vietnam timezone (UTC+7)
 const toVietnamTime = (isoString: string): Date => {
@@ -54,23 +55,23 @@ function Booking() {
 
   const handleBookSession = async () => {
     if (!user?.user_id) {
-      alert("Please login to book a session");
+      showToast.warning("Please login to book a session");
       return;
     }
 
     if (!selectedSlotId || !planId) {
-      alert("Please select a session");
+      showToast.warning("Please select a session");
       return;
     }
 
     const currentSlot = slots.find((s) => s.slot_id === selectedSlotId);
     if (!currentSlot) {
-      alert("Not found slot id!");
+      showToast.error("Not found slot id!");
       return;
     }
 
     if (!discuss) {
-      alert("Please complete the discussion");
+      showToast.warning("Please complete the discussion");
       return;
     }
 
@@ -92,11 +93,11 @@ function Booking() {
       if (res.success && res.data?.sessionUrl) {
         window.location.href = res.data.sessionUrl;
       } else if (!res.success) {
-        alert(res.message);
+        showToast.error(res.message || "Booking failed");
       }
     } catch (error) {
       console.error("Booking Error:", error);
-      alert("Failed to create checkout session. Please try again.");
+      showToast.error("Failed to create checkout session. Please try again.");
     } finally {
       setIsProcessing(false);
     }

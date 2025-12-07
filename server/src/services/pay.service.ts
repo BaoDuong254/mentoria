@@ -65,6 +65,12 @@ const validateBookingService = async (data: CreateCheckoutSessionRequest): Promi
       return { isValid: false, error: "Invalid datetime format" };
     }
 
+    // Check if slot is in the past
+    const now = new Date();
+    if (startDateTime < now) {
+      return { isValid: false, error: "Cannot book a slot that has already passed" };
+    }
+
     const slotResult = await pool
       .request()
       .input("mentorId", data.mentorId)

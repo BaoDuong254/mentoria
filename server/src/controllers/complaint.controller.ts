@@ -8,6 +8,7 @@ import {
   updateComplaintStatusService,
   checkMeetingExpiredPendingService,
   getComplaintsByMentorIdService,
+  getComplaintByMeetingIdService,
 } from "@/services/complaint.service";
 
 /**
@@ -351,6 +352,39 @@ export const getComplaintsForMentor = async (req: Request, res: Response) => {
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error in getComplaintsForMentor:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+/**
+ * Get complaint by meeting ID
+ */
+export const getComplaintByMeetingId = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.user_id;
+    const { meetingId } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    if (!meetingId || isNaN(parseInt(meetingId))) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid meeting ID",
+      });
+    }
+
+    const result = await getComplaintByMeetingIdService(parseInt(meetingId));
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Error in getComplaintByMeetingId:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

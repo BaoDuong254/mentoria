@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, UploadCloud, CheckCircle2 } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { showToast } from "@/utils/toast";
 import { Link, useNavigate } from "react-router-dom";
 import path from "@/constants/path";
 
@@ -61,7 +62,7 @@ function RegisterMentor() {
 
     try {
       await registerMentor(formData);
-      alert("Mentor registered successfully! Please wait for admin approval.");
+      showToast.success("Mentor registered successfully! Please wait for admin approval.");
       void navigate("/");
     } catch (err) {
       if (err instanceof Error) {

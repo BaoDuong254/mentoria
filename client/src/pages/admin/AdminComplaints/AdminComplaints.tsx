@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle, XCircle, Clock, MessageSquare, Calendar } from "lucide-react";
 import { getAllComplaints, updateComplaintStatus } from "@/apis/complaint.api";
 import type { ComplaintResponse } from "@/types/complaint.type";
+import showToast from "@/utils/toast";
 
 type ComplaintStatus = "Pending" | "Reviewed" | "Resolved" | "Rejected";
 
@@ -83,12 +84,13 @@ const AdminComplaints = () => {
         setSelectedComplaint(null);
         setActionType(null);
         setAdminResponse("");
+        showToast.success(`Complaint ${actionType.toLowerCase()} successfully`);
       } else {
-        alert("Failed to update complaint status");
+        showToast.error("Failed to update complaint status");
       }
     } catch (err) {
       console.error("Error updating complaint:", err);
-      alert("Failed to update complaint status");
+      showToast.error("Failed to update complaint status");
     } finally {
       setIsProcessing(false);
     }

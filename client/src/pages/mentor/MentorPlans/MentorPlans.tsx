@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Clock, X, Zap, LayoutGrid, List, Loader2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
+import { showToast } from "@/utils/toast";
 import { getMentorPlans, createMentorPlan, updateMentorPlan, deleteMentorPlan } from "@/apis/mentor.api";
 import type { Plan, PlanSession, CreatePlanSessionRequest, UpdatePlanRequest } from "@/types/mentor.type";
 
@@ -89,7 +90,7 @@ function MentorPlans() {
       setDeletePlanId(null); // Đóng popup
     } catch (error) {
       console.error("Delete failed:", error);
-      alert("Failed to delete plan.");
+      showToast.error("Failed to delete plan.");
     } finally {
       setIsDeleting(false);
     }
@@ -98,11 +99,11 @@ function MentorPlans() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.user_id) {
-      alert("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
+      showToast.error("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
       return;
     }
     if (isNaN(formData.price) || isNaN(formData.duration)) {
-      alert("Vui lòng nhập đúng định dạng số cho Giá và Thời lượng.");
+      showToast.error("Vui lòng nhập đúng định dạng số cho Giá và Thời lượng.");
       return;
     }
     setIsSubmitting(true);
@@ -140,7 +141,7 @@ function MentorPlans() {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Submit failed:", error);
-      alert("Không thể lưu Plan. Hãy kiểm tra lại kết nối hoặc dữ liệu nhập.");
+      showToast.error("Không thể lưu Plan. Hãy kiểm tra lại kết nối hoặc dữ liệu nhập.");
     } finally {
       setIsSubmitting(false);
     }
@@ -408,7 +409,7 @@ function MentorPlans() {
       {/* --- NEW BEAUTIFUL DELETE MODAL --- */}
       <AnimatePresence>
         {deletePlanId !== null && (
-          <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
+          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
             {/* Backdrop with Blur */}
             <motion.div
               initial={{ opacity: 0 }}

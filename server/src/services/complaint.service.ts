@@ -325,14 +325,16 @@ export const updateComplaintStatusService = async (
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    // Check if complaint exists
+    // Check if complaint exists and get meeting_id
     const existingComplaint = await pool.request().input("complaintId", sql.Int, complaintId).query(`
-      SELECT complaint_id FROM complaints WHERE complaint_id = @complaintId
+      SELECT complaint_id, meeting_id FROM complaints WHERE complaint_id = @complaintId
     `);
 
     if (existingComplaint.recordset.length === 0) {
       return { success: false, message: "Complaint not found" };
     }
+
+    const meetingId = existingComplaint.recordset[0].meeting_id;
 
     // Update the complaint
     await pool
@@ -346,6 +348,15 @@ export const updateComplaintStatusService = async (
           updated_at = GETDATE()
       WHERE complaint_id = @complaintId
     `);
+
+    // If complaint is resolved, cancel the meeting
+    if (status === "Resolved") {
+      await pool.request().input("meetingId", sql.Int, meetingId).query(`
+        UPDATE meetings
+        SET status = N'Cancelled'
+        WHERE meeting_id = @meetingId AND status = N'Pending'
+      `);
+    }
 
     // Get updated complaint
     const complaint = await getComplaintByIdService(complaintId);
@@ -368,7 +379,7 @@ export const updateComplaintStatusService = async (
 };
 
 /**
- * Check if a meeting has an expired pending status (> 1 hour)
+ * Check if a meeting has an expired pending status (> 2 minutes)
  */
 export const checkMeetingExpiredPendingService = async (
   meetingId: number
@@ -384,7 +395,7 @@ export const checkMeetingExpiredPendingService = async (
         m.mentor_id,
         m.start_time,
         m.date,
-        i.created_at as booking_time
+        i.paid_time as booking_time
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
       WHERE m.meeting_id = @meetingId
@@ -404,13 +415,10 @@ export const checkMeetingExpiredPendingService = async (
     const now = new Date();
     const bookingTime = new Date(meeting.booking_time);
     const timeDiff = now.getTime() - bookingTime.getTime();
-    const hoursDiff = timeDiff / (1000 * 60 * 60);
+    const minutesDiff = timeDiff / (1000 * 60);
 
-    // Also check if meeting start time has passed
-    const meetingStartTime = new Date(meeting.start_time);
-
-    // Expired if: more than 1 hour since booking OR meeting start time has passed
-    const isExpired = hoursDiff > 1 || meetingStartTime < now;
+    // Expired if more than 5 minutes since booking (payment)
+    const isExpired = minutesDiff > 5 || meeting.start_time < now;
 
     return {
       isExpired,
@@ -500,6 +508,60 @@ export const getComplaintsByMentorIdService = async (
     };
   } catch (error) {
     console.error("Error getting complaints by mentor id:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get complaint by meeting ID
+ */
+export const getComplaintByMeetingIdService = async (
+  meetingId: number
+): Promise<{ success: boolean; hasComplaint: boolean; data?: ComplaintResponse }> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const result = await pool.request().input("meetingId", sql.Int, meetingId).query(`
+      SELECT 
+        c.complaint_id,
+        c.meeting_id,
+        c.mentee_id,
+        c.mentor_id,
+        c.content,
+        c.status,
+        c.created_at,
+        c.updated_at,
+        c.admin_response,
+        mentor.first_name AS mentor_first_name,
+        mentor.last_name AS mentor_last_name,
+        mentor.email AS mentor_email,
+        mentor.avatar_url AS mentor_avatar_url,
+        mentee.first_name AS mentee_first_name,
+        mentee.last_name AS mentee_last_name,
+        mentee.email AS mentee_email,
+        mentee.avatar_url AS mentee_avatar_url,
+        m.date AS meeting_date,
+        m.start_time AS meeting_start_time,
+        m.end_time AS meeting_end_time
+      FROM complaints c
+      INNER JOIN users mentor ON c.mentor_id = mentor.user_id
+      INNER JOIN users mentee ON c.mentee_id = mentee.user_id
+      INNER JOIN meetings m ON c.meeting_id = m.meeting_id
+      WHERE c.meeting_id = @meetingId
+    `);
+
+    if (result.recordset.length === 0) {
+      return { success: true, hasComplaint: false };
+    }
+
+    return {
+      success: true,
+      hasComplaint: true,
+      data: result.recordset[0] as ComplaintResponse,
+    };
+  } catch (error) {
+    console.error("Error getting complaint by meeting id:", error);
     throw error;
   }
 };

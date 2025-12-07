@@ -86,3 +86,16 @@ export async function getComplaintsForMentor(): Promise<GetComplaintsResponse> {
   });
   return res.data;
 }
+
+// API GET COMPLAINT BY MEETING ID (to check if meeting has a complaint)
+export async function getComplaintByMeetingId(
+  meetingId: number
+): Promise<{ success: boolean; hasComplaint: boolean; data?: ComplaintResponse }> {
+  const res = await axios.get<{ success: boolean; hasComplaint: boolean; data?: ComplaintResponse }>(
+    `${BASE_URL}/meeting/${String(meetingId)}`,
+    {
+      withCredentials: true,
+    }
+  );
+  return res.data;
+}
