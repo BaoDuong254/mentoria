@@ -47,7 +47,8 @@ export default function useRoutesConfig() {
         {
           path: path.MENTOR,
           element: <PublicLayout />,
-          children: [{ path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> }
+          children: [
+            { path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> },
             { path: path.PROFILE, element: <Profile /> },
             { path: path.MENTOR_PLANS, element: <MentorPlans /> },
           ],
