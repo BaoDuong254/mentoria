@@ -7,12 +7,12 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (generate lockfile in CI)
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
 COPY public ./public
