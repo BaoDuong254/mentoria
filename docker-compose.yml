@@ -1,0 +1,103 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mentoria-db
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASS}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - db-data:/var/opt/mssql
+      - ./server/src/database:/docker-entrypoint-initdb.d:ro
+      - ./server/init-db.sh:/init-db.sh:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools18/bin/sqlcmd",
+          "-S",
+          "localhost",
+          "-U",
+          "sa",
+          "-P",
+          "${DB_PASS}",
+          "-Q",
+          "SELECT 1",
+          "-C",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+    networks:
+      - mentoria-network
+    command: >
+      bash -c "
+      /opt/mssql/bin/sqlservr &
+      sleep 30 &&
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASS} -Q 'CREATE DATABASE mentoria' -C &&
+      bash /init-db.sh &&
+      wait
+      "
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USERNAME}/mentoria-server:latest
+    container_name: mentoria-server
+    restart: unless-stopped
+    ports:
+      - "4002:4002"
+    env_file:
+      - ./server/.env
+    environment:
+      - DB_SERVER=db
+    volumes:
+      - ./server/public:/app/public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mentoria-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: ${DOCKERHUB_USERNAME}/mentoria-client:latest
+    container_name: mentoria-client
+    restart: unless-stopped
+    ports:
+      - "4003:80"
+      - "8082:8080"
+    env_file:
+      - ./client/.env
+    depends_on:
+      - server
+    networks:
+      - mentoria-network
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: mentoria-nginx-exporter
+    restart: unless-stopped
+    ports:
+      - "9114:9113"
+    command:
+      - "-nginx.scrape-uri=http://mentoria-client:8080/nginx-metrics"
+    depends_on:
+      - client
+    networks:
+      - mentoria-network
+
+networks:
+  mentoria-network:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
