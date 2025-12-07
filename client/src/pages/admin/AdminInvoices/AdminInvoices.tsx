@@ -78,7 +78,7 @@ const AdminInvoices = () => {
                 setShowMonthMenu(!showMonthMenu);
                 setShowYearMenu(false);
               }}
-              className='flex items-center gap-2 px-2 py-1 text-sm font-medium text-white transition-colors hover:text-(--primary)'
+              className='flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 transition-colors hover:text-(--primary)'
             >
               <span>Month {filters.month}</span>
               <ChevronDown
@@ -127,7 +127,7 @@ const AdminInvoices = () => {
                 setShowYearMenu(!showYearMenu);
                 setShowMonthMenu(false);
               }}
-              className='flex items-center gap-2 px-2 py-1 text-sm font-medium text-white transition-colors hover:text-(--primary)'
+              className='flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 transition-colors hover:text-(--primary)'
             >
               <span>{filters.year}</span>
               <ChevronDown

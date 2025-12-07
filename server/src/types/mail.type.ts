@@ -43,3 +43,15 @@ export interface MeetingCancelledData {
   refundNote?: string;
   exploreMentorsUrl: string;
 }
+
+export interface MeetingReminderData {
+  name: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  duration: string;
+  location: string;
+  otherParty?: string;
+  roleLabel?: string;
+  timeUntil: string;
+}

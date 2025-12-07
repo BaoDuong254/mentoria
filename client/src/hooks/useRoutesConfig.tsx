@@ -69,6 +69,22 @@ export default function useRoutesConfig() {
             { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
             { path: path.ADMIN_COMPLAINTS, element: <AdminComplaints /> },
             { path: path.PROFILE, element: <Profile /> },
+            { path: path.MENTOR_PLANS, element: <MentorPlans /> },
+          ],
+        },
+      ],
+    },
+    {
+      element: <ProtectedAdminRoute />,
+      children: [
+        {
+          path: path.ADMIN,
+          element: <AdminLayout />,
+          children: [
+            { index: true, element: <AdminDashboard /> },
+            { path: path.ADMIN_DASHBOARD, element: <AdminDashboard /> },
+            { path: path.ADMIN_USERS, element: <AdminUsers /> },
+            { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
           ],
         },
       ],

@@ -1,10 +1,12 @@
 import poolPromise from "@/config/database";
 import envConfig from "@/config/env";
-import { Role } from "@/constants/type";
+import { Role, Status } from "@/constants/type";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 export const protectRoute = async (req: Request, res: Response, next: NextFunction) => {
+  let userId: string | undefined;
+
   try {
     const token = req.cookies.token;
 
@@ -18,11 +20,13 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
       return res.status(401).json({ message: "Unauthorized - Invalid Token" });
     }
 
+    userId = (decoded as jwt.JwtPayload).userId;
+
     const pool = await poolPromise;
     if (!pool) throw new Error("Database connection not established");
     const result = await pool
       .request()
-      .input("userId", (decoded as jwt.JwtPayload).userId)
+      .input("userId", userId)
       .query(
         "SELECT user_id, first_name, last_name, sex, created_at, updated_at, email, avatar_url, country, role, timezone, status, google_id, provider FROM users WHERE user_id = @userId"
       );
@@ -52,6 +56,36 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
     next();
   } catch (error) {
     console.log("Error in protectRoute middleware: ", error);
+
+    // If token is expired or invalid, set user status to Inactive
+    if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {
+      if (userId) {
+        try {
+          const pool = await poolPromise;
+          if (pool) {
+            await pool
+              .request()
+              .input("userId", userId)
+              .input("status", Status.Inactive)
+              .query("UPDATE users SET status = @status, updated_at = GETDATE() WHERE user_id = @userId");
+
+            console.log(`User ${userId} status set to Inactive due to token expiration/invalid`);
+          }
+        } catch (updateError) {
+          console.log("Error updating user status to Inactive:", updateError);
+        }
+      }
+
+      // Clear the invalid cookie
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: envConfig.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+
+      return res.status(401).json({ message: "Token expired or invalid - Please login again" });
+    }
+
     res.status(500).json({ message: "Internal server error" });
   }
 };
