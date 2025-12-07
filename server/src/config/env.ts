@@ -34,6 +34,7 @@ const configSchema = z.object({
     .default("true")
     .transform((val) => val.toLowerCase() === "true"),
   CLIENT_URL: z.string().default("http://localhost:5173"),
+  PUBLIC_URL: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   CLOUDINARY_CLOUD_NAME: z.string(),
@@ -51,6 +52,11 @@ if (!configServer.success) {
   throw new Error("Invalid environment variables");
 }
 
-const envConfig = configServer.data;
+const envConfig = {
+  ...configServer.data,
+  // Use PUBLIC_URL for external redirects (e.g., payment callbacks)
+  // Falls back to CLIENT_URL if PUBLIC_URL is not set
+  PUBLIC_URL: configServer.data.PUBLIC_URL || configServer.data.CLIENT_URL,
+};
 
 export default envConfig;
