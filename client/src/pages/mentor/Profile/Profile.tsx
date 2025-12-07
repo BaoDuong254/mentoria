@@ -1,6 +1,6 @@
 import { getSkillsList } from "@/apis/catalog.api";
 import { useAuthStore } from "@/store/useAuthStore";
-import type { resultsSkills } from "@/types";
+import type { resultsSkills, UpdateMentorProfileRequest } from "@/types";
 import { mapMentorToProfileData } from "@/utils/mentor.utils";
 import { ChevronDown, Plus, Save, Trash2, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import { updateMentorProfile } from "@/apis/mentor.api";
 import { uploadAvatar } from "@/apis/user.api";
 export default function Profile() {
   const user = useAuthStore((state) => state.mentor);
-  const [formData, setFormData] = useState(() => mapMentorToProfileData(user));
+  const [formData, setFormData] = useState<UpdateMentorProfileRequest>(mapMentorToProfileData(user));
 
   //-----STATE SKILL LIST-----
   const [availableSkills, setAvailableSkills] = useState<resultsSkills[]>([]);
@@ -160,6 +160,7 @@ export default function Profile() {
   };
 
   const handleSave = async () => {
+    console.log(formData);
     try {
       if (avatarFile) {
         const uploadRes = await uploadAvatar(avatarFile);
@@ -585,7 +586,7 @@ export default function Profile() {
                 Cancel
               </button>
               <button
-                onClick={void handleSave}
+                onClick={() => void handleSave()}
                 className='flex items-center gap-2 rounded-lg bg-(--primary) px-8 py-2.5 font-bold text-white shadow-lg shadow-purple-900/50 transition hover:bg-purple-700'
               >
                 <Save size={18} /> Save Changes
