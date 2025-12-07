@@ -160,7 +160,6 @@ function Booking() {
                 </div>
               </div>
               <div className='w-11/12 rounded-xl border border-gray-500 bg-gray-800 p-6'>
-                <h3 className='mb-4 font-bold text-white'>{format(selectedDate ?? new Date(), "dd MMMM yyyy")}</h3>
                 <Calendar
                   selectedDate={selectedDate ?? new Date()}
                   onDateChange={(date) => {
@@ -241,6 +240,7 @@ function Booking() {
                         onChange={(e) => {
                           setEmail(e.target.value);
                         }}
+                        disabled
                       />
                     </div>
                   </div>

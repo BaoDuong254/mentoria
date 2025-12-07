@@ -25,7 +25,7 @@ interface BookingState {
 export const useBookingStore = create<BookingState>((set) => ({
   slots: [],
   availableDates: [],
-  selectedDate: new Date(2025, 10, 27),
+  selectedDate: new Date(),
   selectedSlotId: null,
   selectedPlanType: null,
   selectedCharge: null,

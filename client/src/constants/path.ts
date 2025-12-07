@@ -24,6 +24,8 @@ const path = {
   ADMIN_USERS: "users",
   ADMIN_INVOICES: "invoices",
 
+  //both
+  PROFILE: "profile",
   //Default
   ALL: "*",
 };

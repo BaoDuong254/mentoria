@@ -4,12 +4,15 @@ import path from "@/constants/path";
 import logo from "@/assets/LogoMentoria.png";
 import { Menu, X, ChevronDown } from "lucide-react"; // icon hamburger
 import { useAuthStore } from "@/store/useAuthStore";
+import { getBaseUrlByRole } from "@/utils/route.utils";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+
+  const BASE_URL = getBaseUrlByRole(user?.role);
   return (
     <>
       <header className='w-full bg-[hsl(240,28%,14%)] text-white'>
@@ -76,11 +79,6 @@ export default function Header() {
               </>
             )}
           </nav>
-          {/* <nav className='hidden justify-center space-x-8 text-base md:flex'>
-            <Link to={path.HOME}>Home</Link>
-            <Link to={path.MENTOR_BROWSE}>Browse Mentor</Link>
-            <Link to={`${path.MENTEE}/${path.MENTEE_DASHBOARD}`}>Dashboard</Link>
-          </nav> */}
 
           {/* Desktop Buttons */}
           <div className='hidden justify-end space-x-3 md:flex'>
@@ -114,8 +112,11 @@ export default function Header() {
                   </button>
 
                   {showMenu && (
-                    <div className='absolute right-0 z-[100] mt-2 w-40 rounded-md border border-amber-50/50 bg-(--secondary) shadow-lg'>
-                      <Link to={path.MENTEE} className='block rounded-md px-4 py-2 hover:bg-(--primary)'>
+                    <div className='absolute right-0 mt-2 w-40 rounded-md border border-amber-50/50 bg-(--secondary) shadow-lg'>
+                      <Link
+                        to={`${String(BASE_URL)}/${path.PROFILE}`}
+                        className='block rounded-md px-4 py-2 hover:bg-(--primary)'
+                      >
                         Profile
                       </Link>
 

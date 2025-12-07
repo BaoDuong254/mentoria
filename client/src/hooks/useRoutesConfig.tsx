@@ -12,6 +12,7 @@ import RegisterMentee from "@/pages/public/RegisterMentee";
 import RegisterMentor from "@/pages/public/RegisterMentor";
 
 import MentorDashboard from "@/pages/mentor/MentorDashboard";
+import Profile from "@/pages/mentor/Profile";
 
 import Booking from "@/pages/mentee/Booking";
 import MenteeDashboard from "@/pages/mentee/MenteeDashboard";
@@ -49,6 +50,7 @@ export default function useRoutesConfig() {
           children: [
             { path: path.MENTOR_DASHBOARD, element: <MentorDashboard /> },
             { path: path.MENTOR_PLANS, element: <MentorPlans /> },
+            { path: path.PROFILE, element: <Profile /> },
           ],
         },
       ],
