@@ -19,9 +19,6 @@ COPY src ./src
 # Build the application
 RUN pnpm run build
 
-# Build seed scripts
-RUN pnpm exec tsc src/scripts/seed-slot.ts --outDir dist/scripts --module commonjs --target es2020 --esModuleInterop --resolveJsonModule --moduleResolution node
-
 # Production stage
 FROM node:20-alpine
 
