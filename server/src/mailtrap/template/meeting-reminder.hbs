@@ -1,0 +1,55 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meeting Reminder</title>
+  </head>
+  <body
+    style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;"
+  >
+    <div style="background: linear-gradient(to right, #4CAF50, #45a049); padding: 20px; text-align: center;">
+      <h1 style="color: white; margin: 0;">Upcoming Meeting Reminder</h1>
+    </div>
+    <div
+      style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+    >
+      <p>Hello <strong>{{name}}</strong>,</p>
+      <p>This is a friendly reminder about your upcoming mentoring session:</p>
+
+      <div
+        style="background-color: white; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4CAF50;"
+      >
+        <h2 style="color: #4CAF50; margin-top: 0;">Meeting Details</h2>
+        <p><strong>Date:</strong> {{date}}</p>
+        <p><strong>Time:</strong> {{startTime}} - {{endTime}}</p>
+        <p><strong>Duration:</strong> {{duration}} minutes</p>
+        <p><strong>Location:</strong>
+          <a href="{{location}}" style="color: #4CAF50; text-decoration: none;">{{location}}</a></p>
+        {{#if otherParty}}
+          <p><strong>{{roleLabel}}:</strong> {{otherParty}}</p>
+        {{/if}}
+      </div>
+
+      <div
+        style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;"
+      >
+        <p style="margin: 0;"><strong>⏰ Your meeting is scheduled in {{timeUntil}}.</strong></p>
+      </div>
+
+      <div style="margin: 30px 0; text-align: center;">
+        <a
+          href="{{location}}"
+          style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;"
+        >Join Meeting</a>
+      </div>
+
+      <p>Please make sure you're prepared and on time. If you need to reschedule or have any questions, please contact
+        us as soon as possible.</p>
+
+      <p>Best regards,<br />The Mentoria Team</p>
+    </div>
+    <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+      <p>This is an automated reminder from Mentoria</p>
+    </div>
+  </body>
+</html>

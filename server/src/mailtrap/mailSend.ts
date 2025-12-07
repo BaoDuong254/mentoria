@@ -8,6 +8,7 @@ import {
   MeetingLocationUpdatedData,
   MeetingCompletedData,
   MeetingCancelledData,
+  MeetingReminderData,
 } from "@/types/mail.type";
 
 export const verifyMail = async (otp: string, email: string) => {
@@ -80,4 +81,13 @@ export const sendMeetingCancelled = async (data: MeetingCancelledData, email: st
   const htmlToSend = template(data);
 
   await mailConfig(htmlToSend, email, "Mentoria Meeting Cancelled");
+};
+
+export const sendMeetingReminder = async (data: MeetingReminderData, email: string) => {
+  const emailTemplateSource = fs.readFileSync(path.join(__dirname, "./template/meeting-reminder.hbs"), "utf8");
+
+  const template = handlebars.compile(emailTemplateSource);
+  const htmlToSend = template(data);
+
+  await mailConfig(htmlToSend, email, "Mentoria Meeting Reminder");
 };

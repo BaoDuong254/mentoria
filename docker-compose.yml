@@ -103,7 +103,7 @@ services:
     ports:
       - "9114:9113"
     command:
-      - "-nginx.scrape-uri=http://mentoria-client:8080/nginx-metrics"
+      - "-nginx.scrape-uri=http://mentoria-client:8082/nginx-metrics"
     depends_on:
       - client
     networks:

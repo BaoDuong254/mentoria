@@ -26,6 +26,7 @@ import YAML from "yaml";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
 import { setupSocketIO } from "@/socket/index";
+import { startMeetingReminderCron } from "@/services/meetingReminder.service";
 
 const app = express();
 const httpServer = createServer(app);
@@ -101,6 +102,10 @@ httpServer.listen(PORT, async () => {
   if (!pool) throw new Error("Failed to connect to the database");
   const result = await pool.request().query("SELECT 1 AS number");
   console.log("Database query result:", result.recordset);
+
+  // Start meeting reminder cron job
+  startMeetingReminderCron();
+
   // Log server start
   console.log(`Server listening on http://localhost:${PORT}`);
   console.log(`Socket.IO server is ready`);
