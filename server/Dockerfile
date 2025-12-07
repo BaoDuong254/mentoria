@@ -16,8 +16,8 @@ RUN pnpm install --no-frozen-lockfile
 # Copy source code
 COPY src ./src
 
-# Build the application
-RUN pnpm run build
+# Generate swagger bundle and build the application
+RUN pnpm run bundle:swagger && pnpm run build
 
 # Production stage
 FROM node:20-alpine
@@ -43,6 +43,9 @@ RUN pnpm install --no-frozen-lockfile --prod
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
+
+# Copy database initialization files
+COPY src/database/*.sql ./database/
 
 # Copy wait-for-db script
 COPY wait-for-db.sh /app/wait-for-db.sh
