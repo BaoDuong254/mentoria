@@ -16,8 +16,8 @@ export default function Card({ mentor }: CardProps) {
   };
   return (
     <>
-      <div className='flex h-[554px] w-[280px] justify-center rounded-xl border border-gray-600 bg-gray-800 text-gray-300'>
-        <div className='mt-8 flex w-10/12 flex-col gap-7'>
+      <div className='mx-auto flex w-full justify-center rounded-xl border border-gray-600 bg-gray-800 text-gray-300'>
+        <div className='my-8 flex w-10/12 flex-col gap-7'>
           <div className='flex gap-3'>
             {/* Avt */}
             <div>
