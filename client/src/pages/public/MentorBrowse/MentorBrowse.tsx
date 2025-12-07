@@ -6,10 +6,12 @@ import JobTitlesFilter from "./components/JobTitlesFilter";
 import CompaniesFilter from "./components/CompaniesFilter";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useEffect } from "react";
+import Pagination from "@/components/Pagination";
 function MentorBrowse() {
   const {
     mentors,
     fetchMentors,
+    pageMentor,
     isFetchingMentors,
     fetchInitialFilterData,
     selectedSkills,
@@ -17,12 +19,19 @@ function MentorBrowse() {
     selectedCompanies,
   } = useSearchStore();
 
+  const ITEMS_PER_PAGE = 6;
+
   useEffect(() => {
     void fetchInitialFilterData();
   }, [fetchInitialFilterData]);
   useEffect(() => {
-    void fetchMentors(1, 10);
+    void fetchMentors(1, ITEMS_PER_PAGE);
   }, [selectedSkills, selectedJobTitles, selectedCompanies, fetchMentors]);
+
+  const handlePageChange = (page: number) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    void fetchMentors(page, ITEMS_PER_PAGE);
+  };
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary)'>
@@ -66,11 +75,13 @@ function MentorBrowse() {
                 <p className='cursor-pointer text-(--green)'>Reset All</p>
               </div>
               <div>
-                <h2 className='text-2xl font-bold'>{mentors.length} Mentors Available for Mentoring</h2>
+                <h2 className='text-2xl font-bold'>
+                  {pageMentor?.totalItems ?? mentors.length} Mentors Available for Mentoring
+                </h2>
               </div>
             </div>
             {/* List of mentor card */}
-            <div className='w-11/12'>
+            <div className='mt-4 w-11/12'>
               {isFetchingMentors ? (
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
                   {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -83,10 +94,21 @@ function MentorBrowse() {
               ) : (
                 <>
                   {mentors.length > 0 ? (
-                    <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3'>
-                      {mentors.map((mentor) => (
-                        <Card key={mentor.user_id} mentor={mentor} />
-                      ))}
+                    <div className='flex flex-col gap-8'>
+                      <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3'>
+                        {mentors.map((mentor) => (
+                          <Card key={mentor.user_id} mentor={mentor} />
+                        ))}
+                      </div>
+
+                      {/* --- PHẦN PAGINATION --- */}
+                      {pageMentor && (
+                        <Pagination
+                          currentPage={pageMentor.currentPage}
+                          totalPages={pageMentor.totalPages}
+                          onPageChange={handlePageChange}
+                        />
+                      )}
                     </div>
                   ) : (
                     <div className='flex h-60 w-full flex-col items-center justify-center rounded-xl border border-gray-800 bg-[--secondary] text-gray-400'>
