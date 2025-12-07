@@ -12,6 +12,6 @@ echo "SQL Server is ready!"
 
 # Run seed:slot command
 echo "Running seed:slot command..."
-npm run seed:slot
+pnpm run seed:slot
 
 echo "Seed completed successfully!"

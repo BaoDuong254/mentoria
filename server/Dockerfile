@@ -3,18 +3,21 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM node:20-alpine
@@ -29,11 +32,14 @@ RUN apk add --no-cache curl gnupg \
     && apk add --allow-untrusted mssql-tools18_18.3.1.1-1_amd64.apk \
     && rm -f msodbcsql18_18.3.1.1-1_amd64.apk mssql-tools18_18.3.1.1-1_amd64.apk
 
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
+
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install production dependencies
-RUN npm ci --only=production
+RUN pnpm install --frozen-lockfile --prod
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
@@ -46,4 +52,4 @@ RUN chmod +x /app/wait-for-db.sh
 EXPOSE 4002
 
 # Start the application with wait-for-db
-CMD ["/bin/sh", "-c", "/app/wait-for-db.sh && npm run start"]
+CMD ["/bin/sh", "-c", "/app/wait-for-db.sh && pnpm run start"]
