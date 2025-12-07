@@ -2,17 +2,24 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { login, getMe, logout, registerMentee, verify, registerMentor } from "@/apis/auth.api";
 import type { AuthState } from "@/types";
+import { getMentor } from "@/apis/mentor.api";
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
       loading: true,
+      mentor: null,
 
       fetchUser: async () => {
         try {
           const res = await getMe();
           set({ user: res.data.user });
+
+          if (res.data.user.role === "Mentor") {
+            const resMentor = await getMentor(res.data.user.user_id);
+            set({ mentor: resMentor.data });
+          }
         } catch {
           set({ user: null });
         } finally {

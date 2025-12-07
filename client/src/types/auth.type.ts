@@ -1,4 +1,5 @@
 import { type User } from "./user.type";
+import type { MentorProfile } from "./mentor.type";
 
 export interface LoginResponse {
   success: boolean;
@@ -8,6 +9,7 @@ export interface LoginResponse {
 export interface AuthState {
   user: User | null;
   loading: boolean;
+  mentor: MentorProfile | null;
   login: (email: string, password: string) => Promise<LoginResponse>;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;

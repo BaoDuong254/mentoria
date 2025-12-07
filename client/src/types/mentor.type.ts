@@ -30,6 +30,19 @@ export interface Plan {
   benefits?: string[];
 }
 
+export interface Feedback {
+  mentee_id: number;
+  mentee_first_name: number;
+  mentee_last_name: number;
+  stars: number;
+  content: string;
+  sent_time: string;
+  plan_id: number;
+  plan_type: string;
+  plan_description: string;
+  plan_charge: number;
+}
+
 export interface Mentor {
   user_id: number;
   first_name: string;
@@ -61,6 +74,11 @@ export interface MentorProfile {
   headline: string;
   response_time: string;
   cv_url: string;
+  bank_name: string;
+  account_number: string;
+  account_holder_name: string;
+  bank_branch: string;
+  swift_code: string;
   social_links: SocialLink[];
   companies: Company[];
   skills: Skill[];
@@ -70,6 +88,7 @@ export interface MentorProfile {
   total_feedbacks: number;
   total_stars: number;
   average_rating: number | null;
+  feedbacks: Feedback[];
 }
 
 export interface MentorListResponse {
@@ -85,4 +104,9 @@ export interface getMentorProfileResponse {
   success: boolean;
   message: string;
   data?: MentorProfile;
+}
+
+export interface putMentorProfile {
+  success: boolean;
+  message: string;
 }

@@ -1,6 +1,11 @@
 import axios from "axios";
 import envConfig from "@/lib/env";
-import type { getMentorProfileResponse, MentorListResponse } from "@/types";
+import type {
+  getMentorProfileResponse,
+  MentorListResponse,
+  putMentorProfile,
+  UpdateMentorProfileRequest,
+} from "@/types";
 
 const BASE_URL = envConfig.VITE_API_ENDPOINT + "/api/mentors";
 
@@ -19,6 +24,19 @@ export async function getMentor(id: number | string): Promise<getMentorProfileRe
     withCredentials: true,
   });
 
-  console.log(res.data);
+  return res.data;
+}
+
+//API UPDATE MENTOR PROFILE
+export async function updateMentorProfile(
+  id: number | string,
+  data: UpdateMentorProfileRequest
+): Promise<putMentorProfile> {
+  const res = await axios.put<putMentorProfile>(`${BASE_URL}/${String(id)}`, data, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return res.data;
 }

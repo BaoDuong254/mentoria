@@ -18,7 +18,10 @@ const path = {
   MENTOR_DASHBOARD: "dashboard",
 
   //admin routes
+  ADMIN: "/admin",
 
+  //both
+  PROFILE: "profile",
   //Default
   ALL: "*",
 };
