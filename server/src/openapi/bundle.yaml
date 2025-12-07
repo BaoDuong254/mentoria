@@ -37,6 +37,8 @@ tags:
     description: Real-time messaging between users with WebSocket integration
   - name: meeting
     description: Meeting management for mentors and mentees
+  - name: complaint
+    description: Complaint management for mentees to report issues with meetings
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
 paths:
@@ -4597,7 +4599,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
   "/api/meetings/{meetingId}/review-link":
-    patch:
+    put:
       tags:
         - meeting
       summary: Update meeting review link
@@ -4683,6 +4685,643 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: Meeting not found or user does not have permission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}/cancel":
+    delete:
+      tags:
+        - meeting
+      summary: Cancel a meeting
+      description: |
+        Cancel a meeting by changing its status to 'Cancelled'.
+        Both mentees and mentors can cancel their own meetings.
+
+        **Access Control:**
+        - Mentee: Can cancel meetings where they are the mentee
+        - Mentor: Can cancel meetings where they are the mentor
+
+        **Status Restrictions:**
+        - Only meetings with status 'Pending' or 'Scheduled' can be cancelled
+        - Already completed or cancelled meetings cannot be cancelled again
+
+        **Workflow:**
+        1. User requests to cancel a meeting
+        2. System verifies the user owns the meeting (either as mentee or mentor)
+        3. System verifies the meeting is in a cancellable state
+        4. Meeting status is updated to 'Cancelled'
+        5. Meeting remains in database for record-keeping
+      operationId: cancelMeeting
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting to cancel
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Meeting cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Meeting cancelled successfully
+                  data:
+                    $ref: "#/components/schemas/MeetingResponse"
+        "400":
+          description: Invalid meeting ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentees and mentors can cancel meetings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found or user does not have permission to cancel it
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error (includes status restriction errors)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/meetings/{meetingId}/permanent":
+    delete:
+      tags:
+        - meeting
+      summary: Permanently delete a cancelled meeting
+      description: |
+        Permanently delete a meeting from the database.
+        This action is irreversible and should only be used for cancelled meetings.
+
+        **Access Control:**
+        - Mentee: Can delete meetings where they are the mentee
+        - Mentor: Can delete meetings where they are the mentor
+
+        **Status Restrictions:**
+        - Only meetings with status 'Cancelled' can be permanently deleted
+        - Pending, Scheduled, or Completed meetings cannot be deleted
+
+        **Important Notes:**
+        - This will also delete any associated complaints for the meeting
+        - This action cannot be undone
+        - Use this to clean up cancelled meetings from the user's dashboard
+
+        **Workflow:**
+        1. User requests to permanently delete a cancelled meeting
+        2. System verifies the user owns the meeting
+        3. System verifies the meeting status is 'Cancelled'
+        4. System deletes related complaints (if any)
+        5. System permanently deletes the meeting from database
+      operationId: deleteMeetingPermanently
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The unique identifier of the meeting to permanently delete
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Meeting deleted permanently
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Meeting deleted permanently
+        "400":
+          description: Invalid meeting ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentees and mentors can delete meetings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Meeting not found or user does not have permission to delete it
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error (includes status restriction errors)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/complaints:
+    post:
+      tags:
+        - complaint
+      summary: Create a new complaint
+      description: |
+        Allows a mentee to file a complaint against a meeting.
+        The mentee can only file a complaint within 5 minutes after the scheduled meeting time
+        if the mentor has not marked the meeting as completed.
+      operationId: createComplaint
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - meeting_id
+                - content
+              properties:
+                meeting_id:
+                  type: integer
+                  description: The ID of the meeting to file a complaint against
+                  example: 123
+                content:
+                  type: string
+                  description: The complaint content/description
+                  example: The mentor did not show up for the scheduled meeting
+      responses:
+        "201":
+          description: Complaint created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintResponse"
+        "400":
+          description: Bad request - invalid input or complaint conditions not met
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - user not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentees can file complaints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/complaints/all:
+    get:
+      tags:
+        - complaint
+      summary: Get all complaints (Admin only)
+      description: |
+        Retrieves all complaints with pagination and optional status filtering.
+        Only administrators can access this endpoint.
+      operationId: getAllComplaints
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: status
+          in: query
+          description: Filter complaints by status
+          schema:
+            type: string
+            enum:
+              - Pending
+              - Reviewed
+              - Resolved
+              - Rejected
+      responses:
+        "200":
+          description: List of complaints retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintListResponse"
+        "400":
+          description: Invalid pagination parameters or status filter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only admins can view all complaints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/complaints/my:
+    get:
+      tags:
+        - complaint
+      summary: Get my complaints (Mentee only)
+      description: |
+        Retrieves complaints filed by the authenticated mentee.
+        Supports pagination and optional status filtering.
+      operationId: getMyComplaints
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: status
+          in: query
+          description: Filter complaints by status
+          schema:
+            type: string
+            enum:
+              - Pending
+              - Reviewed
+              - Resolved
+              - Rejected
+      responses:
+        "200":
+          description: List of mentee's complaints retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintListResponse"
+        "400":
+          description: Invalid pagination parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentees can view their complaints
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/complaints/mentor:
+    get:
+      tags:
+        - complaint
+      summary: Get complaints against mentor (Mentor only)
+      description: |
+        Retrieves complaints filed against the authenticated mentor.
+        Allows mentors to see feedback and issues reported by mentees.
+      operationId: getComplaintsForMentor
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: List of complaints against mentor retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintListResponse"
+        "400":
+          description: Invalid pagination parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only mentors can access this endpoint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/complaints/check-expired/{meetingId}":
+    get:
+      tags:
+        - complaint
+      summary: Check if meeting is eligible for complaint
+      description: |
+        Checks if a meeting has expired (past 5 minutes after scheduled time) 
+        and is still in Pending status, making it eligible for a complaint.
+        Used to determine whether to show the complaint button to mentees.
+      operationId: checkMeetingExpiredPending
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The ID of the meeting to check
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Meeting eligibility status returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeetingExpiredCheckResponse"
+        "400":
+          description: Invalid meeting ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/complaints/meeting/{meetingId}":
+    get:
+      tags:
+        - complaint
+      summary: Get complaint by meeting ID
+      description: |
+        Retrieves the complaint associated with a specific meeting, if any.
+        Used to check if a complaint already exists for a meeting.
+      operationId: getComplaintByMeetingId
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: meetingId
+          in: path
+          required: true
+          description: The ID of the meeting to get complaint for
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint information retrieved (or null if no complaint exists)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintByMeetingResponse"
+        "400":
+          description: Invalid meeting ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/complaints/{complaintId}":
+    get:
+      tags:
+        - complaint
+      summary: Get complaint by ID
+      description: |
+        Retrieves a specific complaint by its ID.
+        Only the mentee who filed the complaint or an admin can view it.
+      operationId: getComplaintById
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: complaintId
+          in: path
+          required: true
+          description: The ID of the complaint to retrieve
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complaint retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintResponse"
+        "400":
+          description: Invalid complaint ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - user not authorized to view this complaint
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Complaint not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/complaints/{complaintId}/status":
+    put:
+      tags:
+        - complaint
+      summary: Update complaint status (Admin only)
+      description: |
+        Updates the status of a complaint and optionally adds an admin response.
+        Only administrators can use this endpoint.
+        When status is changed to "Resolved", the associated meeting is automatically cancelled.
+      operationId: updateComplaintStatus
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: complaintId
+          in: path
+          required: true
+          description: The ID of the complaint to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - Reviewed
+                    - Resolved
+                    - Rejected
+                  description: The new status for the complaint
+                  example: Resolved
+                admin_response:
+                  type: string
+                  description: Optional response/notes from the admin
+                  example: Meeting has been cancelled and refund will be processed
+      responses:
+        "200":
+          description: Complaint status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComplaintUpdateResponse"
+        "400":
+          description: Invalid complaint ID or status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden - only admins can update complaint status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Complaint not found
           content:
             application/json:
               schema:
@@ -6882,6 +7521,186 @@ components:
           example: Completed
       required:
         - status
+    CancelMeetingResponse:
+      type: object
+      description: Response after cancelling a meeting
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Meeting cancelled successfully
+        data:
+          type: object
+          properties:
+            meeting_id:
+              type: integer
+              description: ID of the cancelled meeting
+              example: 123
+            status:
+              type: string
+              description: New status of the meeting
+              example: Cancelled
+      required:
+        - success
+        - message
+    DeleteMeetingPermanentlyResponse:
+      type: object
+      description: Response after permanently deleting a cancelled meeting
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Meeting permanently deleted
+      required:
+        - success
+        - message
+    Complaint:
+      type: object
+      properties:
+        complaint_id:
+          type: integer
+          description: Unique identifier for the complaint
+          example: 1
+        meeting_id:
+          type: integer
+          description: ID of the meeting this complaint is against
+          example: 123
+        mentee_id:
+          type: integer
+          description: ID of the mentee who filed the complaint
+          example: 456
+        content:
+          type: string
+          description: The complaint description
+          example: The mentor did not show up for the scheduled meeting
+        status:
+          type: string
+          enum:
+            - Pending
+            - Reviewed
+            - Resolved
+            - Rejected
+          description: Current status of the complaint
+          example: Pending
+        admin_response:
+          type: string
+          nullable: true
+          description: Response from admin (if any)
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          description: When the complaint was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the complaint was last updated
+    ComplaintWithDetails:
+      allOf:
+        - $ref: "#/components/schemas/Complaint"
+        - type: object
+          properties:
+            mentee_name:
+              type: string
+              description: Name of the mentee who filed the complaint
+              example: John Doe
+            mentee_email:
+              type: string
+              description: Email of the mentee
+              example: john@example.com
+            mentor_name:
+              type: string
+              description: Name of the mentor
+              example: Jane Smith
+            mentor_email:
+              type: string
+              description: Email of the mentor
+              example: jane@example.com
+            meeting_link:
+              type: string
+              nullable: true
+              description: Link to the meeting
+              example: "https://meet.google.com/abc-defg-hij"
+            scheduled_start:
+              type: string
+              format: date-time
+              description: Scheduled start time of the meeting
+            scheduled_end:
+              type: string
+              format: date-time
+              description: Scheduled end time of the meeting
+    ComplaintResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Complaint created successfully
+        data:
+          $ref: "#/components/schemas/ComplaintWithDetails"
+    ComplaintListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ComplaintWithDetails"
+        pagination:
+          $ref: "#/components/schemas/PaginationInfo"
+    ComplaintUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Complaint status updated successfully
+        data:
+          $ref: "#/components/schemas/ComplaintWithDetails"
+    ComplaintByMeetingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          oneOf:
+            - $ref: "#/components/schemas/ComplaintWithDetails"
+            - type: "null"
+          description: The complaint object or null if no complaint exists
+    MeetingExpiredCheckResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        isExpired:
+          type: boolean
+          description: Whether the meeting is eligible for complaint
+          example: true
+        meetingInfo:
+          type: object
+          description: Basic meeting information
+          properties:
+            meeting_id:
+              type: integer
+              example: 123
+            status:
+              type: string
+              example: Pending
+            scheduled_time:
+              type: string
+              format: date-time
     AdminMenteeItem:
       type: object
       properties:

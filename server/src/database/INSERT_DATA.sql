@@ -1762,4 +1762,14 @@ VALUES
 (N'David, I''ve updated my resume as you suggested.', '2024-12-04 11:00:00', 35, 5),
 (N'Great Emma! Send it over and I''ll review the changes.', '2024-12-04 14:15:00', 5, 35);
 
+-- Insert Complaints
+INSERT INTO complaints (meeting_id, mentee_id, mentor_id, content, status)
+VALUES
+(3, 33, 3, N'The mentor was late to the session and it affected the quality of the meeting.', N'Rejected'),
+(10, 38, 8, N'The session content did not match what was advertised on the mentor''s profile.', N'Pending'),
+(15, 43, 13, N'The mentor was unprofessional during the session.', N'Resolved'),
+(20, 48, 18, N'The meeting link provided did not work, causing delays.', N'Pending'),
+(25, 33, 23, N'The mentor seemed distracted and did not focus on my questions.', N'Resolved');
+(26, 34, 24, N'The session was cut short without explanation.', N'Reviewed');
+
 GO
