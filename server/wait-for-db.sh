@@ -12,6 +12,6 @@ echo "SQL Server is ready!"
 
 # Run seed:slot command
 echo "Running seed:slot command..."
-pnpm run seed:slot
+node dist/scripts/seed-slot.js
 
 echo "Seed completed successfully!"
