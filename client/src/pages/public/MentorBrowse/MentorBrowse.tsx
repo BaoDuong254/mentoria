@@ -70,7 +70,7 @@ function MentorBrowse() {
               </div>
             </div>
             {/* List of mentor card */}
-            <div>
+            <div className='w-11/12'>
               {isFetchingMentors ? (
                 <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
                   {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -83,7 +83,7 @@ function MentorBrowse() {
               ) : (
                 <>
                   {mentors.length > 0 ? (
-                    <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                    <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3'>
                       {mentors.map((mentor) => (
                         <Card key={mentor.user_id} mentor={mentor} />
                       ))}
