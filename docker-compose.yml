@@ -38,7 +38,7 @@ services:
       bash -c "
       /opt/mssql/bin/sqlservr &
       sleep 30 &&
-      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASS} -Q 'CREATE DATABASE mentoria' -C &&
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASS} -Q 'IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N''mentoria'') CREATE DATABASE mentoria' -C &&
       bash /init-db.sh &&
       wait
       "
