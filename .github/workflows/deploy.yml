@@ -21,6 +21,11 @@ jobs:
         # Note: For production with Nginx proxy, CLIENT_ENV should NOT include VITE_BACKEND_URL
         # or it should be empty/commented out. Images are served via Nginx proxy at /images
 
+      - name: Copy pnpm-lock.yaml to server and client
+        run: |
+          cp pnpm-lock.yaml server/pnpm-lock.yaml
+          cp pnpm-lock.yaml client/pnpm-lock.yaml
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
