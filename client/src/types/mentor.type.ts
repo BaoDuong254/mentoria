@@ -119,6 +119,7 @@ export interface PlanBase {
   plan_charge: number;
   plan_type: string;
   mentor_id: number;
+  plan_category: "session" | "mentorship";
 }
 
 export interface PlanSession extends PlanBase {
@@ -133,7 +134,7 @@ export interface PlanMentorship extends PlanBase {
   benefits: string[];
 }
 
-export type Plan = PlanSession | PlanMentorship;
+export type Plan_Manage = PlanSession | PlanMentorship;
 
 // --- API Request Payloads (Sending Data) ---
 
@@ -170,13 +171,13 @@ export interface UpdatePlanRequest {
 export interface MentorPlansResponse {
   success: boolean;
   message: string;
-  data: Plan[];
+  data: Plan_Manage[];
 }
 
 export interface PlanDetailResponse {
   success: boolean;
   message: string;
-  data: Plan;
+  data: Plan_Manage;
 }
 
 export interface CreatePlanResponse {
