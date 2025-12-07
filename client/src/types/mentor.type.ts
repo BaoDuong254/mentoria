@@ -43,6 +43,19 @@ export interface Feedback {
   plan_charge: number;
 }
 
+export interface Feedback {
+  mentee_id: number;
+  mentee_first_name: number;
+  mentee_last_name: number;
+  stars: number;
+  content: string;
+  sent_time: string;
+  plan_id: number;
+  plan_type: string;
+  plan_description: string;
+  plan_charge: number;
+}
+
 export interface Mentor {
   user_id: number;
   first_name: string;

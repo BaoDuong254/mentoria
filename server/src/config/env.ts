@@ -4,18 +4,16 @@ import z from "zod";
 import chalk from "chalk";
 import { config } from "dotenv";
 
-config({
-  path: path.resolve(__dirname, "../../.env"),
-});
+const envPath = path.resolve(__dirname, "../../.env");
 
-const checkEnv = () => {
-  if (!fs.existsSync(path.resolve(__dirname, "../../.env"))) {
-    console.log(chalk.red("Can not find .env file!"));
-    process.exit(1);
-  }
-};
-
-checkEnv();
+// Only load .env file if it exists (development mode)
+// In production, Docker Compose injects env vars directly
+if (fs.existsSync(envPath)) {
+  config({ path: envPath });
+} else if (process.env.NODE_ENV !== "production") {
+  console.log(chalk.red("Can not find .env file!"));
+  process.exit(1);
+}
 
 const configSchema = z.object({
   PORT: z.coerce.number().default(3000),

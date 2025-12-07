@@ -66,6 +66,7 @@ export default function useRoutesConfig() {
             { path: path.ADMIN_DASHBOARD, element: <AdminDashboard /> },
             { path: path.ADMIN_USERS, element: <AdminUsers /> },
             { path: path.ADMIN_INVOICES, element: <AdminInvoices /> },
+            { path: path.PROFILE, element: <Profile /> },
           ],
         },
       ],

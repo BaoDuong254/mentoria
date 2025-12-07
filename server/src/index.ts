@@ -52,6 +52,9 @@ app.use(
   })
 );
 
+// Disable 'X-Powered-By' header for security
+app.disable("x-powered-by");
+
 // setup morgan with winston
 app.use(
   morgan("combined", {
