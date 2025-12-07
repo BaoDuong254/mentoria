@@ -47,8 +47,8 @@ function MentorProfile() {
   const { sessionPlans, monthlyPlans } = useMemo(() => {
     if (!selectedMentor?.plans) return { sessionPlans: [], monthlyPlans: [] };
 
-    const sessions = selectedMentor.plans.filter((p) => p.plan_category === "session");
-    const monthly = selectedMentor.plans.filter((p) => p.plan_category === "mentorship");
+    const sessions = selectedMentor.plans.filter((p) => p.sessions_duration && p.sessions_duration > 0);
+    const monthly = selectedMentor.plans.filter((p) => p.benefits && p.benefits.length > 0);
 
     return { sessionPlans: sessions, monthlyPlans: monthly };
   }, [selectedMentor]);
@@ -233,13 +233,12 @@ function MentorProfile() {
                     </div>
 
                     <div className='flex flex-col gap-4 pl-2'>
-                      {displayPlan.plan_category === "mentorship" &&
-                        displayPlan.benefits.map((benefit: string, index: number) => (
-                          <span className='flex items-start gap-3 text-sm text-gray-300' key={index}>
-                            <Check className='mt-0.5 h-4 w-4 shrink-0 text-(--green)' />
-                            <span>{benefit}</span>
-                          </span>
-                        ))}
+                      {displayPlan.benefits?.map((benefit, index) => (
+                        <span className='flex items-start gap-3 text-sm text-gray-300' key={index}>
+                          <Check className='mt-0.5 h-4 w-4 shrink-0 text-(--green)' />
+                          <span>{benefit}</span>
+                        </span>
+                      ))}
                     </div>
 
                     <button className='w-full rounded-lg bg-(--primary) py-3 font-bold text-white transition hover:bg-purple-700'>
@@ -274,8 +273,7 @@ function MentorProfile() {
                               <strong className='text-white'>{p.plan_type}</strong> - {p.plan_description}
                             </p>
                             <p>
-                              {p.plan_category === "session" ? p.sessions_duration : 0} minutes, ${p.plan_charge} per
-                              person
+                              {p.sessions_duration} minutes, ${p.plan_charge} per person
                             </p>
                           </div>
                         </div>

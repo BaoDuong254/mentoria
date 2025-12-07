@@ -6,8 +6,6 @@ import {
   updateMeetingLocationService,
   updateMeetingStatusService,
   updateMeetingReviewLinkService,
-  cancelMeetingService,
-  deleteMeetingPermanentlyService,
 } from "@/services/meeting.service";
 import { Role } from "@/constants/type";
 
@@ -318,117 +316,6 @@ export const updateMeetingReviewLink = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-    });
-  }
-};
-
-/**
- * Cancel a meeting
- * Both Mentee and Mentor can cancel their meetings
- */
-export const cancelMeeting = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.user_id;
-    const userRole = req.user?.role;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
-
-    if (!userId || !userRole) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    if (!meetingId || isNaN(meetingId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid meeting ID",
-      });
-    }
-
-    // Only Mentee and Mentor can cancel meetings
-    if (userRole !== Role.Mentee && userRole !== Role.Mentor) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Only mentees and mentors can cancel meetings.",
-      });
-    }
-
-    const cancelledMeeting = await cancelMeetingService(meetingId, Number(userId), userRole as "Mentee" | "Mentor");
-
-    if (!cancelledMeeting) {
-      return res.status(404).json({
-        success: false,
-        message: "Meeting not found or you do not have permission to cancel it",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Meeting cancelled successfully",
-      data: cancelledMeeting,
-    });
-  } catch (error) {
-    console.error("Error in cancelMeeting:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    return res.status(500).json({
-      success: false,
-      message: errorMessage,
-    });
-  }
-};
-
-/**
- * Permanently delete a cancelled meeting
- * Both Mentee and Mentor can delete their cancelled meetings
- */
-export const deleteMeetingPermanently = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.user_id;
-    const userRole = req.user?.role;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
-
-    if (!userId || !userRole) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    if (!meetingId || isNaN(meetingId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid meeting ID",
-      });
-    }
-
-    // Only Mentee and Mentor can delete meetings
-    if (userRole !== Role.Mentee && userRole !== Role.Mentor) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Only mentees and mentors can delete meetings.",
-      });
-    }
-
-    const deleted = await deleteMeetingPermanentlyService(meetingId, Number(userId), userRole as "Mentee" | "Mentor");
-
-    if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        message: "Meeting not found or you do not have permission to delete it",
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Meeting deleted permanently",
-    });
-  } catch (error) {
-    console.error("Error in deleteMeetingPermanently:", error);
-    const errorMessage = error instanceof Error ? error.message : "Internal server error";
-    return res.status(500).json({
-      success: false,
-      message: errorMessage,
     });
   }
 };

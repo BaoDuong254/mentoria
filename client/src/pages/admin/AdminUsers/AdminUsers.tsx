@@ -11,7 +11,6 @@ import {
 import type { AdminMenteeItem, AdminMentorItem } from "@/types/admin.type";
 import { Check, X, Trash2, AlertCircle, Save } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { showToast } from "@/utils/toast";
 
 type Tab = "mentors" | "mentees" | "pending";
 
@@ -69,10 +68,9 @@ const AdminUsers = () => {
     if (!confirm(`Are you sure you want to ${action} this mentor?`)) return;
     try {
       await reviewMentorApplication(id, action);
-      showToast.success(`Mentor ${action}ed successfully`);
       void fetchData();
     } catch {
-      showToast.error("Action failed");
+      alert("Action failed");
     }
   };
 
@@ -87,10 +85,9 @@ const AdminUsers = () => {
       await deleteUser(userToDelete.id, userToDelete.role);
       setData((prev) => prev.filter((u) => u.user_id !== userToDelete.id));
       setUserToDelete(null);
-      showToast.success("User deleted successfully");
     } catch (error) {
       console.error("Delete failed", error);
-      showToast.error("Delete failed");
+      alert("Delete failed");
     } finally {
       setIsDeleting(false);
     }
@@ -212,7 +209,7 @@ const AdminUsers = () => {
                       <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           user.status === "Active"
-                            ? "bg-(--green)/10 text-(--green)" // Xanh teal
+                            ? "bg-(--green)/10 text-(--green)"
                             : user.status === "Pending"
                               ? "bg-yellow-500/10 text-yellow-400"
                               : "bg-red-500/10 text-red-400"
@@ -228,6 +225,7 @@ const AdminUsers = () => {
                         {(user as AdminMentorItem).headline ?? "N/A"}
                       </td>
                     )}
+
                     <td className='flex justify-end gap-2 px-6 py-4'>
                       {activeTab === "pending" && (
                         <>
@@ -301,7 +299,6 @@ const AdminUsers = () => {
           onClick={() => {
             setPage((p) => p - 1);
           }}
-          // Style button giống Login: bg-gray-700, border-gray-500/30
           className='rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm text-white transition hover:brightness-110 disabled:opacity-50'
         >
           Previous
@@ -323,7 +320,7 @@ const AdminUsers = () => {
       {/* --- EDIT MODAL --- */}
       <AnimatePresence>
         {editingUser && (
-          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
+          <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -470,7 +467,7 @@ const AdminUsers = () => {
 
       <AnimatePresence>
         {userToDelete && (
-          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
+          <div className='fixed inset-0 z-[60] flex items-center justify-center p-4'>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -485,7 +482,6 @@ const AdminUsers = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              // Background modal giống Form Login
               className='relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl'
             >
               <div className='flex flex-col items-center p-6 pt-8'>

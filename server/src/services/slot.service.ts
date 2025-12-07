@@ -115,15 +115,6 @@ const createSlotService = async (
       };
     }
 
-    // Check if slot is in the past
-    const now = new Date();
-    if (startTime < now) {
-      return {
-        success: false,
-        message: "Cannot set a slot in the past",
-      };
-    }
-
     // Calculate slot duration in minutes
     const slotDurationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / (1000 * 60));
 

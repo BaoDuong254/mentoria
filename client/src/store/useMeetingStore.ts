@@ -6,8 +6,6 @@ import {
   updateMeetingLocation,
   updateMeetingStatus,
   updateReviewLink,
-  cancelMeeting,
-  deleteMeetingPermanently as deleteMeetingPermanentlyApi,
 } from "@/apis/meeting.api";
 import axios from "axios";
 
@@ -48,7 +46,6 @@ interface MeetingState {
   acceptMeeting: (meetingId: number) => Promise<boolean>;
   setReviewLink: (meetingId: number, reviewLink: string) => Promise<boolean>;
   deleteMeeting: (meetingId: number) => Promise<boolean>;
-  deleteMeetingPermanently: (meetingId: number) => Promise<boolean>;
 
   // Computed getters
   getAcceptedMeetings: () => MeetingResponse[];
@@ -56,7 +53,6 @@ interface MeetingState {
   getCompletedMeetings: () => MeetingResponse[];
   getCancelledMeetings: () => MeetingResponse[];
   getPendingMeetings: () => MeetingResponse[];
-  getAllPendingMeetings: () => MeetingResponse[];
   getAllUpcomingMeetings: () => MeetingResponse[];
 }
 
@@ -204,7 +200,9 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
 
   deleteMeeting: async (meetingId: number) => {
     try {
-      const response = await cancelMeeting(meetingId);
+      const response = await updateMeetingStatus(meetingId, {
+        status: "Cancelled",
+      });
       if (response.success) {
         set((state) => ({
           meetings: state.meetings.filter((m) => m.meeting_id !== meetingId),
@@ -218,42 +216,30 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
     }
   },
 
-  deleteMeetingPermanently: async (meetingId: number) => {
-    try {
-      const response = await deleteMeetingPermanentlyApi(meetingId);
-      if (response.success) {
-        set((state) => ({
-          meetings: state.meetings.filter((m) => m.meeting_id !== meetingId),
-        }));
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error permanently deleting meeting:", error);
-      return false;
-    }
-  },
-
-  // Get accepted/scheduled meetings for selected date (include both upcoming and past meetings that are still Scheduled)
+  // Get accepted/scheduled meetings for selected date (upcoming, not passed)
   getAcceptedMeetings: () => {
     const { meetings, selectedDate } = get();
+    const now = new Date();
     const selectedDateStr = formatLocalDateString(selectedDate);
 
     return meetings.filter((m) => {
+      // Parse start_time to get meeting datetime
+      const { hours, minutes } = parseTimeFromString(m.start_time);
       // Create meeting date from the date string without timezone conversion
       const meetingDateStr = extractDateString(m.date);
+      const [year, month, day] = meetingDateStr.split("-").map(Number);
+      const meetingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
       const isSameDay = meetingDateStr === selectedDateStr;
 
-      return m.status === "Scheduled" && isSameDay;
+      return m.status === "Scheduled" && meetingDateTime > now && isSameDay;
     });
   },
 
-  // Get out of date meetings for selected month (scheduled but time has passed - NOT pending)
+  // Get out of date meetings (pending or scheduled but time has passed)
   getOutOfDateMeetings: () => {
-    const { meetings, selectedDate } = get();
+    const { meetings } = get();
     const now = new Date();
-    const selectedMonth = selectedDate.getMonth();
-    const selectedYear = selectedDate.getFullYear();
 
     return meetings.filter((m) => {
       const { hours, minutes } = parseTimeFromString(m.start_time);
@@ -261,55 +247,35 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
       const [year, month, day] = meetingDateStr.split("-").map(Number);
       const meetingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
 
-      // Check if meeting is in the selected month
-      const isInSelectedMonth = year === selectedYear && month - 1 === selectedMonth;
-
-      // Only Scheduled meetings that have passed become out of date (NOT Pending)
-      return m.status === "Scheduled" && meetingDateTime < now && isInSelectedMonth;
+      return (m.status === "Pending" || m.status === "Scheduled") && meetingDateTime < now;
     });
   },
 
-  // Get completed meetings for selected month
+  // Get completed meetings
   getCompletedMeetings: () => {
-    const { meetings, selectedDate } = get();
-    const selectedMonth = selectedDate.getMonth();
-    const selectedYear = selectedDate.getFullYear();
-
-    return meetings.filter((m) => {
-      const meetingDateStr = extractDateString(m.date);
-      const [year, month] = meetingDateStr.split("-").map(Number);
-      const isInSelectedMonth = year === selectedYear && month - 1 === selectedMonth;
-
-      return m.status === "Completed" && isInSelectedMonth;
-    });
+    const { meetings } = get();
+    return meetings.filter((m) => m.status === "Completed");
   },
 
-  // Get cancelled meetings for selected month
+  // Get cancelled meetings
   getCancelledMeetings: () => {
-    const { meetings, selectedDate } = get();
-    const selectedMonth = selectedDate.getMonth();
-    const selectedYear = selectedDate.getFullYear();
-
-    return meetings.filter((m) => {
-      const meetingDateStr = extractDateString(m.date);
-      const [year, month] = meetingDateStr.split("-").map(Number);
-      const isInSelectedMonth = year === selectedYear && month - 1 === selectedMonth;
-
-      return m.status === "Cancelled" && isInSelectedMonth;
-    });
+    const { meetings } = get();
+    return meetings.filter((m) => m.status === "Cancelled");
   },
 
-  // Get pending meetings (meetings waiting for confirmation - show all pending regardless of time)
+  // Get pending meetings (future meetings waiting for confirmation)
   getPendingMeetings: () => {
     const { meetings } = get();
-    // Show ALL pending meetings - they stay pending until mentor accepts or complaint is resolved
-    return meetings.filter((m) => m.status === "Pending");
-  },
+    const now = new Date();
 
-  // Get all pending meetings regardless of time (for mentor dashboard)
-  getAllPendingMeetings: () => {
-    const { meetings } = get();
-    return meetings.filter((m) => m.status === "Pending");
+    return meetings.filter((m) => {
+      const { hours, minutes } = parseTimeFromString(m.start_time);
+      const meetingDateStr = extractDateString(m.date);
+      const [year, month, day] = meetingDateStr.split("-").map(Number);
+      const meetingDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
+
+      return m.status === "Pending" && meetingDateTime > now;
+    });
   },
 
   // Get all upcoming meetings (scheduled, future, any date)

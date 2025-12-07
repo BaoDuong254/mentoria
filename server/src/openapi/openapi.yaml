@@ -39,8 +39,6 @@ tags:
     description: Real-time messaging between users with WebSocket integration
   - name: meeting
     description: Meeting management for mentors and mentees
-  - name: complaint
-    description: Complaint management for mentees to report issues with meetings
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
 paths:
@@ -149,27 +147,6 @@ paths:
     $ref: "./paths/meeting.yaml#/updateMeetingStatus"
   /api/meetings/{meetingId}/review-link:
     $ref: "./paths/meeting.yaml#/updateMeetingReviewLink"
-  /api/meetings/{meetingId}/cancel:
-    $ref: "./paths/meeting.yaml#/cancelMeeting"
-  /api/meetings/{meetingId}/permanent:
-    $ref: "./paths/meeting.yaml#/deleteMeetingPermanently"
-  # Complaint Endpoints
-  /api/complaints:
-    $ref: "./paths/complaint.yaml#/createComplaint"
-  /api/complaints/all:
-    $ref: "./paths/complaint.yaml#/getAllComplaints"
-  /api/complaints/my:
-    $ref: "./paths/complaint.yaml#/getMyComplaints"
-  /api/complaints/mentor:
-    $ref: "./paths/complaint.yaml#/getComplaintsForMentor"
-  /api/complaints/check-expired/{meetingId}:
-    $ref: "./paths/complaint.yaml#/checkMeetingExpiredPending"
-  /api/complaints/meeting/{meetingId}:
-    $ref: "./paths/complaint.yaml#/getComplaintByMeetingId"
-  /api/complaints/{complaintId}:
-    $ref: "./paths/complaint.yaml#/getComplaintById"
-  /api/complaints/{complaintId}/status:
-    $ref: "./paths/complaint.yaml#/updateComplaintStatus"
   # Admin Endpoints
   /api/admin/mentees:
     $ref: "./paths/admin.yaml#/menteesList"

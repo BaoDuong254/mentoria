@@ -1,22 +1,9 @@
-import {
-  Calendar,
-  Clock,
-  Star,
-  Trash2,
-  Video,
-  ExternalLink,
-  MessageCircle,
-  AlertTriangle,
-  CheckCircle,
-} from "lucide-react";
+import { Calendar, Clock, Star, Trash2, Video, ExternalLink, MessageCircle } from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useNavigate } from "react-router-dom";
 import { useMeetingStore } from "@/store/useMeetingStore";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import ComplaintModal from "@/components/ComplaintModal";
-import { checkMeetingExpiredPending, createComplaint, getComplaintByMeetingId } from "@/apis/complaint.api";
-import showToast from "@/utils/toast";
 
 interface MeetingCardProps {
   meeting: MeetingResponse;
@@ -25,69 +12,9 @@ interface MeetingCardProps {
 
 export default function MeetingCard({ meeting, type }: MeetingCardProps) {
   const navigate = useNavigate();
-  const { deleteMeeting, deleteMeetingPermanently } = useMeetingStore();
+  const { deleteMeeting } = useMeetingStore();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showComplaintModal, setShowComplaintModal] = useState(false);
-  const [canComplaint, setCanComplaint] = useState(false);
-  const [complaintSent, setComplaintSent] = useState(false);
-  const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
-
-  // Check if mentee can file a complaint (after 5 minutes of pending status)
-  useEffect(() => {
-    if (type === "pending") {
-      const checkComplaintEligibility = async () => {
-        try {
-          // First check if complaint already sent
-          const complaintResult = await getComplaintByMeetingId(meeting.meeting_id);
-          if (complaintResult.success && complaintResult.hasComplaint) {
-            setComplaintSent(true);
-            return;
-          }
-
-          // Then check if eligible to file complaint
-          const response = await checkMeetingExpiredPending(meeting.meeting_id);
-          if (response.success) {
-            setCanComplaint(response.isExpired);
-          }
-        } catch (error) {
-          console.error("Error checking complaint eligibility:", error);
-        }
-      };
-      void checkComplaintEligibility();
-
-      // Re-check every 30 seconds
-      const interval = setInterval(() => {
-        void checkComplaintEligibility();
-      }, 30000);
-
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [type, meeting.meeting_id]);
-
-  const handleComplaintSubmit = async (content: string) => {
-    setIsSubmittingComplaint(true);
-    try {
-      const response = await createComplaint({
-        meeting_id: meeting.meeting_id,
-        content,
-      });
-      if (response.success) {
-        showToast.success("Complaint submitted successfully. Our admin team will review it.");
-        setComplaintSent(true);
-        setShowComplaintModal(false);
-      } else {
-        showToast.error(response.message || "Failed to submit complaint");
-      }
-    } catch (error) {
-      console.error("Error submitting complaint:", error);
-      showToast.error("Failed to submit complaint. Please try again.");
-    } finally {
-      setIsSubmittingComplaint(false);
-    }
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -120,7 +47,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
     if (meeting.location) {
       window.open(meeting.location, "_blank");
     } else {
-      showToast.warning("Meeting link not available yet. Please wait for mentor to provide the link.");
+      alert("Meeting link not available yet. Please wait for mentor to provide the link.");
     }
   };
 
@@ -128,7 +55,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
     if (meeting.review_link) {
       window.open(meeting.review_link, "_blank");
     } else {
-      showToast.warning("Review link not available yet. Please wait for mentor to provide the link.");
+      alert("Review link not available yet. Please wait for mentor to provide the link.");
     }
   };
 
@@ -138,41 +65,21 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
 
   const confirmDelete = async () => {
     setIsDeleting(true);
-    let success: boolean;
-
-    // If meeting is already cancelled, delete permanently
-    if (type === "cancelled") {
-      success = await deleteMeetingPermanently(meeting.meeting_id);
-      if (!success) {
-        showToast.error("Failed to delete meeting permanently");
-      } else {
-        showToast.success("Meeting deleted permanently");
-      }
-    } else {
-      // Otherwise, just cancel the meeting
-      success = await deleteMeeting(meeting.meeting_id);
-      if (!success) {
-        showToast.error("Failed to cancel meeting");
-      } else {
-        showToast.success("Meeting cancelled successfully");
-      }
+    const success = await deleteMeeting(meeting.meeting_id);
+    if (!success) {
+      alert("Failed to delete meeting");
     }
-
     setIsDeleting(false);
     setShowDeleteConfirm(false);
   };
 
   const handleBookAnother = () => {
-    if (meeting.mentor_id) {
-      void navigate(`/mentor-profile/${String(meeting.mentor_id)}`);
-    } else {
-      void navigate("/mentor-browse");
-    }
+    void navigate("/mentor-browse");
   };
 
   const handleReviewMeeting = () => {
     // Navigate to review page or open review modal
-    showToast.info("Review feature coming soon!");
+    alert("Review feature coming soon!");
   };
 
   const getBadgeColor = () => {
@@ -269,7 +176,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
               onClick={handleBookAnother}
               className='cursor-pointer rounded bg-gray-700 px-4 py-2 text-white transition-colors hover:bg-gray-600'
             >
-              Book another slot
+              Book another course
             </button>
           </>
         )}
@@ -315,7 +222,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
               onClick={handleBookAnother}
               className='cursor-pointer rounded bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700'
             >
-              Book another slot
+              Book another course
             </button>
           </>
         )}
@@ -351,25 +258,6 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
               <MessageCircle className='h-4 w-4' />
               Contact Mentor
             </button>
-            {complaintSent ? (
-              <button
-                disabled
-                className='flex cursor-not-allowed items-center gap-2 rounded bg-orange-600 px-4 py-2 text-white opacity-75'
-              >
-                <CheckCircle className='h-4 w-4' />
-                Complaint Sent
-              </button>
-            ) : canComplaint ? (
-              <button
-                onClick={() => {
-                  setShowComplaintModal(true);
-                }}
-                className='flex cursor-pointer items-center gap-2 rounded bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700'
-              >
-                <AlertTriangle className='h-4 w-4' />
-                Complaint
-              </button>
-            ) : null}
           </>
         )}
       </div>
@@ -387,18 +275,6 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
         cancelText='Cancel'
         confirmButtonClass='bg-red-600 hover:bg-red-700'
         isLoading={isDeleting}
-      />
-
-      {/* Complaint Modal */}
-      <ComplaintModal
-        isOpen={showComplaintModal}
-        mentorName={`${meeting.mentor_first_name} ${meeting.mentor_last_name}`}
-        meetingId={meeting.meeting_id}
-        onSubmit={handleComplaintSubmit}
-        onCancel={() => {
-          setShowComplaintModal(false);
-        }}
-        isLoading={isSubmittingComplaint}
       />
     </div>
   );

@@ -3,15 +3,10 @@ import { useMeetingStore } from "@/store/useMeetingStore";
 import { useSlotStore } from "@/store/useSlotStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import MentorMeetingCard from "@/components/MentorMeetingCard";
-import ComplaintedMeetingCard from "@/components/ComplaintedMeetingCard";
 import Calendar from "@/components/Calendar";
 import TimeInput from "@/components/TimeInput";
-import ConfirmDialog from "@/components/ConfirmDialog";
 import { Plus, ChevronDown, Trash2 } from "lucide-react";
 import type { Slot } from "@/types/booking.type";
-import type { ComplaintResponse } from "@/types/complaint.type";
-import { getComplaintsForMentor } from "@/apis/complaint.api";
-import showToast from "@/utils/toast";
 
 function MentorDashboard() {
   const { user } = useAuthStore();
@@ -23,7 +18,7 @@ function MentorDashboard() {
     setSelectedDate,
     getAcceptedMeetings,
     getCompletedMeetings,
-    getAllPendingMeetings,
+    getPendingMeetings,
   } = useMeetingStore();
 
   const {
@@ -44,12 +39,6 @@ function MentorDashboard() {
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
   const [isAddingSlot, setIsAddingSlot] = useState(false);
   const [isDeletingSlot, setIsDeletingSlot] = useState<string | null>(null);
-  const [slotToDelete, setSlotToDelete] = useState<Slot | null>(null);
-  const [showDeleteSlotConfirm, setShowDeleteSlotConfirm] = useState(false);
-
-  // State for complaints against this mentor
-  const [complaints, setComplaints] = useState<ComplaintResponse[]>([]);
-  const [isLoadingComplaints, setIsLoadingComplaints] = useState(false);
 
   // Fetch data on mount
   useEffect(() => {
@@ -62,30 +51,11 @@ function MentorDashboard() {
     }
   }, [user?.user_id, fetchAllSlotsForMentor]);
 
-  // Fetch complaints for this mentor
-  useEffect(() => {
-    const fetchComplaints = async () => {
-      setIsLoadingComplaints(true);
-      try {
-        const response = await getComplaintsForMentor();
-        if (response.success) {
-          setComplaints(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching complaints:", error);
-      } finally {
-        setIsLoadingComplaints(false);
-      }
-    };
-    void fetchComplaints();
-  }, []);
-
   const acceptedMeetings = getAcceptedMeetings();
   const completedMeetings = getCompletedMeetings();
-  const pendingMeetings = getAllPendingMeetings();
+  const pendingMeetings = getPendingMeetings();
 
-  const hasAnyMeetings =
-    acceptedMeetings.length > 0 || completedMeetings.length > 0 || pendingMeetings.length > 0 || complaints.length > 0;
+  const hasAnyMeetings = acceptedMeetings.length > 0 || completedMeetings.length > 0 || pendingMeetings.length > 0;
 
   // Get all meeting dates for calendar highlighting
   const meetingDates = meetings.map((m) => m.date.split("T")[0]);
@@ -127,12 +97,12 @@ function MentorDashboard() {
   // Handle adding a time slot
   const handleAddTimeSlot = async () => {
     if (!startTime) {
-      showToast.warning("Please select a start time");
+      alert("Please select a start time");
       return;
     }
 
     if (!selectedPlanId) {
-      showToast.warning("Please select a plan type");
+      alert("Please select a plan type");
       return;
     }
 
@@ -166,62 +136,40 @@ function MentorDashboard() {
         if (user?.user_id) {
           void fetchAllSlotsForMentor(user.user_id);
         }
-        showToast.success("Time slot added successfully");
       } else {
-        showToast.error("Failed to add time slot. Please try again.");
+        alert("Failed to add time slot. Please try again.");
       }
     } catch (error) {
       console.error("Error adding slot:", error);
-      showToast.error("Failed to add time slot. Please try again.");
+      alert("Failed to add time slot. Please try again.");
     } finally {
       setIsAddingSlot(false);
     }
   };
 
-  // Handle showing delete confirmation popup
-  const handleDeleteSlotClick = (slot: Slot) => {
+  // Handle deleting a slot
+  const handleDeleteSlot = async (slot: Slot) => {
     if (slot.status === "Booked") {
-      showToast.error("Cannot delete a booked slot");
+      alert("Cannot delete a booked slot");
       return;
     }
-    setSlotToDelete(slot);
-    setShowDeleteSlotConfirm(true);
-  };
 
-  // Handle confirming slot deletion
-  const confirmDeleteSlot = async () => {
-    if (!slotToDelete) return;
-
-    setIsDeletingSlot(slotToDelete.slot_id);
+    setIsDeletingSlot(slot.slot_id);
 
     try {
-      const success = await removeSlot(
-        slotToDelete.plan_id,
-        slotToDelete.start_time,
-        slotToDelete.end_time,
-        slotToDelete.date
-      );
-      if (success) {
-        showToast.success("Time slot deleted successfully");
-      } else {
-        showToast.error("Failed to delete slot. Please try again.");
+      const success = await removeSlot(slot.plan_id, slot.start_time, slot.end_time, slot.date);
+      if (!success) {
+        alert("Failed to delete slot. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting slot:", error);
-      showToast.error("Failed to delete slot. Please try again.");
+      alert("Failed to delete slot. Please try again.");
     } finally {
       setIsDeletingSlot(null);
-      setShowDeleteSlotConfirm(false);
-      setSlotToDelete(null);
     }
   };
 
-  // Legacy handler - redirect to popup
-  const handleDeleteSlot = (slot: Slot) => {
-    handleDeleteSlotClick(slot);
-  };
-
-  const isLoading = isMeetingsLoading || isSlotsLoading || isLoadingComplaints;
+  const isLoading = isMeetingsLoading || isSlotsLoading;
 
   if (isLoading && meetings.length === 0) {
     return (
@@ -298,23 +246,6 @@ function MentorDashboard() {
                     <div className='space-y-4'>
                       {completedMeetings.map((meeting) => (
                         <MentorMeetingCard key={meeting.meeting_id} meeting={meeting} type='completed' />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Complaints Section */}
-                {complaints.length > 0 && (
-                  <div>
-                    <div className='mb-4 flex items-center justify-between'>
-                      <h2 className='text-xl font-medium text-red-400'>Complaints Against You</h2>
-                      <span className='flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm text-white'>
-                        {complaints.length}
-                      </span>
-                    </div>
-                    <div className='space-y-4'>
-                      {complaints.map((complaint) => (
-                        <ComplaintedMeetingCard key={complaint.complaint_id} complaint={complaint} />
                       ))}
                     </div>
                   </div>
@@ -445,7 +376,7 @@ function MentorDashboard() {
                       ? "Today's Schedule"
                       : `Schedule for ${selectedDate.toLocaleDateString()}`}
                   </h4>
-                  <div className='max-h-64 space-y-2 overflow-y-auto'>
+                  <div className='space-y-2'>
                     {todaySlots.length === 0 ? (
                       <p className='text-sm text-gray-500'>No slots for this date</p>
                     ) : (
@@ -484,9 +415,7 @@ function MentorDashboard() {
                               </span>
                               {slot.status === "Available" && (
                                 <button
-                                  onClick={() => {
-                                    handleDeleteSlot(slot);
-                                  }}
+                                  onClick={() => void handleDeleteSlot(slot)}
                                   disabled={isDeletingSlot === slot.slot_id}
                                   className='rounded p-1 text-red-400 hover:bg-red-900/20 disabled:opacity-50'
                                   title='Delete slot'
@@ -506,22 +435,6 @@ function MentorDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Delete Slot Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={showDeleteSlotConfirm}
-        onCancel={() => {
-          setShowDeleteSlotConfirm(false);
-          setSlotToDelete(null);
-        }}
-        onConfirm={() => void confirmDeleteSlot()}
-        title='Delete Time Slot'
-        message={`Are you sure you want to delete this time slot${slotToDelete ? ` (${slotToDelete.start_time.slice(0, 5)} - ${slotToDelete.end_time.slice(0, 5)})` : ""}? This action cannot be undone.`}
-        confirmText='Delete'
-        cancelText='Cancel'
-        confirmButtonClass='bg-red-600 hover:bg-red-700'
-        isLoading={isDeletingSlot !== null}
-      />
     </div>
   );
 }

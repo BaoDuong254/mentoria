@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, LogOut, ShieldCheck, Menu, X, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, Users, FileText, LogOut, ShieldCheck, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const AdminLayout = () => {
@@ -12,7 +12,6 @@ const AdminLayout = () => {
     { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
     { icon: Users, label: "User Management", path: "/admin/users" },
     { icon: FileText, label: "Invoices & Revenue", path: "/admin/invoices" },
-    { icon: AlertTriangle, label: "Complaints", path: "/admin/complaints" },
   ];
 
   return (

@@ -88,26 +88,6 @@ UpdateMeetingLocationRequest:
   $ref: "./meeting.yaml#/UpdateMeetingLocationRequest"
 UpdateMeetingStatusRequest:
   $ref: "./meeting.yaml#/UpdateMeetingStatusRequest"
-CancelMeetingResponse:
-  $ref: "./meeting.yaml#/CancelMeetingResponse"
-DeleteMeetingPermanentlyResponse:
-  $ref: "./meeting.yaml#/DeleteMeetingPermanentlyResponse"
-
-# Complaint schemas
-Complaint:
-  $ref: "./complaint.yaml#/Complaint"
-ComplaintWithDetails:
-  $ref: "./complaint.yaml#/ComplaintWithDetails"
-ComplaintResponse:
-  $ref: "./complaint.yaml#/ComplaintResponse"
-ComplaintListResponse:
-  $ref: "./complaint.yaml#/ComplaintListResponse"
-ComplaintUpdateResponse:
-  $ref: "./complaint.yaml#/ComplaintUpdateResponse"
-ComplaintByMeetingResponse:
-  $ref: "./complaint.yaml#/ComplaintByMeetingResponse"
-MeetingExpiredCheckResponse:
-  $ref: "./complaint.yaml#/MeetingExpiredCheckResponse"
 
 # Admin schemas
 AdminMenteeItem:
