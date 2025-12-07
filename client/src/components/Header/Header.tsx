@@ -25,7 +25,23 @@ export default function Header() {
 
           {/*Desktop Nav */}
           <nav className='hidden justify-center space-x-8 text-base md:flex'>
-            {user?.role === "Mentor" ? (
+            {user?.role === "Admin" ? (
+              /* --- ADMIN NAV --- */
+              <>
+                <Link
+                  to='/admin/dashboard'
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  Dashboard
+                </Link>
+                <Link to='/admin/users' className='cursor-pointer transition hover:underline hover:decoration-white'>
+                  User Management
+                </Link>
+                <Link to='/admin/invoices' className='cursor-pointer transition hover:underline hover:decoration-white'>
+                  Invoices
+                </Link>
+              </>
+            ) : user?.role === "Mentor" ? (
               <>
                 <Link to={path.HOME} className='cursor-pointer transition hover:underline hover:decoration-white'>
                   Home
@@ -35,6 +51,12 @@ export default function Header() {
                   className='cursor-pointer transition hover:underline hover:decoration-white'
                 >
                   Dashboard
+                </Link>
+                <Link
+                  to={`${path.MENTOR}/${path.MENTOR_PLANS}`}
+                  className='cursor-pointer transition hover:underline hover:decoration-white'
+                >
+                  My Plans
                 </Link>
               </>
             ) : (

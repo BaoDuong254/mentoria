@@ -16,9 +16,13 @@ const path = {
   //mentor routes
   MENTOR: "/mentor",
   MENTOR_DASHBOARD: "dashboard",
+  MENTOR_PLANS: "plans",
 
   //admin routes
   ADMIN: "/admin",
+  ADMIN_DASHBOARD: "dashboard",
+  ADMIN_USERS: "users",
+  ADMIN_INVOICES: "invoices",
 
   //both
   PROFILE: "profile",

@@ -16,14 +16,24 @@ function LoginMentee() {
 
   useEffect(() => {
     if (user) {
-      void navigate("/", { replace: true });
+      if (user.role === "Admin") {
+        void navigate("/admin/dashboard", { replace: true });
+      } else {
+        void navigate("/", { replace: true });
+      }
     }
   }, [user, navigate]);
 
   async function handleSubmit() {
     try {
       await login(email, password);
-      void navigate(path.HOME);
+      const currentUser = useAuthStore.getState().user;
+
+      if (currentUser?.role === "Admin") {
+        void navigate("/admin/dashboard");
+      } else {
+        void navigate(path.HOME);
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);

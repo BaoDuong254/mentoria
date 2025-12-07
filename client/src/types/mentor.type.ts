@@ -110,3 +110,84 @@ export interface putMentorProfile {
   success: boolean;
   message: string;
 }
+
+// --- Plan Interfaces (Response Data) ---
+
+export interface PlanBase {
+  plan_id: number;
+  plan_description: string;
+  plan_charge: number;
+  plan_type: string;
+  mentor_id: number;
+}
+
+export interface PlanSession extends PlanBase {
+  plan_category: "session";
+  sessions_duration: number;
+}
+
+export interface PlanMentorship extends PlanBase {
+  plan_category: "mentorship";
+  calls_per_month: number;
+  minutes_per_call: number;
+  benefits: string[];
+}
+
+export type Plan = PlanSession | PlanMentorship;
+
+// --- API Request Payloads (Sending Data) ---
+
+export interface CreatePlanSessionRequest {
+  planDescription: string;
+  planCharge: number;
+  planType: string;
+  sessionsDuration: number;
+}
+
+export interface CreatePlanMentorshipRequest {
+  planDescription: string;
+  planCharge: number;
+  planType: string;
+  callsPerMonth: number;
+  minutesPerCall: number;
+  benefits: string[];
+}
+
+export type CreatePlanRequest = CreatePlanSessionRequest | CreatePlanMentorshipRequest;
+
+export interface UpdatePlanRequest {
+  planDescription?: string;
+  planCharge?: number;
+  planType?: string;
+  sessionsDuration?: number;
+  callsPerMonth?: number;
+  minutesPerCall?: number;
+  benefits?: string[];
+}
+
+// --- API Responses ---
+
+export interface MentorPlansResponse {
+  success: boolean;
+  message: string;
+  data: Plan[];
+}
+
+export interface PlanDetailResponse {
+  success: boolean;
+  message: string;
+  data: Plan;
+}
+
+export interface CreatePlanResponse {
+  success: boolean;
+  message: string;
+  data: {
+    planId: number;
+  };
+}
+
+export interface GenericResponse {
+  success: boolean;
+  message: string;
+}
