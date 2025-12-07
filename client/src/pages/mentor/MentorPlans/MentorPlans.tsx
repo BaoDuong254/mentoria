@@ -3,17 +3,17 @@ import { Plus, Pencil, Trash2, Clock, X, Zap, LayoutGrid, List, Loader2, AlertCi
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getMentorPlans, createMentorPlan, updateMentorPlan, deleteMentorPlan } from "@/apis/mentor.api";
-import type { Plan, PlanSession, CreatePlanSessionRequest, UpdatePlanRequest } from "@/types/mentor.type";
+import type { Plan_Manage, PlanSession, CreatePlanSessionRequest, UpdatePlanRequest } from "@/types/mentor.type";
 
 function MentorPlans() {
   const { user } = useAuthStore();
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plans, setPlans] = useState<Plan_Manage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"session" | "plans">("session");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  const [editingPlan, setEditingPlan] = useState<Plan_Manage | null>(null);
 
   // State cho Popup xóa
   const [deletePlanId, setDeletePlanId] = useState<number | null>(null);
@@ -55,7 +55,7 @@ function MentorPlans() {
   }, [user?.user_id]);
 
   // --- Handlers ---
-  const handleOpenModal = (plan?: Plan) => {
+  const handleOpenModal = (plan?: Plan_Manage) => {
     if (plan) {
       setEditingPlan(plan);
       const sessionPlan = plan as PlanSession;
@@ -84,7 +84,7 @@ function MentorPlans() {
     setIsDeleting(true);
     try {
       await deleteMentorPlan(user.user_id, deletePlanId);
-      // Optimistic update: Xóa ngay trên UI
+
       setPlans((prev) => prev.filter((p) => p.plan_id !== deletePlanId));
       setDeletePlanId(null); // Đóng popup
     } catch (error) {
