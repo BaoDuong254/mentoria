@@ -95,28 +95,15 @@ services:
     networks:
       - mentoria-network
 
-  sqlpad:
-    image: sqlpad/sqlpad:latest
-    container_name: mentoria-sqlpad
+  adminer:
+    image: adminer:latest
+    container_name: mentoria-adminer
     restart: unless-stopped
     environment:
-      - SQLPAD_ADMIN=${DB_USER}
-      - SQLPAD_ADMIN_PASSWORD=${DB_PASS}
-      - SQLPAD_APP_LOG_LEVEL=info
-      - SQLPAD_WEB_PORT=3000
-      - SQLPAD_CONNECTIONS__mentoria__name=Mentoria Database
-      - SQLPAD_CONNECTIONS__mentoria__driver=sqlserver
-      - SQLPAD_CONNECTIONS__mentoria__host=db
-      - SQLPAD_CONNECTIONS__mentoria__port=1433
-      - SQLPAD_CONNECTIONS__mentoria__database=${DB_NAME}
-      - SQLPAD_CONNECTIONS__mentoria__username=${DB_USER}
-      - SQLPAD_CONNECTIONS__mentoria__password=${DB_PASS}
-      - SQLPAD_CONNECTIONS__mentoria__sqlserverEncrypt=false
-      - SQLPAD_CONNECTIONS__mentoria__sqlserverMultiSubnetFailover=false
+      - ADMINER_DEFAULT_SERVER=db
+      - ADMINER_DESIGN=nette
     ports:
-      - "3003:3000"
-    volumes:
-      - sqlpad-data:/var/lib/sqlpad
+      - "8083:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -129,6 +116,4 @@ networks:
 
 volumes:
   db-data:
-    driver: local
-  sqlpad-data:
     driver: local
