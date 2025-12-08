@@ -9,7 +9,7 @@ import {
   updateAdminMentor,
 } from "@/apis/admin.api";
 import type { AdminMenteeItem, AdminMentorItem } from "@/types/admin.type";
-import { Check, X, Trash2, AlertCircle, Save } from "lucide-react";
+import { Check, X, Trash2, AlertCircle, Save, Edit2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { showToast } from "@/utils/toast";
 
@@ -21,6 +21,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  // Đã loại bỏ [isUpdatingStatus]
 
   // --- STATE CHO DELETE MODAL ---
   const [userToDelete, setUserToDelete] = useState<{ id: number; role: "mentee" | "mentor" } | null>(null);
@@ -29,15 +30,26 @@ const AdminUsers = () => {
   // --- STATE CHO EDIT MODAL ---
   const [editingUser, setEditingUser] = useState<AdminMenteeItem | AdminMentorItem | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Form Data bao gồm các trường có thể chỉnh sửa trừ Status
   const [editFormData, setEditFormData] = useState({
     first_name: "",
     last_name: "",
     email: "",
-    // Mentor specific
+    // Mentor specific fields
     bio: "",
     headline: "",
     response_time: "",
-    // Mentee specific
+    cv_url: "",
+    role: "",
+    created_at: "",
+    // Bank Info [UPDATED]
+    bank_name: "",
+    account_number: "",
+    account_holder_name: "",
+    bank_branch: "",
+    swift_code: "",
+    // Mentee specific fields
     goal: "",
   });
 
@@ -64,6 +76,8 @@ const AdminUsers = () => {
     void fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, page]);
+
+  // [REMOVED FUNCTION] Đã loại bỏ hàm handleStatusChange
 
   const handleReview = async (id: number, action: "accept" | "reject") => {
     if (!confirm(`Are you sure you want to ${action} this mentor?`)) return;
@@ -97,18 +111,55 @@ const AdminUsers = () => {
   };
 
   const handleRowClick = (user: AdminMenteeItem | AdminMentorItem) => {
+    // Không cho phép mở modal khi đang ở tab Pending vì Pending có action riêng
+    if (activeTab === "pending") return;
+
     setEditingUser(user);
     const isMentor = activeTab !== "mentees";
-    setEditFormData({
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      goal: !isMentor ? ((user as AdminMenteeItem).goal ?? "") : "",
-      bio: isMentor ? ((user as AdminMentorItem).bio ?? "") : "",
-      headline: isMentor ? ((user as AdminMentorItem).headline ?? "") : "",
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      response_time: isMentor ? ((user as AdminMentorItem).response_time ?? "") : "",
-    });
+
+    // Fill data vào form khi mở modal
+    if (isMentor) {
+      const m = user as AdminMentorItem;
+      setEditFormData({
+        first_name: m.first_name,
+        last_name: m.last_name,
+        email: m.email,
+        bio: m.bio ?? "",
+        headline: m.headline ?? "",
+        response_time: m.response_time,
+        cv_url: m.cv_url ?? "",
+        role: m.role,
+        created_at: m.created_at ?? "",
+        // Fill Bank Info [UPDATED]
+        bank_name: m.bank_name ?? "",
+        account_number: m.account_number ?? "",
+        account_holder_name: m.account_holder_name ?? "",
+        bank_branch: m.bank_branch ?? "",
+        swift_code: m.swift_code ?? "",
+        // Reset Mentee fields
+        goal: "",
+      });
+    } else {
+      const m = user as AdminMenteeItem;
+      setEditFormData({
+        first_name: m.first_name,
+        last_name: m.last_name,
+        email: m.email,
+        goal: m.goal ?? "",
+        // Reset Mentor fields
+        bio: "",
+        headline: "",
+        response_time: "",
+        cv_url: "",
+        role: "Mentee",
+        created_at: "",
+        bank_name: "",
+        account_number: "",
+        account_holder_name: "",
+        bank_branch: "",
+        swift_code: "",
+      });
+    }
   };
 
   const handleSaveEdit = async (e: React.FormEvent) => {
@@ -117,14 +168,17 @@ const AdminUsers = () => {
 
     setIsSaving(true);
     try {
+      // Chỉ gửi các trường cơ bản cho Mentee
       if (activeTab === "mentees") {
         await updateAdminMentee(editingUser.user_id, {
           first_name: editFormData.first_name,
           last_name: editFormData.last_name,
           email: editFormData.email,
           goal: editFormData.goal,
+          // KHÔNG gửi status vì nó được quản lý ngoài
         });
       } else {
+        // Gửi đầy đủ các trường cho Mentor (bao gồm cả bank info)
         await updateAdminMentor(editingUser.user_id, {
           first_name: editFormData.first_name,
           last_name: editFormData.last_name,
@@ -132,15 +186,39 @@ const AdminUsers = () => {
           bio: editFormData.bio,
           headline: editFormData.headline,
           response_time: editFormData.response_time,
+          // Bank Info [UPDATED]
+          bank_name: editFormData.bank_name,
+          account_number: editFormData.account_number,
+          account_holder_name: editFormData.account_holder_name,
+          bank_branch: editFormData.bank_branch,
+          swift_code: editFormData.swift_code,
+          // KHÔNG gửi status vì nó được quản lý ngoài
         });
       }
-      await fetchData();
+      showToast.success("User updated successfully");
+      await fetchData(); // Fetch lại dữ liệu để cập nhật bảng
       setEditingUser(null);
     } catch (error) {
       console.error("Update failed", error);
-      alert("Failed to update user info.");
+      showToast.error("Failed to update user info.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Helper function để lấy style cho Status (Giữ nguyên)
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "Active":
+        return "bg-(--green)/10 text-(--green)";
+      case "Pending":
+        return "bg-yellow-500/10 text-yellow-400";
+      case "Banned":
+        return "bg-red-500/10 text-red-500";
+      case "Inactive":
+        return "bg-gray-500/10 text-gray-400";
+      default:
+        return "bg-gray-500/10 text-gray-400";
     }
   };
 
@@ -183,10 +261,7 @@ const AdminUsers = () => {
                 <th className='px-6 py-4'>Name</th>
                 <th className='px-6 py-4'>Email</th>
                 <th className='px-6 py-4'>Status</th>
-
-                {/* CẬP NHẬT HEADER: Chỉ hiện Job Title khi ở tab Mentors (Active) */}
                 {activeTab === "mentors" && <th className='px-6 py-4'>Job Title</th>}
-
                 <th className='px-6 py-4 text-right'>Actions</th>
               </tr>
             </thead>
@@ -199,37 +274,35 @@ const AdminUsers = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     key={user.user_id}
+                    // Thêm sự kiện click để mở Modal Edit (trừ tab Pending)
                     onClick={() => {
-                      handleRowClick(user);
+                      if (activeTab !== "pending") {
+                        handleRowClick(user);
+                      }
                     }}
-                    className='cursor-pointer transition-colors hover:bg-gray-700/50'
+                    className={`transition-colors hover:bg-gray-700/50 ${activeTab !== "pending" ? "cursor-pointer" : ""}`}
                   >
                     <td className='px-6 py-4 font-medium text-white'>
                       {user.first_name} {user.last_name}
                     </td>
                     <td className='px-6 py-4'>{user.email}</td>
+
+                    {/* [UPDATED] Hiển thị Status tĩnh từ DB (không có dropdown) */}
                     <td className='px-6 py-4'>
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          user.status === "Active"
-                            ? "bg-(--green)/10 text-(--green)" // Xanh teal
-                            : user.status === "Pending"
-                              ? "bg-yellow-500/10 text-yellow-400"
-                              : "bg-red-500/10 text-red-400"
-                        }`}
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(user.status)}`}
                       >
                         {user.status}
                       </span>
                     </td>
 
-                    {/* CẬP NHẬT BODY: Chỉ hiện dữ liệu Job Title khi ở tab Mentors */}
                     {activeTab === "mentors" && (
                       <td className='max-w-[200px] truncate px-6 py-4 text-gray-400'>
                         {(user as AdminMentorItem).headline ?? "N/A"}
                       </td>
                     )}
                     <td className='flex justify-end gap-2 px-6 py-4'>
-                      {activeTab === "pending" && (
+                      {activeTab === "pending" ? (
                         <>
                           <button
                             onClick={(e) => {
@@ -251,32 +324,44 @@ const AdminUsers = () => {
                           >
                             <X size={18} />
                           </button>
+                          {(user as AdminMentorItem).cv_url && (
+                            <a
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              href={(user as AdminMentorItem).cv_url ?? ""}
+                              target='_blank'
+                              rel='noreferrer'
+                              className='ml-2 flex items-center text-xs text-(--primary) hover:underline'
+                            >
+                              View CV
+                            </a>
+                          )}
                         </>
-                      )}
-                      {activeTab !== "pending" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            confirmDelete(user.user_id, activeTab === "mentees" ? "mentee" : "mentor");
-                          }}
-                          className='rounded-lg bg-gray-700 p-2 text-gray-400 transition-colors hover:bg-red-500 hover:text-white'
-                          title='Delete User'
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      )}
-                      {activeTab === "pending" && (user as AdminMentorItem).cv_url && (
-                        <a
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          href={(user as AdminMentorItem).cv_url ?? ""}
-                          target='_blank'
-                          rel='noreferrer'
-                          className='ml-2 flex items-center text-xs text-(--primary) hover:underline'
-                        >
-                          View CV
-                        </a>
+                      ) : (
+                        // Nút Edit và Delete cho Active/Inactive/Banned users
+                        <div className='flex gap-2'>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRowClick(user);
+                            }}
+                            className='rounded-lg bg-gray-700 p-2 text-gray-400 transition-colors hover:bg-(--primary) hover:text-white'
+                            title='Edit User'
+                          >
+                            <Edit2 size={18} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(user.user_id, activeTab === "mentees" ? "mentee" : "mentor");
+                            }}
+                            className='rounded-lg bg-gray-700 p-2 text-gray-400 transition-colors hover:bg-red-500 hover:text-white'
+                            title='Delete User'
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </motion.tr>
@@ -284,7 +369,7 @@ const AdminUsers = () => {
               </AnimatePresence>
               {data.length === 0 && (
                 <tr>
-                  <td colSpan={5} className='p-8 text-center text-gray-500'>
+                  <td colSpan={activeTab === "mentors" ? 6 : 5} className='p-8 text-center text-gray-500'>
                     No records found.
                   </td>
                 </tr>
@@ -301,7 +386,6 @@ const AdminUsers = () => {
           onClick={() => {
             setPage((p) => p - 1);
           }}
-          // Style button giống Login: bg-gray-700, border-gray-500/30
           className='rounded-lg border border-gray-600 bg-gray-700 px-4 py-2 text-sm text-white transition hover:brightness-110 disabled:opacity-50'
         >
           Previous
@@ -320,7 +404,7 @@ const AdminUsers = () => {
         </button>
       </div>
 
-      {/* --- EDIT MODAL --- */}
+      {/* --- EDIT MODAL (Status đã được đưa ra ngoài) --- */}
       <AnimatePresence>
         {editingUser && (
           <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
@@ -337,10 +421,14 @@ const AdminUsers = () => {
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className='relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl'
+              className='scrollbar-thin scrollbar-thumb-gray-600 relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl'
             >
               <div className='border-b border-gray-700 px-6 py-4'>
                 <h3 className='text-xl font-bold text-white'>Edit User Info</h3>
+                {/* Status hiện tại vẫn được hiển thị trong modal */}
+                <p className='text-xs text-gray-500'>
+                  User ID: {editingUser.user_id} | Current Status: {editingUser.status}
+                </p>
               </div>
 
               <form
@@ -349,6 +437,7 @@ const AdminUsers = () => {
                 }}
                 className='space-y-4 p-6'
               >
+                {/* 1. Basic Info */}
                 <div className='grid grid-cols-2 gap-4'>
                   <div>
                     <label className='block text-sm font-medium text-gray-400'>First Name</label>
@@ -386,6 +475,7 @@ const AdminUsers = () => {
                   />
                 </div>
 
+                {/* 2. Role Specific Fields - Mentee */}
                 {activeTab === "mentees" && (
                   <div>
                     <label className='block text-sm font-medium text-gray-400'>Learning Goal</label>
@@ -400,10 +490,37 @@ const AdminUsers = () => {
                   </div>
                 )}
 
+                {/* 3. Role Specific Fields - Mentor */}
                 {activeTab !== "mentees" && (
                   <>
+                    <h4 className='mt-6 border-b border-gray-700 pb-2 text-sm font-bold text-(--primary) uppercase'>
+                      Mentor Profile
+                    </h4>
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Role (Read-only)</label>
+                        <input
+                          type='text'
+                          value={editFormData.role}
+                          disabled
+                          className='mt-1 w-full cursor-not-allowed rounded-lg border border-gray-700 bg-gray-900 p-2.5 text-gray-500'
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Response Time</label>
+                        <input
+                          type='text'
+                          value={editFormData.response_time}
+                          onChange={(e) => {
+                            setEditFormData({ ...editFormData, response_time: e.target.value });
+                          }}
+                          className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <label className='block text-sm font-medium text-gray-400'>Job Title (Headline)</label>
+                      <label className='block text-sm font-medium text-gray-400'>Job Title</label>
                       <input
                         type='text'
                         value={editFormData.headline}
@@ -413,17 +530,7 @@ const AdminUsers = () => {
                         className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
                       />
                     </div>
-                    <div>
-                      <label className='block text-sm font-medium text-gray-400'>Response Time</label>
-                      <input
-                        type='text'
-                        value={editFormData.response_time}
-                        onChange={(e) => {
-                          setEditFormData({ ...editFormData, response_time: e.target.value });
-                        }}
-                        className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
-                      />
-                    </div>
+
                     <div>
                       <label className='block text-sm font-medium text-gray-400'>Bio</label>
                       <textarea
@@ -435,7 +542,104 @@ const AdminUsers = () => {
                         className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
                       />
                     </div>
+
+                    {/* Bank Account Info [UPDATED] */}
+                    <h4 className='mt-6 border-b border-gray-700 pb-2 text-sm font-bold text-yellow-400 uppercase'>
+                      Bank Account Details
+                    </h4>
+
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Account Holder Name</label>
+                        <input
+                          type='text'
+                          value={editFormData.account_holder_name}
+                          onChange={(e) => {
+                            setEditFormData({ ...editFormData, account_holder_name: e.target.value });
+                          }}
+                          className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Account Number</label>
+                        <input
+                          type='text'
+                          value={editFormData.account_number}
+                          onChange={(e) => {
+                            setEditFormData({ ...editFormData, account_number: e.target.value });
+                          }}
+                          className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                        />
+                      </div>
+                    </div>
+
+                    <div className='grid grid-cols-2 gap-4'>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Bank Name</label>
+                        <input
+                          type='text'
+                          value={editFormData.bank_name}
+                          onChange={(e) => {
+                            setEditFormData({ ...editFormData, bank_name: e.target.value });
+                          }}
+                          className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-400'>Bank Branch</label>
+                        <input
+                          type='text'
+                          value={editFormData.bank_branch}
+                          onChange={(e) => {
+                            setEditFormData({ ...editFormData, bank_branch: e.target.value });
+                          }}
+                          className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className='block text-sm font-medium text-gray-400'>SWIFT Code</label>
+                      <input
+                        type='text'
+                        value={editFormData.swift_code}
+                        onChange={(e) => {
+                          setEditFormData({ ...editFormData, swift_code: e.target.value });
+                        }}
+                        className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                      />
+                    </div>
+
+                    {/* CV URL (Read-only) */}
+                    <div>
+                      <label className='block text-sm font-medium text-gray-400'>CV URL</label>
+                      <div className='flex gap-2'>
+                        <input
+                          type='text'
+                          value={editFormData.cv_url}
+                          disabled
+                          className='mt-1 w-full cursor-not-allowed rounded-lg border border-gray-600 bg-gray-900 p-2.5 text-gray-400'
+                        />
+                        {editFormData.cv_url && (
+                          <a
+                            href={editFormData.cv_url}
+                            target='_blank'
+                            rel='noreferrer'
+                            className='mt-1 flex items-center rounded-lg bg-gray-700 px-3 text-xs text-white hover:bg-gray-600'
+                          >
+                            View
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </>
+                )}
+
+                {editFormData.created_at && (
+                  <div>
+                    <label className='block text-sm font-medium text-gray-400'>Joined At (Read-only)</label>
+                    <p className='mt-1 text-sm text-gray-500'>{new Date(editFormData.created_at).toLocaleString()}</p>
+                  </div>
                 )}
 
                 <div className='flex gap-3 pt-4'>
@@ -485,7 +689,6 @@ const AdminUsers = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              // Background modal giống Form Login
               className='relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl'
             >
               <div className='flex flex-col items-center p-6 pt-8'>

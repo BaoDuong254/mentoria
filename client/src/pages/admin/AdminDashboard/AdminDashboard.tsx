@@ -117,6 +117,10 @@ const AdminDashboard = () => {
               <span className='text-gray-400'>Inactive</span>
               <span className='font-bold text-gray-500'>{stats.mentors.inactive}</span>
             </div>
+            <div className='flex justify-between border-b border-gray-700 pb-2'>
+              <span className='text-gray-400'>Banned</span>
+              <span className='font-bold text-red-500'>{stats.mentors.banned}</span>
+            </div>
           </div>
         </motion.div>
 
