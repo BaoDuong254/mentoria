@@ -1,8 +1,19 @@
-import { Calendar, Clock, Video, Check, Link as LinkIcon, UserCheck, MessageCircle, AlertTriangle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Video,
+  Check,
+  Link as LinkIcon,
+  UserCheck,
+  MessageCircle,
+  AlertTriangle,
+  Undo2,
+} from "lucide-react";
 import type { MeetingResponse } from "@/types/meeting.type";
 import { useMeetingStore } from "@/store/useMeetingStore";
 import { useState, useEffect } from "react";
 import LinkInputModal from "@/components/LinkInputModal";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import { getComplaintByMeetingId } from "@/apis/complaint.api";
 import showToast from "@/utils/toast";
 
@@ -12,13 +23,16 @@ interface MentorMeetingCardProps {
 }
 
 export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardProps) {
-  const { setMeetingLocation, markMeetingAsCompleted, setReviewLink, acceptMeeting } = useMeetingStore();
+  const { setMeetingLocation, markMeetingAsCompleted, setReviewLink, acceptMeeting, undoMeetingCompleted } =
+    useMeetingStore();
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showReviewLinkModal, setShowReviewLinkModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMarkingCompleted, setIsMarkingCompleted] = useState(false);
   const [isAccepting, setIsAccepting] = useState(false);
   const [hasComplaint, setHasComplaint] = useState(false);
+  const [showMarkCompletedConfirm, setShowMarkCompletedConfirm] = useState(false);
+  const [isUndoing, setIsUndoing] = useState(false);
 
   // Check if meeting has a complaint from mentee
   useEffect(() => {
@@ -88,20 +102,44 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
     }
   };
 
-  const handleMarkCompleted = async () => {
+  const handleMarkCompleted = () => {
     // Validate that meeting link is set before marking as completed
     if (!meeting.location) {
       showToast.error("Please add a meeting link before marking as completed");
       return;
     }
 
+    // Show confirmation dialog instead of immediately marking as completed
+    setShowMarkCompletedConfirm(true);
+  };
+
+  const confirmMarkCompleted = async () => {
     setIsMarkingCompleted(true);
     const success = await markMeetingAsCompleted(meeting.meeting_id);
     setIsMarkingCompleted(false);
+    setShowMarkCompletedConfirm(false);
     if (success) {
       showToast.success("Meeting marked as completed");
     } else {
       showToast.error("Failed to mark meeting as completed");
+    }
+  };
+
+  // Check if undo is allowed (current time is before meeting end_time)
+  const canUndo = (): boolean => {
+    const now = new Date();
+    const endTime = new Date(meeting.end_time);
+    return now < endTime;
+  };
+
+  const handleUndo = async () => {
+    setIsUndoing(true);
+    const success = await (undoMeetingCompleted as (id: number) => Promise<boolean>)(meeting.meeting_id);
+    setIsUndoing(false);
+    if (success) {
+      showToast.success("Meeting status reverted to Scheduled");
+    } else {
+      showToast.error("Failed to undo meeting completion");
     }
   };
 
@@ -196,6 +234,14 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
           <span className='ml-auto font-medium text-cyan-500'>${meeting.amount_paid}</span>
         </div>
 
+        {/* Discuss Message - only show for pending meetings */}
+        {type === "pending" && meeting.discuss_message && (
+          <div className='mb-4 rounded-lg bg-gray-700/50 p-3'>
+            <p className='mb-1 text-xs font-medium text-gray-400'>What mentee wants to discuss:</p>
+            <p className='text-sm text-white'>{meeting.discuss_message}</p>
+          </div>
+        )}
+
         {/* Action Buttons */}
         <div className='flex gap-3'>
           {type === "pending" && (
@@ -265,7 +311,7 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
               {/* Mark Completed Button */}
               <button
                 onClick={() => {
-                  void handleMarkCompleted();
+                  handleMarkCompleted();
                 }}
                 disabled={isMarkingCompleted}
                 className='flex cursor-pointer items-center justify-center gap-2 rounded bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-500 disabled:opacity-50'
@@ -304,6 +350,20 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
                 <MessageCircle className='h-4 w-4' />
                 Contact Mentee
               </button>
+
+              {/* Undo Button - only show if current time is before meeting end_time */}
+              {canUndo() && (
+                <button
+                  onClick={() => {
+                    void handleUndo();
+                  }}
+                  disabled={isUndoing}
+                  className='flex cursor-pointer items-center justify-center gap-2 rounded bg-yellow-600 px-4 py-2 text-white transition-colors hover:bg-yellow-500 disabled:opacity-50'
+                >
+                  <Undo2 className='h-4 w-4' />
+                  {isUndoing ? "Undoing..." : "Undo"}
+                </button>
+              )}
             </>
           )}
         </div>
@@ -337,6 +397,21 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
           setShowReviewLinkModal(false);
         }}
         isLoading={isUpdating}
+      />
+
+      {/* Mark Completed Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showMarkCompletedConfirm}
+        title='Mark Meeting Completed'
+        message='Are you sure you want to mark this meeting as completed?'
+        confirmText='OK'
+        cancelText='Cancel'
+        confirmButtonClass='bg-green-600 hover:bg-green-700'
+        onConfirm={() => void confirmMarkCompleted()}
+        onCancel={() => {
+          setShowMarkCompletedConfirm(false);
+        }}
+        isLoading={isMarkingCompleted}
       />
     </>
   );

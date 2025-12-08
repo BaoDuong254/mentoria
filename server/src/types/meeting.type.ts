@@ -35,6 +35,7 @@ export interface MeetingResponse {
   plan_description: string;
   plan_charge: number;
   amount_paid: number;
+  discuss_message?: string | null;
 }
 
 export interface UpdateMeetingLocationRequest {

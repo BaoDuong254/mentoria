@@ -46,14 +46,14 @@ export default function ConfirmDialog({
           <button
             onClick={onCancel}
             disabled={isLoading}
-            className='rounded-lg bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
+            className='cursor-pointer rounded-lg bg-gray-600 px-6 py-2 text-white transition-colors hover:bg-gray-700 disabled:opacity-50'
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
             disabled={isLoading}
-            className={`rounded-lg px-6 py-2 text-white transition-colors disabled:opacity-50 ${confirmButtonClass}`}
+            className={`cursor-pointer rounded-lg px-6 py-2 text-white transition-colors disabled:opacity-50 ${confirmButtonClass}`}
           >
             {isLoading ? "Processing..." : confirmText}
           </button>

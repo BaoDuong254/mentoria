@@ -65,7 +65,7 @@ export default function TimeInput({ value, onChange, className = "" }: TimeInput
         onClick={() => {
           setShowDropdown(!showDropdown);
         }}
-        className={`flex w-full items-center justify-between rounded bg-gray-700 px-3 py-2 text-sm text-white outline-none focus:ring-1 focus:ring-purple-500 ${className}`}
+        className={`flex w-full cursor-pointer items-center justify-between rounded bg-gray-700 px-3 py-2 text-sm text-white outline-none focus:ring-1 focus:ring-purple-500 ${className}`}
       >
         <span>{displayValue}</span>
         <Clock className='h-4 w-4 text-white' />

@@ -37,9 +37,14 @@ export async function getMyResolvedComplaints(): Promise<GetComplaintsResponse> 
 
 // API CHECK IF MEETING IS EXPIRED PENDING
 export async function checkMeetingExpiredPending(meetingId: number): Promise<CheckExpiredPendingResponse> {
-  const res = await axios.get<CheckExpiredPendingResponse>(`${BASE_URL}/check-expired/${String(meetingId)}`, {
-    withCredentials: true,
-  });
+  // Add timestamp to prevent caching
+  const timestamp = Date.now();
+  const res = await axios.get<CheckExpiredPendingResponse>(
+    `${BASE_URL}/check-expired/${String(meetingId)}?_t=${String(timestamp)}`,
+    {
+      withCredentials: true,
+    }
+  );
   return res.data;
 }
 
