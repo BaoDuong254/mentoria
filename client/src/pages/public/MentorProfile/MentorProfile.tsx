@@ -53,6 +53,9 @@ function MentorProfile() {
     return { sessionPlans: sessions, monthlyPlans: monthly };
   }, [selectedMentor]);
 
+  const hasMonthly = monthlyPlans.length > 0;
+  const hasSession = sessionPlans.length > 0;
+
   useEffect(() => {
     if (selectedMentor) {
       if (planType === "monthly" && monthlyPlans.length === 0 && sessionPlans.length > 0) {
@@ -176,30 +179,40 @@ function MentorProfile() {
           <div className='h-full w-1/3 text-gray-400'>
             <div className='flex flex-col items-center justify-between gap-7 rounded-xl border border-(--primary) bg-gray-800 pb-7'>
               <div className='flex w-full border-b border-(--light-purple)'>
-                <div className='h-[50px] w-1/2'>
-                  <button
-                    onClick={() => {
-                      setPlanType("monthly");
-                      if (monthlyPlans[0]) setSelectedPlanId(monthlyPlans[0].plan_id);
-                    }}
-                    disabled={monthlyPlans.length === 0}
-                    className={`h-full w-full cursor-pointer rounded rounded-tl-xl transition-all ${planType === "monthly" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"}`}
-                  >
-                    Mentorship plans
-                  </button>
-                </div>
-                <div className='h-[50px] w-1/2'>
-                  <button
-                    onClick={() => {
-                      setPlanType("session");
-                      if (sessionPlans[0]) setSelectedPlanId(sessionPlans[0].plan_id);
-                    }}
-                    disabled={sessionPlans.length === 0}
-                    className={`h-full w-full cursor-pointer rounded rounded-tr-xl transition-all ${planType === "session" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"}`}
-                  >
-                    Session
-                  </button>
-                </div>
+                {hasMonthly && (
+                  <div className={`h-[50px] ${hasSession ? "w-1/2" : "w-full"}`}>
+                    <button
+                      onClick={() => {
+                        setPlanType("monthly");
+                        if (monthlyPlans[0]) setSelectedPlanId(monthlyPlans[0].plan_id);
+                      }}
+                      className={`h-full w-full cursor-pointer rounded transition-all ${
+                        hasSession ? "rounded-tl-xl" : "rounded-t-xl"
+                      } ${
+                        planType === "monthly" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      Mentorship plans
+                    </button>
+                  </div>
+                )}
+                {hasSession && (
+                  <div className={`h-[50px] ${hasMonthly ? "w-1/2" : "w-full"}`}>
+                    <button
+                      onClick={() => {
+                        setPlanType("session");
+                        if (sessionPlans[0]) setSelectedPlanId(sessionPlans[0].plan_id);
+                      }}
+                      className={`h-full w-full cursor-pointer rounded transition-all ${
+                        hasMonthly ? "rounded-tr-xl" : "rounded-t-xl"
+                      } ${
+                        planType === "session" ? "bg-(--primary) text-white shadow" : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      Session
+                    </button>
+                  </div>
+                )}
               </div>
               {planType === "monthly" &&
                 // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
