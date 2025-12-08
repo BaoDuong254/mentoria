@@ -414,7 +414,6 @@ export const checkMeetingExpiredPendingService = async (
 
     // Only check for Pending meetings
     if (meeting.status !== "Pending") {
-      console.log(`[checkMeetingExpiredPending] Meeting ${meetingId} is not Pending (status: ${meeting.status})`);
       return { isExpired: false };
     }
 
@@ -426,10 +425,6 @@ export const checkMeetingExpiredPendingService = async (
     // Expired only if more than 1 minute since booking (payment)
 
     const isExpired = minutesSincePayment >= expiredThresholdMinutes;
-
-    console.log(
-      `[checkMeetingExpiredPending] Meeting ${meetingId}: secondsSincePayment=${secondsSincePayment}, minutesSincePayment=${minutesSincePayment.toFixed(2)}, isExpired=${isExpired}`
-    );
 
     return {
       isExpired,
