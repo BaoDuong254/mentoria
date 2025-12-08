@@ -35,17 +35,13 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
 
   // Check if mentee can file a complaint (after 1 minute of pending status)
   useEffect(() => {
-    console.log("[MeetingCard] useEffect triggered, type:", type, "meeting_id:", meeting.meeting_id);
     if (type === "pending") {
-      console.log("[MeetingCard] Type is pending, checking complaint eligibility...");
       const checkComplaintEligibility = async () => {
         let hasComplaintAlready = false;
 
         // First check if complaint already sent
         try {
-          console.log("[Complaint] Calling getComplaintByMeetingId for meeting", meeting.meeting_id);
           const complaintResult = await getComplaintByMeetingId(meeting.meeting_id);
-          console.log("[Complaint] Check existing complaint for meeting", meeting.meeting_id, ":", complaintResult);
           if (complaintResult.success && complaintResult.hasComplaint) {
             setComplaintSent(true);
             hasComplaintAlready = true;
@@ -58,14 +54,9 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
         // Then check if eligible to file complaint (skip if complaint already exists)
         if (!hasComplaintAlready) {
           try {
-            console.log("[Complaint] Calling checkMeetingExpiredPending for meeting", meeting.meeting_id);
             const response = await checkMeetingExpiredPending(meeting.meeting_id);
-            console.log("[Complaint] Check expired pending for meeting", meeting.meeting_id, ":", response);
             if (response.success) {
-              console.log("[Complaint] Setting canComplaint to:", response.isExpired);
               setCanComplaint(response.isExpired);
-            } else {
-              console.log("[Complaint] Response not successful:", response);
             }
           } catch (error) {
             console.error("Error checking complaint eligibility:", error);
