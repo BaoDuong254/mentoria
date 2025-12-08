@@ -69,7 +69,7 @@ export default function MeetingCard({ meeting, type }: MeetingCardProps) {
       // Re-check every 15 seconds for faster feedback
       const interval = setInterval(() => {
         void checkComplaintEligibility();
-      }, 15000);
+      }, 30000);
 
       return () => {
         clearInterval(interval);
