@@ -31,6 +31,7 @@ function Booking() {
     isLoadingSlots,
     selectedPlanType,
     selectedCharge,
+    selectedDuration,
   } = useBookingStore();
   const { user } = useAuthStore();
   const { selectedMentor } = useSearchStore();
@@ -145,7 +146,7 @@ function Booking() {
                     </span>
                     <span className='flex items-center gap-2'>
                       <Clock className='text-(--primary)' />
-                      60 Minutes
+                      {selectedDuration} Minutes
                     </span>
                     <span className='flex items-center gap-2'>
                       <Users className='fill-(--light-purple) text-(--light-purple)' />
