@@ -5,6 +5,7 @@ export const UpdateMenteeSchema = z.object({
   last_name: z.string().min(1).max(100).optional(),
   email: z.string().email().optional(),
   goal: z.string().max(500).optional(),
+  status: z.enum(["Active", "Inactive", "Banned", "Pending"]).optional(),
 });
 
 export const UpdateMentorSchema = z.object({
@@ -15,6 +16,7 @@ export const UpdateMentorSchema = z.object({
   headline: z.string().max(200).optional(),
   response_time: z.string().min(1).max(100).optional(),
   cv_url: z.string().url().optional(),
+  status: z.enum(["Active", "Inactive", "Banned", "Pending"]).optional(),
 });
 
 export const ReviewMentorSchema = z.object({

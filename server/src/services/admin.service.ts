@@ -108,6 +108,10 @@ const updateMenteeService = async (userId: number, data: UpdateAdminMenteeReques
       userFields.push("last_name = @lastName");
       userRequest.input("lastName", data.last_name);
     }
+    if ("status" in data) {
+      userFields.push("status = @status");
+      userRequest.input("status", data.status);
+    }
     if ("email" in data) {
       // Check if email is already in use by another user
       const emailCheckResult = await transaction
@@ -386,6 +390,10 @@ const updateMentorService = async (userId: number, data: UpdateAdminMentorReques
     if ("last_name" in data) {
       userFields.push("last_name = @lastName");
       userRequest.input("lastName", data.last_name);
+    }
+    if ("status" in data) {
+      userFields.push("status = @status");
+      userRequest.input("status", data.status);
     }
     if ("email" in data) {
       // Check if email is already in use by another user

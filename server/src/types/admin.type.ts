@@ -13,6 +13,7 @@ export interface UpdateAdminMenteeRequest {
   last_name?: string | undefined;
   email?: string | undefined;
   goal?: string | undefined;
+  status?: "Active" | "Inactive" | "Banned" | "Pending" | undefined;
 }
 
 // Admin Mentor Types
@@ -48,6 +49,7 @@ export interface UpdateAdminMentorRequest {
   account_holder_name?: string | undefined;
   bank_branch?: string | undefined;
   swift_code?: string | undefined;
+  status?: "Active" | "Inactive" | "Banned" | "Pending" | undefined;
 }
 
 // Review Mentor Types
