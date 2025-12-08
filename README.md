@@ -171,7 +171,7 @@ The project includes **Adminer** for easy database management through a web inte
 
 **Login Credentials:**
 
-- System: `MS SQL (beta)`
+- System: `MS SQL`
 - Server: `db`
 - Username: `sa` (or value of `DB_USER`)
 - Password: `123456` (or value of `DB_PASS`)
