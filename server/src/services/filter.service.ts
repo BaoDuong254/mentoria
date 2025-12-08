@@ -21,7 +21,7 @@ interface MentorDatabaseRow {
 }
 
 const buildFilterClauses = (query: FilterMentorsQuery, request: sql.Request) => {
-  const whereClauses: string[] = [];
+  const whereClauses: string[] = ["u.role = N'Mentor'", "u.status = N'Active' OR u.status = N'Inactive'"];
   const havingClauses: string[] = [];
 
   if (query.skillIds && query.skillIds.length > 0) {

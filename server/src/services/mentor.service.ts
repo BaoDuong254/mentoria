@@ -44,7 +44,7 @@ const getMentorProfileService = async (
           m.swift_code
         FROM users u
         INNER JOIN mentors m ON u.user_id = m.user_id
-        WHERE u.user_id = @mentorId AND u.role = N'Mentor'
+        WHERE u.user_id = @mentorId AND u.role = N'Mentor' AND u.status IN (N'Active', N'Inactive')
       `);
 
     if (mentorResult.recordset.length === 0) {

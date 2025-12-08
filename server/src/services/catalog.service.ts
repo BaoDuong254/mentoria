@@ -42,6 +42,7 @@ export const getSuperCategoriesService = async (query: SuperCategoriesQuery): Pr
       LEFT JOIN categories subcat ON subcat.super_category_id = cat.category_id
       LEFT JOIN own_skill os ON (os.category_id = cat.category_id OR os.category_id = subcat.category_id)
       LEFT JOIN set_skill ss ON os.skill_id = ss.skill_id
+      LEFT JOIN users u ON ss.mentor_id = u.user_id AND u.status IN (N'Active', N'Inactive')
       WHERE cat.super_category_id IS NULL
       GROUP BY cat.category_id, cat.category_name
     `;
@@ -119,6 +120,7 @@ export const getSkillsService = async (query: SkillsQuery): Promise<SkillsRespon
         COUNT(DISTINCT ss.mentor_id) as mentor_count
       FROM skills s
       LEFT JOIN set_skill ss ON s.skill_id = ss.skill_id
+      LEFT JOIN users u ON ss.mentor_id = u.user_id AND u.status IN (N'Active', N'Inactive')
       GROUP BY s.skill_id, s.skill_name
     `;
 
@@ -228,6 +230,7 @@ export const getCompaniesService = async (query: CompaniesQuery): Promise<Compan
         COUNT(DISTINCT wf.mentor_id) as mentor_count
       FROM companies c
       LEFT JOIN work_for wf ON c.company_id = wf.c_company_id
+      LEFT JOIN users u ON wf.mentor_id = u.user_id AND u.status IN (N'Active', N'Inactive')
       GROUP BY c.company_id, c.cname
     `;
 
@@ -301,6 +304,7 @@ export const getJobTitlesService = async (query: JobTitlesQuery): Promise<JobTit
         COUNT(DISTINCT wf.mentor_id) as mentor_count
       FROM job_title jt
       LEFT JOIN work_for wf ON jt.job_title_id = wf.current_job_title_id
+      LEFT JOIN users u ON wf.mentor_id = u.user_id AND u.status IN (N'Active', N'Inactive')
       GROUP BY jt.job_title_id, jt.job_name
     `;
 
@@ -373,7 +377,7 @@ export const getCountriesService = async (query: CountriesQuery): Promise<Countr
         COUNT(DISTINCT m.user_id) as mentor_count
       FROM users u
       INNER JOIN mentors m ON u.user_id = m.user_id
-      WHERE u.country IS NOT NULL
+      WHERE u.country IS NOT NULL AND u.status IN (N'Active', N'Inactive')
       GROUP BY u.country
     `;
 
@@ -444,6 +448,7 @@ export const getLanguagesService = async (query: LanguagesQuery): Promise<Langua
         ml.mentor_language as language,
         COUNT(DISTINCT ml.mentor_id) as mentor_count
       FROM mentor_languages ml
+      LEFT JOIN users u ON ml.mentor_id = u.user_id AND u.status IN (N'Active', N'Inactive')
       GROUP BY ml.mentor_language
     `;
 

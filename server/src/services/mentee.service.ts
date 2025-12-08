@@ -29,7 +29,7 @@ const getMenteeProfileService = async (
         m.goal
       FROM users u
       INNER JOIN mentees m ON u.user_id = m.user_id
-      WHERE u.user_id = @menteeId AND u.role = N'Mentee'
+      WHERE u.user_id = @menteeId AND u.role = N'Mentee' AND u.status != N'Banned'
     `);
 
     if (menteeResult.recordset.length === 0) {
