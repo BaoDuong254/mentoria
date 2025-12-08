@@ -161,7 +161,7 @@ const createSlotService = async (
     if (hasOverlap) {
       return {
         success: false,
-        message: "This period of time is set up before. Please try again.",
+        message: "This time slot has already been set up. Please try again.",
       };
     }
 
