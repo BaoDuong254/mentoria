@@ -93,6 +93,15 @@ function MentorBrowse() {
                 </div>
               ) : (
                 <>
+                  <div className='mb-5'>
+                    {pageMentor && (
+                      <Pagination
+                        currentPage={pageMentor.currentPage}
+                        totalPages={pageMentor.totalPages}
+                        onPageChange={handlePageChange}
+                      />
+                    )}
+                  </div>
                   {mentors.length > 0 ? (
                     <div className='flex flex-col gap-8'>
                       <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3'>

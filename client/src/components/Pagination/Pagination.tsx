@@ -28,7 +28,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
 
   return (
     <>
-      <div className='mt-10 flex items-center justify-center gap-2'>
+      <div className='flex items-center justify-center gap-2'>
         {/* Nút Previous */}
         <button
           onClick={() => {
