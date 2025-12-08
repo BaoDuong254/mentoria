@@ -379,7 +379,7 @@ export const updateComplaintStatusService = async (
 };
 
 /**
- * Check if a meeting has an expired pending status (> 2 minutes)
+ * Check if a meeting has an expired pending status (> 1 minute)
  */
 export const checkMeetingExpiredPendingService = async (
   meetingId: number
@@ -388,6 +388,8 @@ export const checkMeetingExpiredPendingService = async (
   if (!pool) throw new Error("Database connection not established");
 
   try {
+    // Calculate time difference directly in SQL to avoid timezone issues
+    // Note: paid_time is stored in UTC, so we use GETUTCDATE() for comparison
     const result = await pool.request().input("meetingId", sql.Int, meetingId).query(`
       SELECT 
         m.meeting_id, 
@@ -395,7 +397,10 @@ export const checkMeetingExpiredPendingService = async (
         m.mentor_id,
         m.start_time,
         m.date,
-        i.paid_time as booking_time
+        i.paid_time as booking_time,
+        GETUTCDATE() as server_time,
+        DATEDIFF(SECOND, i.paid_time, GETUTCDATE()) as seconds_since_payment,
+        CASE WHEN m.start_time < GETUTCDATE() THEN 1 ELSE 0 END as meeting_started
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
       WHERE m.meeting_id = @meetingId
@@ -409,16 +414,22 @@ export const checkMeetingExpiredPendingService = async (
 
     // Only check for Pending meetings
     if (meeting.status !== "Pending") {
+      console.log(`[checkMeetingExpiredPending] Meeting ${meetingId} is not Pending (status: ${meeting.status})`);
       return { isExpired: false };
     }
 
-    const now = new Date();
-    const bookingTime = new Date(meeting.booking_time);
-    const timeDiff = now.getTime() - bookingTime.getTime();
-    const minutesDiff = timeDiff / (1000 * 60);
+    // Use SQL-calculated values to avoid timezone issues
+    const secondsSincePayment = meeting.seconds_since_payment as number;
+    const minutesSincePayment = secondsSincePayment / 60;
+    const expiredThresholdMinutes = 1;
 
-    // Expired if more than 5 minutes since booking (payment)
-    const isExpired = minutesDiff > 5 || meeting.start_time < now;
+    // Expired only if more than 1 minute since booking (payment)
+
+    const isExpired = minutesSincePayment >= expiredThresholdMinutes;
+
+    console.log(
+      `[checkMeetingExpiredPending] Meeting ${meetingId}: secondsSincePayment=${secondsSincePayment}, minutesSincePayment=${minutesSincePayment.toFixed(2)}, isExpired=${isExpired}`
+    );
 
     return {
       isExpired,

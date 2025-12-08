@@ -115,12 +115,23 @@ const createSlotService = async (
       };
     }
 
-    // Check if slot is in the past
+    // Check if the selected date is in the past (only compare dates, not times)
     const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const slotDateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    if (slotDateOnly < todayStart) {
+      return {
+        success: false,
+        message: "Your selected day is in the past. Try again and choose another day.",
+      };
+    }
+
+    // Check if start time is in the past (for today's date)
     if (startTime < now) {
       return {
         success: false,
-        message: "Cannot set a slot in the past",
+        message: "Your start time is in the past. Please try again.",
       };
     }
 
@@ -150,7 +161,7 @@ const createSlotService = async (
     if (hasOverlap) {
       return {
         success: false,
-        message: "This slot overlaps with an existing slot for this plan",
+        message: "This period of time is set up before. Please try again.",
       };
     }
 

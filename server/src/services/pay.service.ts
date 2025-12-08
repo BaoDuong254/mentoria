@@ -259,14 +259,14 @@ const createInvoiceService = async (
       .input("amountSubtotal", amountSubtotal)
       .input("amountTotal", amountTotal).query(`
       INSERT INTO invoices (
-        plan_registerations_id, method, mentee_id,
+        plan_registerations_id, method, mentee_id, paid_time,
         stripe_session_id, stripe_customer_id, stripe_customer_email,
         stripe_payment_intent_id, stripe_charge_id, stripe_balance_transaction_id,
         stripe_receipt_url, payment_status, currency, amount_subtotal, amount_total
       )
       OUTPUT INSERTED.invoice_id
       VALUES (
-        @registrationId, @method, @menteeId,
+        @registrationId, @method, @menteeId, GETUTCDATE(),
         @stripeSessionId, @stripeCustomerId, @stripeCustomerEmail,
         @stripePaymentIntentId, @stripeChargeId, @stripeBalanceTransactionId,
         @stripeReceiptUrl, @paymentStatus, @currency, @amountSubtotal, @amountTotal

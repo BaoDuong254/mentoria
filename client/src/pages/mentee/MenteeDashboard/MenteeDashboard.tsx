@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useMeetingStore } from "@/store/useMeetingStore";
 import MeetingCard from "@/components/MeetingCard";
 import EmptyState from "@/components/EmptyState";
@@ -52,13 +52,23 @@ function MenteeDashboard() {
   const completedMeetings = getCompletedMeetings();
   const cancelledMeetings = getCancelledMeetings();
 
+  // Filter resolved complaints by selected month
+  const filteredResolvedComplaints = useMemo(() => {
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    return resolvedComplaints.filter((complaint) => {
+      const meetingDate = new Date(complaint.meeting_date);
+      return meetingDate.getMonth() === selectedMonth && meetingDate.getFullYear() === selectedYear;
+    });
+  }, [resolvedComplaints, selectedDate]);
+
   const hasAnyMeetings =
     pendingMeetings.length > 0 ||
     acceptedMeetings.length > 0 ||
     outOfDateMeetings.length > 0 ||
     completedMeetings.length > 0 ||
     cancelledMeetings.length > 0 ||
-    resolvedComplaints.length > 0;
+    filteredResolvedComplaints.length > 0;
 
   // Get all meeting dates for calendar highlighting
   const meetingDates = meetings.map((m) => m.date.split("T")[0]);
@@ -172,17 +182,17 @@ function MenteeDashboard() {
                   </div>
                 )}
 
-                {/* Resolved Complaints Section */}
-                {resolvedComplaints.length > 0 && (
+                {/* Resolved Complaints Section - filtered by selected month */}
+                {filteredResolvedComplaints.length > 0 && (
                   <div>
                     <div className='mb-4 flex items-center justify-between'>
                       <h2 className='text-xl font-medium text-emerald-400'>Resolved Complaints</h2>
                       <span className='flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm text-white'>
-                        {resolvedComplaints.length}
+                        {filteredResolvedComplaints.length}
                       </span>
                     </div>
                     <div className='space-y-4'>
-                      {resolvedComplaints.map((complaint) => (
+                      {filteredResolvedComplaints.map((complaint) => (
                         <ResolvedComplaintCard key={complaint.complaint_id} complaint={complaint} />
                       ))}
                     </div>
