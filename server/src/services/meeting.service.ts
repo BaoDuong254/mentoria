@@ -16,17 +16,17 @@ export const getMeetingsByMenteeIdService = async (
   try {
     const offset = (page - 1) * limit;
 
-    // Get total count
+    // Get total count (exclude hidden meetings)
     const countResult = await pool.request().input("menteeId", sql.Int, menteeId).query(`
       SELECT COUNT(*) as total
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
-      WHERE i.mentee_id = @menteeId
+      WHERE i.mentee_id = @menteeId AND m.hidden_by_mentee = 0
     `);
     const totalItems = countResult.recordset[0].total;
     const totalPages = Math.ceil(totalItems / limit);
 
-    // Get paginated results
+    // Get paginated results (exclude hidden meetings)
     const result = await pool
       .request()
       .input("menteeId", sql.Int, menteeId)
@@ -55,14 +55,16 @@ export const getMeetingsByMenteeIdService = async (
         p.plan_type,
         p.plan_description,
         p.plan_charge,
-        i.amount_total AS amount_paid
+        i.amount_total AS amount_paid,
+        pr.message AS discuss_message
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+      INNER JOIN plan_registerations pr ON m.plan_registerations_id = pr.registration_id
       INNER JOIN users mentor_user ON m.mentor_id = mentor_user.user_id
       INNER JOIN users mentee_user ON i.mentee_id = mentee_user.user_id
       INNER JOIN bookings b ON i.plan_registerations_id = b.plan_registerations_id AND i.mentee_id = b.mentee_id
       INNER JOIN plans p ON b.plan_id = p.plan_id
-      WHERE i.mentee_id = @menteeId
+      WHERE i.mentee_id = @menteeId AND m.hidden_by_mentee = 0
       ORDER BY m.date DESC, m.start_time DESC
       OFFSET @offset ROWS
       FETCH NEXT @limit ROWS ONLY
@@ -136,9 +138,11 @@ export const getMeetingsByMentorIdService = async (
         p.plan_type,
         p.plan_description,
         p.plan_charge,
-        i.amount_total AS amount_paid
+        i.amount_total AS amount_paid,
+        pr.message AS discuss_message
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+      INNER JOIN plan_registerations pr ON m.plan_registerations_id = pr.registration_id
       INNER JOIN users mentor_user ON m.mentor_id = mentor_user.user_id
       INNER JOIN users mentee_user ON i.mentee_id = mentee_user.user_id
       INNER JOIN bookings b ON i.plan_registerations_id = b.plan_registerations_id AND i.mentee_id = b.mentee_id
@@ -197,9 +201,11 @@ export const getMeetingByIdService = async (meetingId: number): Promise<MeetingR
         p.plan_type,
         p.plan_description,
         p.plan_charge,
-        i.amount_total AS amount_paid
+        i.amount_total AS amount_paid,
+        pr.message AS discuss_message
       FROM meetings m
       INNER JOIN invoices i ON m.invoice_id = i.invoice_id AND m.plan_registerations_id = i.plan_registerations_id
+      INNER JOIN plan_registerations pr ON m.plan_registerations_id = pr.registration_id
       INNER JOIN users mentor_user ON m.mentor_id = mentor_user.user_id
       INNER JOIN users mentee_user ON i.mentee_id = mentee_user.user_id
       INNER JOIN bookings b ON i.plan_registerations_id = b.plan_registerations_id AND i.mentee_id = b.mentee_id
@@ -485,9 +491,10 @@ export const cancelMeetingService = async (
 };
 
 /**
- * Permanently delete a cancelled meeting from database
- * Only the mentee who owns the meeting can delete it
- * Meeting must be in "Cancelled" status to be deleted
+ * Hide meeting from mentee's view (soft delete)
+ * Only the mentee who owns the meeting can hide it
+ * Meeting must be in "Cancelled" status to be hidden
+ * This preserves the meeting and complaints data for admin review
  */
 export const deleteMeetingPermanentlyService = async (
   meetingId: number,
@@ -523,21 +530,15 @@ export const deleteMeetingPermanentlyService = async (
 
     const currentStatus = verifyResult.recordset[0].status;
 
-    // Only allow deletion of Cancelled meetings
+    // Only allow hiding of Cancelled meetings
     if (currentStatus !== "Cancelled") {
-      throw new Error(
-        `Cannot delete meeting with status: ${currentStatus}. Only cancelled meetings can be permanently deleted.`
-      );
+      throw new Error(`Cannot hide meeting with status: ${currentStatus}. Only cancelled meetings can be hidden.`);
     }
 
-    // Delete related complaints first (foreign key constraint)
+    // Instead of deleting, just set hidden_by_mentee = 1
+    // This preserves the meeting and related complaints for admin review
     await pool.request().input("meetingId", sql.Int, meetingId).query(`
-        DELETE FROM complaints WHERE meeting_id = @meetingId
-      `);
-
-    // Delete the meeting
-    await pool.request().input("meetingId", sql.Int, meetingId).query(`
-        DELETE FROM meetings WHERE meeting_id = @meetingId
+        UPDATE meetings SET hidden_by_mentee = 1 WHERE meeting_id = @meetingId
       `);
 
     return true;

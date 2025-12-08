@@ -331,7 +331,7 @@ CREATE TABLE invoices(
     invoice_id INT IDENTITY(1,1) PRIMARY KEY,
     plan_registerations_id INT NOT NULL,
     method NVARCHAR(50) NOT NULL,
-    paid_time DATETIME DEFAULT GETDATE(),
+    paid_time DATETIME DEFAULT GETUTCDATE(),
     mentee_id INT NOT NULL,
     stripe_session_id NVARCHAR(255) NULL,
     stripe_customer_id NVARCHAR(255) NULL,
@@ -365,6 +365,7 @@ CREATE TABLE meetings(
     end_time DATETIME NOT NULL,
     date DATE NOT NULL,
     mentor_id INT NOT NULL,
+    hidden_by_mentee BIT DEFAULT 0 NOT NULL,
     UNIQUE (meeting_id, invoice_id, plan_registerations_id),
     FOREIGN KEY (invoice_id, plan_registerations_id) REFERENCES invoices(invoice_id, plan_registerations_id)
         ON DELETE CASCADE

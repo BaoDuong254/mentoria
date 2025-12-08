@@ -56,18 +56,28 @@ const validateBookingService = async (data: CreateCheckoutSessionRequest): Promi
     const plan: PlanDetails = planResult.recordset[0];
 
     // 4. Verify slot exists and is available
-    // Parse ISO datetime strings
-    const startDateTime = new Date(data.slotStartTime);
-    const endDateTime = new Date(data.slotEndTime);
+    // Parse ISO datetime strings - ensure UTC interpretation
+    // If the datetime string doesn't have timezone info, treat it as UTC
+    const normalizeToUTC = (dateStr: string): Date => {
+      // If already has Z suffix or timezone offset, parse directly
+      if (dateStr.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(dateStr)) {
+        return new Date(dateStr);
+      }
+      // Otherwise, treat as UTC by appending Z
+      return new Date(dateStr + "Z");
+    };
+
+    const startDateTime = normalizeToUTC(data.slotStartTime);
+    const endDateTime = normalizeToUTC(data.slotEndTime);
 
     // Validate datetime parsing
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
       return { isValid: false, error: "Invalid datetime format" };
     }
 
-    // Check if slot is in the past
-    const now = new Date();
-    if (startDateTime < now) {
+    // Check if slot is in the past (compare in UTC)
+    const nowUTC = new Date();
+    if (startDateTime < nowUTC) {
       return { isValid: false, error: "Cannot book a slot that has already passed" };
     }
 
@@ -76,14 +86,12 @@ const validateBookingService = async (data: CreateCheckoutSessionRequest): Promi
       .input("mentorId", data.mentorId)
       .input("startTime", startDateTime)
       .input("endTime", endDateTime)
-      .input("date", startDateTime.toISOString().split("T")[0]) // Extract date portion
       .input("planId", data.planId).query(`
       SELECT mentor_id, start_time, end_time, date, status, plan_id
       FROM slots
       WHERE mentor_id = @mentorId
         AND start_time = @startTime
         AND end_time = @endTime
-        AND CAST(date AS DATE) = @date
         AND plan_id = @planId
     `);
 
@@ -259,14 +267,14 @@ const createInvoiceService = async (
       .input("amountSubtotal", amountSubtotal)
       .input("amountTotal", amountTotal).query(`
       INSERT INTO invoices (
-        plan_registerations_id, method, mentee_id,
+        plan_registerations_id, method, mentee_id, paid_time,
         stripe_session_id, stripe_customer_id, stripe_customer_email,
         stripe_payment_intent_id, stripe_charge_id, stripe_balance_transaction_id,
         stripe_receipt_url, payment_status, currency, amount_subtotal, amount_total
       )
       OUTPUT INSERTED.invoice_id
       VALUES (
-        @registrationId, @method, @menteeId,
+        @registrationId, @method, @menteeId, GETUTCDATE(),
         @stripeSessionId, @stripeCustomerId, @stripeCustomerEmail,
         @stripePaymentIntentId, @stripeChargeId, @stripeBalanceTransactionId,
         @stripeReceiptUrl, @paymentStatus, @currency, @amountSubtotal, @amountTotal

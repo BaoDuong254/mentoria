@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useMeetingStore } from "@/store/useMeetingStore";
 import { useSlotStore } from "@/store/useSlotStore";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -12,6 +12,22 @@ import type { Slot } from "@/types/booking.type";
 import type { ComplaintResponse } from "@/types/complaint.type";
 import { getComplaintsForMentor } from "@/apis/complaint.api";
 import showToast from "@/utils/toast";
+
+// Helper function to get duration from plan
+const getPlanDuration = (plan: {
+  plan_category?: string;
+  sessions_duration?: number;
+  minutes_per_call?: number;
+}): number => {
+  if (plan.plan_category === "session" && plan.sessions_duration) {
+    return plan.sessions_duration;
+  }
+  if (plan.plan_category === "mentorship" && plan.minutes_per_call) {
+    return plan.minutes_per_call;
+  }
+  // Default fallback
+  return 60;
+};
 
 function MentorDashboard() {
   const { user } = useAuthStore();
@@ -39,8 +55,6 @@ function MentorDashboard() {
 
   // State for available time slots form
   const [startTime, setStartTime] = useState("");
-  const [duration, setDuration] = useState("60");
-  const [showDurationDropdown, setShowDurationDropdown] = useState(false);
   const [showPlanDropdown, setShowPlanDropdown] = useState(false);
   const [isAddingSlot, setIsAddingSlot] = useState(false);
   const [isDeletingSlot, setIsDeletingSlot] = useState<string | null>(null);
@@ -84,8 +98,21 @@ function MentorDashboard() {
   const completedMeetings = getCompletedMeetings();
   const pendingMeetings = getAllPendingMeetings();
 
+  // Filter complaints by selected month
+  const filteredComplaints = useMemo(() => {
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    return complaints.filter((complaint) => {
+      const meetingDate = new Date(complaint.meeting_date);
+      return meetingDate.getMonth() === selectedMonth && meetingDate.getFullYear() === selectedYear;
+    });
+  }, [complaints, selectedDate]);
+
   const hasAnyMeetings =
-    acceptedMeetings.length > 0 || completedMeetings.length > 0 || pendingMeetings.length > 0 || complaints.length > 0;
+    acceptedMeetings.length > 0 ||
+    completedMeetings.length > 0 ||
+    pendingMeetings.length > 0 ||
+    filteredComplaints.length > 0;
 
   // Get all meeting dates for calendar highlighting
   const meetingDates = meetings.map((m) => m.date.split("T")[0]);
@@ -95,6 +122,12 @@ function MentorDashboard() {
 
   // Get selected plan info
   const selectedPlan = plans.find((p) => p.plan_id === selectedPlanId);
+
+  // Compute duration from selected plan (readonly)
+  const duration = useMemo(() => {
+    if (!selectedPlan) return 60;
+    return getPlanDuration(selectedPlan);
+  }, [selectedPlan]);
 
   // Format time for display
   const formatSlotTime = (timeString: string) => {
@@ -146,8 +179,8 @@ function MentorDashboard() {
       // Create start datetime in local timezone format (no Z suffix)
       const startDateTimeStr = createLocalISOString(selectedDate, hours, minutes);
 
-      // Calculate end time based on duration
-      const durationMinutes = parseInt(duration);
+      // Calculate end time based on duration (from plan)
+      const durationMinutes = duration;
       const endHours = hours + Math.floor((minutes + durationMinutes) / 60);
       const endMinutes = (minutes + durationMinutes) % 60;
       const endDateTimeStr = createLocalISOString(selectedDate, endHours, endMinutes);
@@ -159,8 +192,8 @@ function MentorDashboard() {
         status: "Available" as const,
       };
 
-      const success = await addSlot(selectedPlanId, slotData);
-      if (success) {
+      const result = await addSlot(selectedPlanId, slotData);
+      if (result.success) {
         setStartTime("");
         // Refresh slots for mentor
         if (user?.user_id) {
@@ -168,7 +201,7 @@ function MentorDashboard() {
         }
         showToast.success("Time slot added successfully");
       } else {
-        showToast.error("Failed to add time slot. Please try again.");
+        showToast.error(String(result.message) || "Failed to add time slot. Please try again.");
       }
     } catch (error) {
       console.error("Error adding slot:", error);
@@ -303,17 +336,17 @@ function MentorDashboard() {
                   </div>
                 )}
 
-                {/* Complaints Section */}
-                {complaints.length > 0 && (
+                {/* Complaints Section - filtered by selected month */}
+                {filteredComplaints.length > 0 && (
                   <div>
                     <div className='mb-4 flex items-center justify-between'>
                       <h2 className='text-xl font-medium text-red-400'>Complaints Against You</h2>
                       <span className='flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm text-white'>
-                        {complaints.length}
+                        {filteredComplaints.length}
                       </span>
                     </div>
                     <div className='space-y-4'>
-                      {complaints.map((complaint) => (
+                      {filteredComplaints.map((complaint) => (
                         <ComplaintedMeetingCard key={complaint.complaint_id} complaint={complaint} />
                       ))}
                     </div>
@@ -355,34 +388,12 @@ function MentorDashboard() {
                       />
                     </div>
 
-                    {/* Duration */}
+                    {/* Duration (readonly, calculated from plan) */}
                     <div className='relative z-30'>
                       <label className='mb-1 block text-xs text-gray-400'>Duration</label>
-                      <button
-                        onClick={() => {
-                          setShowDurationDropdown(!showDurationDropdown);
-                        }}
-                        className='flex w-full items-center justify-between rounded bg-gray-700 px-3 py-2 text-sm text-white'
-                      >
-                        {duration} min
-                        <ChevronDown className='h-4 w-4' />
-                      </button>
-                      {showDurationDropdown && (
-                        <div className='absolute top-full left-0 z-50 mt-1 w-full rounded bg-gray-700 shadow-lg'>
-                          {["30", "60", "90", "120"].map((d) => (
-                            <button
-                              key={d}
-                              onClick={() => {
-                                setDuration(d);
-                                setShowDurationDropdown(false);
-                              }}
-                              className='block w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-600'
-                            >
-                              {d} min
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      <div className='flex w-full items-center justify-between rounded bg-gray-500 px-3 py-2 text-sm text-white opacity-50'>
+                        {selectedPlan ? `${String(duration)} min` : "Select a plan"}
+                      </div>
                     </div>
                   </div>
 
@@ -393,7 +404,7 @@ function MentorDashboard() {
                       onClick={() => {
                         setShowPlanDropdown(!showPlanDropdown);
                       }}
-                      className='flex w-full items-center justify-between rounded bg-gray-700 px-3 py-2 text-sm text-white'
+                      className='flex w-full cursor-pointer items-center justify-between rounded bg-gray-700 px-3 py-2 text-sm text-white'
                     >
                       {selectedPlan
                         ? `${selectedPlan.plan_type} - $${String(selectedPlan.plan_charge)}`
@@ -410,7 +421,7 @@ function MentorDashboard() {
                                 setSelectedPlanId(plan.plan_id);
                                 setShowPlanDropdown(false);
                               }}
-                              className={`block w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-600 ${
+                              className={`block w-full cursor-pointer px-3 py-2 text-left text-sm text-white hover:bg-gray-600 ${
                                 selectedPlanId === plan.plan_id ? "bg-cyan-700" : ""
                               }`}
                             >
@@ -431,7 +442,7 @@ function MentorDashboard() {
                   <button
                     onClick={() => void handleAddTimeSlot()}
                     disabled={isAddingSlot || !selectedPlanId}
-                    className='flex w-full items-center justify-center gap-2 rounded bg-green-600 py-2 text-sm text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50'
+                    className='flex w-full cursor-pointer items-center justify-center gap-2 rounded bg-green-600 py-2 text-sm text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50'
                   >
                     <Plus className='h-4 w-4' />
                     {isAddingSlot ? "Adding..." : "Add Time Slot"}

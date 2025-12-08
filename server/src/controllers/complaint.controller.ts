@@ -302,6 +302,12 @@ export const checkMeetingExpiredPending = async (req: Request, res: Response) =>
 
     const result = await checkMeetingExpiredPendingService(meetingId);
 
+    // Disable caching for this dynamic endpoint
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+    res.set("Surrogate-Control", "no-store");
+
     return res.status(200).json({
       success: true,
       isExpired: result.isExpired,

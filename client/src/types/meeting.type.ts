@@ -35,6 +35,7 @@ export interface MeetingResponse {
   plan_description: string;
   plan_charge: number;
   amount_paid: number;
+  discuss_message?: string | null; // Content mentee wants to discuss
 }
 
 export interface GetMeetingsResponse {

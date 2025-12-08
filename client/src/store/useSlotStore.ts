@@ -39,7 +39,7 @@ interface SlotState {
   fetchSlotsByPlanId: (planId: number) => Promise<void>;
   fetchAllSlotsForMentor: (mentorId: number) => Promise<void>;
   setSelectedPlanId: (planId: number | null) => void;
-  addSlot: (planId: number, data: CreateSlotRequest) => Promise<boolean>;
+  addSlot: (planId: number, data: CreateSlotRequest) => Promise<{ success: boolean; message?: string }>;
   updateSlotStatus: (
     planId: number,
     startTime: string,
@@ -168,12 +168,20 @@ export const useSlotStore = create<SlotState>((set, get) => ({
       if (response.success) {
         // Refresh slots
         await get().fetchSlotsByPlanId(planId);
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false, message: response.message };
     } catch (error) {
       console.error("Error creating slot:", error);
-      return false;
+      // Try to extract error message from axios error response
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data as { message?: string } | undefined;
+        const message = errorData?.message;
+        if (typeof message === "string") {
+          return { success: false, message };
+        }
+      }
+      return { success: false, message: "Failed to add time slot. Please try again." };
     }
   },
 

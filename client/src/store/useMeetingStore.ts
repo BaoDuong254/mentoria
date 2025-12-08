@@ -45,6 +45,7 @@ interface MeetingState {
   setSelectedDate: (date: Date) => void;
   setMeetingLocation: (meetingId: number, location: string) => Promise<boolean>;
   markMeetingAsCompleted: (meetingId: number) => Promise<boolean>;
+  undoMeetingCompleted: (meetingId: number) => Promise<boolean>;
   acceptMeeting: (meetingId: number) => Promise<boolean>;
   setReviewLink: (meetingId: number, reviewLink: string) => Promise<boolean>;
   deleteMeeting: (meetingId: number) => Promise<boolean>;
@@ -162,6 +163,26 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
       return false;
     } catch (error) {
       console.error("Error marking as completed:", error);
+      return false;
+    }
+  },
+
+  undoMeetingCompleted: async (meetingId: number) => {
+    try {
+      const response = await updateMeetingStatus(meetingId, {
+        status: "Scheduled",
+      });
+      if (response.success) {
+        set((state) => ({
+          meetings: state.meetings.map((m) =>
+            m.meeting_id === meetingId ? { ...m, status: "Scheduled" as const } : m
+          ),
+        }));
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error undoing meeting completion:", error);
       return false;
     }
   },
