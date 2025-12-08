@@ -270,7 +270,7 @@ mentorsPending:
         content:
           application/json:
             schema:
-              $ref: "../schemas/admin.yaml#/AdminMentorListResponse"
+              $ref: "../schemas/admin.yaml#/AdminMentorPendingListResponse"
       "401":
         description: Unauthorized
         content:

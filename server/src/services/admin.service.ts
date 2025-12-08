@@ -260,7 +260,8 @@ const listMentorsService = async (
   // Get paginated results
   const result = await pool.request().input("limit", limit).input("offset", offset).query(`
     SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role,
-           m.bio, m.cv_url, m.headline, m.response_time
+           m.bio, m.cv_url, m.headline, m.response_time,
+           m.bank_name, m.account_number, m.account_holder_name, m.bank_branch, m.swift_code
     FROM users u
     JOIN mentors m ON u.user_id = m.user_id
     ORDER BY u.created_at DESC
@@ -336,7 +337,8 @@ const getMentorService = async (userId: number): Promise<AdminServiceResponse<Ad
 
   const result = await pool.request().input("userId", userId).query(`
     SELECT u.user_id, u.first_name, u.last_name, u.email, u.status, u.role,
-           m.bio, m.cv_url, m.headline, m.response_time
+           m.bio, m.cv_url, m.headline, m.response_time,
+           m.bank_name, m.account_number, m.account_holder_name, m.bank_branch, m.swift_code
     FROM users u
     JOIN mentors m ON u.user_id = m.user_id
     WHERE u.user_id = @userId
@@ -433,6 +435,26 @@ const updateMentorService = async (userId: number, data: UpdateAdminMentorReques
     if ("cv_url" in data) {
       mentorFields["cvUrl"] = data.cv_url;
       mentorUpdates.push("cv_url = @cvUrl");
+    }
+    if ("bank_name" in data) {
+      mentorFields["bankName"] = data.bank_name;
+      mentorUpdates.push("bank_name = @bankName");
+    }
+    if ("account_number" in data) {
+      mentorFields["accountNumber"] = data.account_number;
+      mentorUpdates.push("account_number = @accountNumber");
+    }
+    if ("account_holder_name" in data) {
+      mentorFields["accountHolderName"] = data.account_holder_name;
+      mentorUpdates.push("account_holder_name = @accountHolderName");
+    }
+    if ("bank_branch" in data) {
+      mentorFields["bankBranch"] = data.bank_branch;
+      mentorUpdates.push("bank_branch = @bankBranch");
+    }
+    if ("swift_code" in data) {
+      mentorFields["swiftCode"] = data.swift_code;
+      mentorUpdates.push("swift_code = @swiftCode");
     }
 
     if (mentorUpdates.length > 0) {
