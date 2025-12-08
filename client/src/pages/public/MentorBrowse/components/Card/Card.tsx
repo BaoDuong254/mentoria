@@ -77,8 +77,8 @@ export default function Card({ mentor }: CardProps) {
           {/* Price and book */}
           <div className='flex gap-6'>
             <span>
-              <strong className='text-2xl text-white'>${mentor.lowest_plan_price}</strong> <br />
-              /hour
+              From <br />
+              <strong className='ml-2 text-2xl text-white'>${mentor.lowest_plan_price}</strong>
             </span>
             <button
               onClick={handleViewProfile}

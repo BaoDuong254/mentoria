@@ -19,6 +19,19 @@ const stripe = new Stripe(envConfig.STRIPE_SECRET_KEY, {
   apiVersion: "2025-11-17.clover",
 });
 
+// Helper function to normalize datetime strings to UTC
+// Database stores datetime in UTC but without 'Z' suffix
+// JavaScript Date() interprets strings without timezone as local time
+// This function ensures consistent UTC interpretation
+const normalizeToUTC = (dateStr: string): Date => {
+  // If already has Z suffix or timezone offset, parse directly
+  if (dateStr.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(dateStr)) {
+    return new Date(dateStr);
+  }
+  // Otherwise, treat as UTC by appending Z
+  return new Date(dateStr + "Z");
+};
+
 const validateBookingService = async (data: CreateCheckoutSessionRequest): Promise<BookingValidationResult> => {
   const pool = await poolPromise;
   if (!pool) throw new Error("Database connection not established");
@@ -56,17 +69,7 @@ const validateBookingService = async (data: CreateCheckoutSessionRequest): Promi
     const plan: PlanDetails = planResult.recordset[0];
 
     // 4. Verify slot exists and is available
-    // Parse ISO datetime strings - ensure UTC interpretation
-    // If the datetime string doesn't have timezone info, treat it as UTC
-    const normalizeToUTC = (dateStr: string): Date => {
-      // If already has Z suffix or timezone offset, parse directly
-      if (dateStr.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(dateStr)) {
-        return new Date(dateStr);
-      }
-      // Otherwise, treat as UTC by appending Z
-      return new Date(dateStr + "Z");
-    };
-
+    // Parse ISO datetime strings using normalizeToUTC for consistent UTC handling
     const startDateTime = normalizeToUTC(data.slotStartTime);
     const endDateTime = normalizeToUTC(data.slotEndTime);
 
@@ -333,22 +336,19 @@ const updateSlotStatusService = async (mentorId: number, slotStartTime: string, 
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    // Parse ISO datetime strings
-    const startDateTime = new Date(slotStartTime);
-    const endDateTime = new Date(slotEndTime);
-    const dateStr = startDateTime.toISOString().split("T")[0];
+    // Parse ISO datetime strings using normalizeToUTC for consistent UTC handling
+    const startDateTime = normalizeToUTC(slotStartTime);
+    const endDateTime = normalizeToUTC(slotEndTime);
 
     await pool
       .request()
       .input("mentorId", mentorId)
-      .input("date", dateStr)
       .input("startTime", startDateTime)
       .input("endTime", endDateTime)
       .input("status", "Booked").query(`
       UPDATE slots
       SET status = @status
       WHERE mentor_id = @mentorId
-        AND CAST(date AS DATE) = @date
         AND start_time = @startTime
         AND end_time = @endTime
     `);
@@ -367,10 +367,23 @@ const createMeetingService = async (
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    // Parse ISO datetime strings
-    const startDateTime = new Date(data.slotStartTime);
-    const endDateTime = new Date(data.slotEndTime);
-    const dateStr = startDateTime.toISOString().split("T")[0];
+    // Parse ISO datetime strings using normalizeToUTC for consistent UTC handling
+    const startDateTime = normalizeToUTC(data.slotStartTime);
+    const endDateTime = normalizeToUTC(data.slotEndTime);
+
+    // Get the date from the slot in database (to avoid timezone mismatch)
+    const slotResult = await pool
+      .request()
+      .input("mentorId", data.mentorId)
+      .input("startTime", startDateTime)
+      .input("endTime", endDateTime)
+      .query(`SELECT date FROM slots WHERE mentor_id = @mentorId AND start_time = @startTime AND end_time = @endTime`);
+
+    if (slotResult.recordset.length === 0) {
+      throw new Error("Slot not found for creating meeting");
+    }
+
+    const slotDate = slotResult.recordset[0].date;
 
     const result = await pool
       .request()
@@ -379,7 +392,7 @@ const createMeetingService = async (
       .input("location", "") // Location to be determined later
       .input("startTime", startDateTime)
       .input("endTime", endDateTime)
-      .input("date", dateStr)
+      .input("date", slotDate)
       .input("mentorId", data.mentorId).query(`
       INSERT INTO meetings (invoice_id, plan_registerations_id, location, start_time, end_time, date, mentor_id)
       OUTPUT INSERTED.meeting_id
