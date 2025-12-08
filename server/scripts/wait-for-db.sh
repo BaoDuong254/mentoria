@@ -15,7 +15,7 @@ echo "Waiting for database schema to be ready..."
 max_attempts=30
 attempt=0
 
-until /opt/mssql-tools18/bin/sqlcmd -S ${DB_SERVER} -U ${DB_USER} -P ${DB_PASS} -d ${DB_NAME} -Q "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users'" -C > /dev/null 2>&1; do
+until /opt/mssql-tools18/bin/sqlcmd -S ${DB_SERVER} -U ${DB_USER} -P ${DB_PASS} -d ${DB_NAME} -Q "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users'" -C > /dev/null 2>&1; do
   attempt=$((attempt + 1))
   if [ $attempt -ge $max_attempts ]; then
     echo "Error: Database schema was not initialized after $max_attempts attempts"

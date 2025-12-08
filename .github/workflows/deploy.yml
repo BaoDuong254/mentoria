@@ -100,6 +100,8 @@ jobs:
       - name: Create root .env file for docker-compose
         run: |
           echo "DB_PASS=${{ secrets.DB_PASS }}" > .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
 
       - name: Copy files to LXC
@@ -128,6 +130,8 @@ jobs:
             # Set environment variables for docker-compose
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export DB_PASS=${{ secrets.DB_PASS }}
+            export DB_USER=sa
+            export DB_NAME=mentoria
 
             # Stop and remove old containers first
             docker compose down
