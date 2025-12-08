@@ -10,8 +10,6 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
-    ports:
-      - "1433:1433"
     volumes:
       - db-data:/var/opt/mssql
       - ./server/src/database:/docker-entrypoint-initdb.d:ro
