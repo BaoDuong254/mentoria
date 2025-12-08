@@ -35,38 +35,37 @@ done
 
 echo "SQL Server is ready!"
 
-# Check if database already exists and is initialized
+# Create database if not exists
+echo "Ensuring database [$DB_NAME] exists..."
+/opt/mssql-tools18/bin/sqlcmd \
+  -S localhost,1433 \
+  -U "${DB_USER}" \
+  -P "${DB_PASS}" \
+  -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'${DB_NAME}') CREATE DATABASE [${DB_NAME}];" \
+  -b -C
+
+# Always run SQL.sql to ensure schema is up to date
+# SQL.sql contains DROP TABLE statements, making it safe to run multiple times
+echo "Executing SQL.sql to create/update database schema..."
+/opt/mssql-tools18/bin/sqlcmd \
+  -S localhost,1433 \
+  -U "${DB_USER}" \
+  -P "${DB_PASS}" \
+  -d "${DB_NAME}" \
+  -i /docker-entrypoint-initdb.d/SQL.sql \
+  -b -C
+
+# Check if data already exists before inserting
+echo "Checking if initial data needs to be inserted..."
 if /opt/mssql-tools18/bin/sqlcmd \
   -S localhost,1433 \
   -U "${DB_USER}" \
   -P "${DB_PASS}" \
   -d "${DB_NAME}" \
-  -Q "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users'" \
-  -b -C >/dev/null 2>&1; then
-  echo "Database [$DB_NAME] already initialized, skipping setup"
+  -Q "SELECT 1 FROM users WHERE user_id = 1" \
+  -h -1 -b -C 2>/dev/null | grep -q "1"; then
+  echo "Initial data already exists, skipping INSERT_DATA.sql"
 else
-  echo "Initializing database [$DB_NAME]..."
-
-  # Create database if not exists
-  echo "Ensuring database [$DB_NAME] exists..."
-  /opt/mssql-tools18/bin/sqlcmd \
-    -S localhost,1433 \
-    -U "${DB_USER}" \
-    -P "${DB_PASS}" \
-    -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'${DB_NAME}') CREATE DATABASE [${DB_NAME}];" \
-    -b -C
-
-  # Execute schema
-  echo "Executing SQL.sql to create database schema..."
-  /opt/mssql-tools18/bin/sqlcmd \
-    -S localhost,1433 \
-    -U "${DB_USER}" \
-    -P "${DB_PASS}" \
-    -d "${DB_NAME}" \
-    -i /docker-entrypoint-initdb.d/SQL.sql \
-    -b -C
-
-  # Insert initial data
   echo "Executing INSERT_DATA.sql to insert sample data..."
   /opt/mssql-tools18/bin/sqlcmd \
     -S localhost,1433 \
@@ -75,9 +74,10 @@ else
     -d "${DB_NAME}" \
     -i /docker-entrypoint-initdb.d/INSERT_DATA.sql \
     -b -C
-
-  echo "Database initialization completed successfully!"
+  echo "Initial data inserted successfully!"
 fi
+
+echo "Database initialization completed successfully!"
 
 # Keep SQL Server running in foreground
 echo "SQL Server is ready and accepting connections"
