@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Users, DollarSign, Calendar, UserCheck } from "lucide-react";
+// [UPDATED IMPORTS] Sử dụng các icon tượng trưng hơn
+import { Users, Calendar, Hourglass, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { getSystemStats } from "@/apis/admin.api";
 import type { SystemStats } from "@/types/admin.type";
@@ -10,9 +11,10 @@ interface StatCardProps {
   subtext?: string;
   icon: React.ElementType;
   colorClass: string;
+  iconColor: string;
 }
 
-const StatCard = ({ title, value, subtext, icon: Icon, colorClass }: StatCardProps) => (
+const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconColor }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -26,8 +28,10 @@ const StatCard = ({ title, value, subtext, icon: Icon, colorClass }: StatCardPro
         <p className='text-sm font-medium text-gray-400'>{title}</p>
         <h3 className='mt-2 text-3xl font-bold text-white'>{value}</h3>
       </div>
-      <div className={`rounded-full p-3 ${colorClass} bg-opacity-20`}>
-        <Icon size={24} className={colorClass.replace("bg-", "text-")} />
+      <div
+        className={`rounded-full p-3 ${colorClass.split(" ").find((cls) => cls.startsWith("bg-")) ?? ""} bg-opacity-20`}
+      >
+        <Icon size={24} className={iconColor} />
       </div>
     </div>
     {subtext && <p className='mt-4 text-sm text-gray-500'>{subtext}</p>}
@@ -68,29 +72,33 @@ const AdminDashboard = () => {
           title='Total Revenue'
           value={`$${stats.invoices.totalRevenue.toLocaleString()}`}
           subtext={`+$${String(stats.invoices.thisMonthRevenue)} this month`}
-          icon={DollarSign}
-          colorClass='bg-(--green) text-(--green)' // Dùng màu brand
+          icon={TrendingUp} // Icon: TrendingUp (Phù hợp với Doanh thu)
+          colorClass='bg-(--green) text-white'
+          iconColor='text-white' // Dùng màu brand
         />
         <StatCard
           title='Total Users'
           value={stats.users.total}
           subtext={`${String(stats.users.mentors)} Mentors, ${String(stats.users.mentees)} Mentees`}
-          icon={Users}
-          colorClass='bg-(--primary) text-(--primary)' // Dùng màu brand
+          icon={Users} // Icon: Users (Giữ nguyên, phù hợp)
+          colorClass='bg-(--primary) text-white'
+          iconColor='text-white'
         />
         <StatCard
           title='Active Bookings'
           value={stats.bookings.total}
           subtext={`${String(stats.bookings.thisMonth)} bookings this month`}
-          icon={Calendar}
-          colorClass='bg-purple-500 text-purple-500'
+          icon={Calendar} // Icon: Calendar (Giữ nguyên, phù hợp)
+          colorClass='bg-purple-500 text-white'
+          iconColor='text-white'
         />
         <StatCard
           title='Pending Mentors'
           value={stats.mentors.pending}
           subtext='Requires approval'
-          icon={UserCheck}
-          colorClass='bg-yellow-500 text-yellow-500'
+          icon={Hourglass}
+          colorClass='bg-yellow-500 text-white'
+          iconColor='text-white'
         />
       </div>
 
