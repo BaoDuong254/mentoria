@@ -7,41 +7,28 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${DB_PASS}
       - MSSQL_PID=Developer
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
     ports:
       - "1433:1433"
     volumes:
       - db-data:/var/opt/mssql
       - ./server/src/database:/docker-entrypoint-initdb.d:ro
-      - ./server/init-db.sh:/init-db.sh:ro
+      - ./server/scripts/init-db.sh:/init-db.sh:ro
     healthcheck:
       test:
         [
-          "CMD",
-          "/opt/mssql-tools18/bin/sqlcmd",
-          "-S",
-          "localhost",
-          "-U",
-          "sa",
-          "-P",
-          "${DB_PASS}",
-          "-Q",
-          "SELECT 1",
-          "-C",
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U "$${DB_USER}" -P "$${DB_PASS}" -Q "SELECT 1" -C',
         ]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 60s
     networks:
       - mentoria-network
-    command: >
-      bash -c "
-      /opt/mssql/bin/sqlservr &
-      sleep 30 &&
-      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASS} -Q 'IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N''mentoria'') CREATE DATABASE mentoria' -C &&
-      bash /init-db.sh &&
-      wait
-      "
+    command: ["/bin/bash", "/init-db.sh"]
 
   server:
     build:
@@ -109,10 +96,40 @@ services:
     networks:
       - mentoria-network
 
+  sqlpad:
+    image: sqlpad/sqlpad:latest
+    container_name: mentoria-sqlpad
+    restart: unless-stopped
+    environment:
+      - SQLPAD_ADMIN=${DB_USER}
+      - SQLPAD_ADMIN_PASSWORD=${DB_PASS}
+      - SQLPAD_APP_LOG_LEVEL=info
+      - SQLPAD_WEB_PORT=3000
+      - SQLPAD_CONNECTIONS__mentoria__name=Mentoria Database
+      - SQLPAD_CONNECTIONS__mentoria__driver=sqlserver
+      - SQLPAD_CONNECTIONS__mentoria__host=db
+      - SQLPAD_CONNECTIONS__mentoria__port=1433
+      - SQLPAD_CONNECTIONS__mentoria__database=${DB_NAME}
+      - SQLPAD_CONNECTIONS__mentoria__username=${DB_USER}
+      - SQLPAD_CONNECTIONS__mentoria__password=${DB_PASS}
+      - SQLPAD_CONNECTIONS__mentoria__sqlserverEncrypt=false
+      - SQLPAD_CONNECTIONS__mentoria__sqlserverMultiSubnetFailover=false
+    ports:
+      - "3003:3000"
+    volumes:
+      - sqlpad-data:/var/lib/sqlpad
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mentoria-network
+
 networks:
   mentoria-network:
     driver: bridge
 
 volumes:
   db-data:
+    driver: local
+  sqlpad-data:
     driver: local

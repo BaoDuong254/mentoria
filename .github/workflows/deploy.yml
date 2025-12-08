@@ -22,7 +22,9 @@ jobs:
       - name: Create root .env file for docker-compose
         run: |
           echo "DB_PASS=${{ secrets.DB_PASS }}" > .env
-          echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -107,7 +109,7 @@ jobs:
           username: ${{ secrets.USERNAME_VPS }}
           key: ${{ secrets.KEY_VPS }}
           port: ${{ secrets.PORT_VPS }}
-          source: "server/.env,client/.env,.env,docker-compose.yml,server/init-db.sh,server/wait-for-db.sh,server/src/database"
+          source: "server/.env,client/.env,.env,docker-compose.yml,server/scripts/init-db.sh,server/scripts/wait-for-db.sh,server/src/database"
           target: "~/mentoria"
 
       - name: Deploy to LXC via SSH
