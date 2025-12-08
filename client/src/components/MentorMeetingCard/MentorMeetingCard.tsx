@@ -402,8 +402,8 @@ export default function MentorMeetingCard({ meeting, type }: MentorMeetingCardPr
       {/* Mark Completed Confirmation Dialog */}
       <ConfirmDialog
         isOpen={showMarkCompletedConfirm}
-        title='Mark Course Completed'
-        message='Are you sure to mark this course completed?'
+        title='Mark Meeting Completed'
+        message='Are you sure you want to mark this meeting as completed?'
         confirmText='OK'
         cancelText='Cancel'
         confirmButtonClass='bg-green-600 hover:bg-green-700'
