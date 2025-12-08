@@ -120,8 +120,12 @@ UpdateAdminMenteeRequest:
   $ref: "./admin.yaml#/UpdateAdminMenteeRequest"
 AdminMentorItem:
   $ref: "./admin.yaml#/AdminMentorItem"
+AdminMentorPendingItem:
+  $ref: "./admin.yaml#/AdminMentorPendingItem"
 AdminMentorListResponse:
   $ref: "./admin.yaml#/AdminMentorListResponse"
+AdminMentorPendingListResponse:
+  $ref: "./admin.yaml#/AdminMentorPendingListResponse"
 AdminMentorDetailResponse:
   $ref: "./admin.yaml#/AdminMentorDetailResponse"
 UpdateAdminMentorRequest:

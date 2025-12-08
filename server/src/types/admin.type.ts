@@ -27,6 +27,11 @@ export interface AdminMentorItem {
   cv_url: string | null;
   headline: string | null;
   response_time: string;
+  bank_name: string | null;
+  account_number: string | null;
+  account_holder_name: string | null;
+  bank_branch: string | null;
+  swift_code: string | null;
   created_at?: string;
 }
 
@@ -38,6 +43,11 @@ export interface UpdateAdminMentorRequest {
   headline?: string | undefined;
   response_time?: string | undefined;
   cv_url?: string | undefined;
+  bank_name?: string | undefined;
+  account_number?: string | undefined;
+  account_holder_name?: string | undefined;
+  bank_branch?: string | undefined;
+  swift_code?: string | undefined;
 }
 
 // Review Mentor Types

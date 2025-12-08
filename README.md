@@ -161,6 +161,31 @@ pnpm build
 pnpm start       # Start production server
 ```
 
+## 🗄️ Database Management with Adminer
+
+The project includes **Adminer** for easy database management through a web interface.
+
+**Access Adminer:**
+
+- URL: `http://localhost:8083` (local) or `http://your-vps-ip:8083` (production)
+
+**Login Credentials:**
+
+- System: `MS SQL (beta)`
+- Server: `db`
+- Username: `sa` (or value of `DB_USER`)
+- Password: `123456` (or value of `DB_PASS`)
+- Database: `mentoria` (or value of `DB_NAME`)
+
+**Features:**
+
+- Lightweight and fast UI
+- Run SQL queries directly
+- Browse tables and view data
+- Export/import database (SQL, CSV)
+- Edit records inline
+- View database schema and relationships
+
 ## 🔧 Testing Stripe Webhooks on Localhost
 
 To test Stripe webhooks in your local development environment, you need to install the **Stripe CLI** and forward incoming webhook events to your local API endpoint.

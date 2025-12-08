@@ -48,7 +48,7 @@ COPY --from=builder /app/dist ./dist
 COPY src/database/*.sql ./database/
 
 # Copy wait-for-db script
-COPY wait-for-db.sh /app/wait-for-db.sh
+COPY scripts/wait-for-db.sh /app/wait-for-db.sh
 RUN chmod +x /app/wait-for-db.sh
 
 # Expose port 4002 for Express server
