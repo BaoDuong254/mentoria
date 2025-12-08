@@ -11,6 +11,7 @@ interface BookingState {
   selectedSlotId: string | null;
   selectedPlanType: string | null;
   selectedCharge: number | null;
+  selectedDuration: number | null;
 
   // UI STATE
   isLoadingSlots: boolean;
@@ -29,6 +30,7 @@ export const useBookingStore = create<BookingState>((set) => ({
   selectedSlotId: null,
   selectedPlanType: null,
   selectedCharge: null,
+  selectedDuration: null,
   isLoadingSlots: false,
 
   fetchSlots: async (planId) => {
@@ -41,7 +43,18 @@ export const useBookingStore = create<BookingState>((set) => ({
         const type = slots?.[0]?.plan_type;
         const charge = slots?.[0]?.plan_charge;
 
-        set({ slots: slots, availableDates: dates, selectedPlanType: type, selectedCharge: charge });
+        const start = new Date(String(slots?.[0]?.start_time));
+        const end = new Date(String(slots?.[0]?.end_time));
+
+        const duration = (end.getTime() - start.getTime()) / 1000 / 60;
+
+        set({
+          slots: slots,
+          availableDates: dates,
+          selectedPlanType: type,
+          selectedCharge: charge,
+          selectedDuration: duration,
+        });
       }
     } catch (error) {
       console.error("Error fetching slots:", error);
