@@ -16,6 +16,7 @@ import { showToast } from "@/utils/toast";
 type Tab = "mentors" | "mentees" | "pending";
 
 const AdminUsers = () => {
+  type ValidStatus = "Active" | "Inactive" | "Banned" | "Pending";
   const [activeTab, setActiveTab] = useState<Tab>("mentors");
   const [data, setData] = useState<(AdminMenteeItem | AdminMentorItem)[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,8 @@ const AdminUsers = () => {
   const [editingUser, setEditingUser] = useState<AdminMenteeItem | AdminMentorItem | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const [statusEditingUser, setStatusEditingUser] = useState<AdminMenteeItem | AdminMentorItem | null>(null);
+  const [newStatus, setNewStatus] = useState<ValidStatus | "">(""); // Dùng union type
   // Form Data bao gồm các trường có thể chỉnh sửa trừ Status
   const [editFormData, setEditFormData] = useState({
     first_name: "",
@@ -162,6 +165,27 @@ const AdminUsers = () => {
     }
   };
 
+  const handleStatusUpdate = async (user: AdminMenteeItem | AdminMentorItem, status: string) => {
+    setIsSaving(true);
+    try {
+      const statusToUpdate = status as "Active" | "Inactive" | "Banned" | "Pending";
+      if (activeTab === "mentees") {
+        await updateAdminMentee(user.user_id, { status: statusToUpdate });
+      } else {
+        await updateAdminMentor(user.user_id, { status: statusToUpdate });
+      }
+      showToast.success(`User status updated to ${status}`);
+      await fetchData(); // Cập nhật lại bảng
+      setStatusEditingUser(null);
+      setNewStatus("");
+    } catch (error) {
+      console.error("Status update failed", error);
+      showToast.error("Failed to update status.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
@@ -289,11 +313,26 @@ const AdminUsers = () => {
 
                     {/* [UPDATED] Hiển thị Status tĩnh từ DB (không có dropdown) */}
                     <td className='px-6 py-4'>
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(user.status)}`}
-                      >
-                        {user.status}
-                      </span>
+                      <div className='flex items-center gap-2'>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(user.status)}`}
+                        >
+                          {user.status}
+                        </span>
+                        {activeTab !== "pending" && ( // Không cho sửa status Pending tại đây
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Ngăn chặn mở Edit Info Modal
+                              setStatusEditingUser(user);
+                              setNewStatus(user.status as ValidStatus);
+                            }}
+                            className='rounded-md p-1 text-gray-400 transition-colors hover:bg-gray-700 hover:text-white'
+                            title='Edit Status'
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     {activeTab === "mentors" && (
@@ -718,6 +757,98 @@ const AdminUsers = () => {
                   className='flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:bg-red-700 active:scale-95 disabled:opacity-50'
                 >
                   {isDeleting ? "Deleting..." : "Yes, Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {statusEditingUser && (
+          <div className='fixed inset-0 z-60 flex items-center justify-center p-4'>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setStatusEditingUser(null);
+                setNewStatus("");
+              }}
+              className='absolute inset-0 bg-black/60 backdrop-blur-sm'
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className='relative z-10 w-full max-w-sm overflow-hidden rounded-2xl border border-gray-700 bg-gray-800 shadow-2xl'
+            >
+              <div className='border-b border-gray-700 px-6 py-4'>
+                <h3 className='text-xl font-bold text-white'>Change User Status</h3>
+                <p className='text-sm text-gray-500'>
+                  {statusEditingUser.first_name} {statusEditingUser.last_name} ({statusEditingUser.user_id})
+                </p>
+              </div>
+
+              <div className='space-y-4 p-6'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-400'>Select New Status</label>
+                  <select
+                    value={newStatus}
+                    onChange={(e) => {
+                      setNewStatus(e.target.value as ValidStatus);
+                    }}
+                    className='mt-1 w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5 text-white outline-none focus:border-(--primary)'
+                  >
+                    <option value='' disabled>
+                      -- Select Status --
+                    </option>
+                    {/* Các trạng thái hợp lệ từ admin.type.ts, loại bỏ Pending vì nó có flow riêng */}
+                    {["Active", "Inactive", "Banned"].map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div
+                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${getStatusClass(
+                    newStatus || statusEditingUser.status
+                  )}`}
+                >
+                  Current: {statusEditingUser.status}{" "}
+                  {newStatus && newStatus !== statusEditingUser.status && `-> New: ${newStatus}`}
+                </div>
+              </div>
+
+              <div className='flex gap-3 bg-gray-900/50 px-6 py-4'>
+                <button
+                  type='button'
+                  onClick={() => {
+                    setStatusEditingUser(null);
+                    setNewStatus("");
+                  }}
+                  className='flex-1 rounded-lg border border-gray-600 bg-transparent py-2.5 text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-700 hover:text-white'
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (newStatus && newStatus !== statusEditingUser.status) {
+                      void handleStatusUpdate(statusEditingUser, newStatus);
+                    } else {
+                      showToast.error("Please select a different status.");
+                    }
+                  }}
+                  disabled={isSaving || !newStatus || newStatus === statusEditingUser.status}
+                  className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-(--primary) py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:brightness-110 active:scale-95 disabled:opacity-50'
+                >
+                  {isSaving ? (
+                    "Updating..."
+                  ) : (
+                    <>
+                      <Save size={16} /> Update Status
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
