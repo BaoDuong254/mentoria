@@ -64,7 +64,8 @@ export const getUpcomingMeetings = async (): Promise<UpcomingMeeting[]> => {
     const pool = await poolPromise;
     if (!pool) throw new Error("Database connection not established");
 
-    // Query meetings that are scheduled within the next 24 hours
+    // Query meetings that are scheduled within the next 1-2 hours
+    // This ensures reminders are sent close to the meeting time
     const result = await pool.request().query(`
         SELECT
           m.meeting_id,
@@ -92,7 +93,7 @@ export const getUpcomingMeetings = async (): Promise<UpcomingMeeting[]> => {
         WHERE m.status = 'Scheduled'
           AND DATEADD(HOUR, DATEPART(HOUR, m.start_time),
               DATEADD(MINUTE, DATEPART(MINUTE, m.start_time),
-              CAST(m.date AS DATETIME))) BETWEEN GETDATE() AND DATEADD(HOUR, 24, GETDATE())
+              CAST(m.date AS DATETIME))) BETWEEN DATEADD(HOUR, 1, GETDATE()) AND DATEADD(HOUR, 2, GETDATE())
       `);
 
     return result.recordset;
@@ -109,7 +110,7 @@ export const sendRemindersForUpcomingMeetings = async (): Promise<void> => {
     const upcomingMeetings = await getUpcomingMeetings();
 
     if (upcomingMeetings.length === 0) {
-      logger.info("No upcoming meetings found in the next 24 hours.");
+      logger.info("No upcoming meetings found in the next 1-2 hours.");
       return;
     }
 
@@ -170,13 +171,13 @@ export const sendRemindersForUpcomingMeetings = async (): Promise<void> => {
   }
 };
 
-// Schedule cron job to run every hour
+// Schedule cron job to run every 30 minutes
 export const startMeetingReminderCron = (): void => {
-  // Run every hour at minute 0 (e.g., 10:00, 11:00, 12:00)
-  cron.schedule("0 * * * *", async () => {
+  // Run every 30 minutes (at :00 and :30 of each hour)
+  cron.schedule("*/30 * * * *", async () => {
     logger.info("Meeting reminder cron job triggered");
     await sendRemindersForUpcomingMeetings();
   });
 
-  logger.info("Meeting reminder cron job scheduled - will run every hour");
+  logger.info("Meeting reminder cron job scheduled - will run every 30 minutes");
 };
