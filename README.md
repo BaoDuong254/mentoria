@@ -12,7 +12,7 @@ Mentoria is a full-stack application built with React + TypeScript (client) and 
 
 ## 🛠 System Requirements
 
-- Node.js >= 24.11.0
+- Node.js >= 24.11.1
 - pnpm >= 10.20.0
 - Git
 
