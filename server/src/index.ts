@@ -20,8 +20,10 @@ import meetingRoutes from "@/routes/meeting.route";
 import discountRoutes from "@/routes/discount.route";
 import adminRoutes from "@/routes/admin.route";
 import complaintRoutes from "@/routes/complaint.route";
+import metricsRoute from "@/routes/metrics.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
+import { metricsMiddleware } from "@/middlewares/metrics.middleware";
 import "@/config/passport";
 import passport from "passport";
 import YAML from "yaml";
@@ -64,6 +66,9 @@ app.use(
 // Disable 'X-Powered-By' header for security
 app.disable("x-powered-by");
 
+// Prometheus metrics middleware (before routes for accurate tracking)
+app.use(metricsMiddleware);
+
 // setup morgan with winston
 app.use(
   morgan("combined", {
@@ -89,6 +94,7 @@ app.use("/api/meetings", meetingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/discounts", discountRoutes);
+app.use(metricsRoute);
 
 // Health check endpoint
 app.get("/", (_req, res) => {

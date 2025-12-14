@@ -43,6 +43,7 @@ const configSchema = z.object({
   STRIPE_SECRET_KEY: z.string(),
   STRIPE_PUBLIC_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
+  METRICS_ALLOWED_IPS: z.string().optional().default(""),
 });
 
 const configServer = configSchema.safeParse(process.env);
