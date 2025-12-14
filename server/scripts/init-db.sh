@@ -55,6 +55,36 @@ echo "Executing SQL.sql to create/update database schema..."
   -i /docker-entrypoint-initdb.d/SQL.sql \
   -b -C
 
+# Run trigger.sql to create triggers
+echo "Executing trigger.sql to create triggers..."
+/opt/mssql-tools18/bin/sqlcmd \
+  -S localhost,1433 \
+  -U "${DB_USER}" \
+  -P "${DB_PASS}" \
+  -d "${DB_NAME}" \
+  -i /docker-entrypoint-initdb.d/trigger.sql \
+  -b -C
+
+# Run function.sql to create functions
+echo "Executing function.sql to create functions..."
+/opt/mssql-tools18/bin/sqlcmd \
+  -S localhost,1433 \
+  -U "${DB_USER}" \
+  -P "${DB_PASS}" \
+  -d "${DB_NAME}" \
+  -i /docker-entrypoint-initdb.d/function.sql \
+  -b -C
+
+# Run procedure.sql to create stored procedures
+echo "Executing procedure.sql to create stored procedures..."
+/opt/mssql-tools18/bin/sqlcmd \
+  -S localhost,1433 \
+  -U "${DB_USER}" \
+  -P "${DB_PASS}" \
+  -d "${DB_NAME}" \
+  -i /docker-entrypoint-initdb.d/procedure.sql \
+  -b -C
+
 # Check if data already exists before inserting
 echo "Checking if initial data needs to be inserted..."
 if /opt/mssql-tools18/bin/sqlcmd \

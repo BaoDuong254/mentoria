@@ -1263,7 +1263,7 @@ VALUES
 (N'WELCOME10', N'Percentage', 10.00, '2025-01-01', '2026-12-31', N'Active', 1000, 15),
 (N'SAVE20', N'Percentage', 20.00, '2025-06-01', '2026-06-30', N'Active', 500, 42),
 (N'FIRST50', N'Fixed', 50.00, '2025-01-01', '2026-12-31', N'Active', 200, 67),
-(N'MENTOR25', N'Percentage', 25.00, '2025-09-01', '2025-03-31', N'Active', 300, 89),
+(N'MENTOR25', N'Percentage', 25.00, '2025-09-01', '2025-03-31', N'Inactive', 300, 89),
 (N'EARLYBIRD', N'Percentage', 15.00, '2025-01-01', '2026-12-31', N'Inactive', 150, 150);
 
 -- Insert Plan Registrations
@@ -1595,67 +1595,67 @@ VALUES
 INSERT INTO meetings (invoice_id, plan_registerations_id, status, location, start_time, end_time, date, mentor_id)
 VALUES
 -- Meeting 1: Alice's first booking with John Doe (30 min)
-(1, 1, N'Scheduled', N'https://zoom.us/j/123456789', '2025-12-10 09:00:00', '2025-12-10 09:30:00', '2025-12-10', 1),
+(1, 1, N'Completed', N'https://zoom.us/j/123456789', '2025-12-10 09:00:00', '2025-12-10 09:30:00', '2025-12-10', 1),
 -- Meeting 2: Bob's booking with Sarah Johnson (60 min)
-(2, 2, N'Scheduled', N'https://meet.google.com/abc-defg-hij', '2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 2),
+(2, 2, N'Completed', N'https://meet.google.com/abc-defg-hij', '2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 2),
 -- Meeting 3: Carol's booking with Michael Chen (75 min)
-(3, 3, N'Scheduled', N'https://zoom.us/j/987654321', '2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 3),
+(3, 3, N'Completed', N'https://zoom.us/j/987654321', '2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 3),
 -- Meeting 4: Daniel's booking with Emily Rodriguez (45 min)
-(4, 4, N'Scheduled', N'https://meet.google.com/xyz-uvwx-yza', '2025-12-10 12:00:00', '2025-12-10 12:45:00', '2025-12-10', 4),
+(4, 4, N'Completed', N'https://meet.google.com/xyz-uvwx-yza', '2025-12-10 12:00:00', '2025-12-10 12:45:00', '2025-12-10', 4),
 -- Meeting 5: Emma's booking with David Kim (70 min)
-(5, 5, N'Scheduled', N'https://zoom.us/j/555666777', '2025-12-10 13:00:00', '2025-12-10 14:10:00', '2025-12-10', 5),
+(5, 5, N'Completed', N'https://zoom.us/j/555666777', '2025-12-10 13:00:00', '2025-12-10 14:10:00', '2025-12-10', 5),
 -- Meeting 6: Alice's second booking with John Doe (60 min)
-(6, 6, N'Scheduled', N'https://zoom.us/j/111222333', '2025-12-12 09:00:00', '2025-12-12 10:00:00', '2025-12-12', 1),
+(6, 6, N'Completed', N'https://zoom.us/j/111222333', '2025-12-12 09:00:00', '2025-12-12 10:00:00', '2025-12-12', 1),
 -- Meeting 7: Bob's mentorship with Sarah (60 min)
 (7, 7, N'Pending', N'', '2025-12-14 14:00:00', '2025-12-14 15:00:00', '2025-12-14', 2),
 -- Meeting 8: Frank's booking with Lisa Anderson (85 min)
-(8, 8, N'Scheduled', N'https://zoom.us/j/888999000', '2025-12-10 14:00:00', '2025-12-10 15:25:00', '2025-12-10', 6),
+(8, 8, N'Completed', N'https://zoom.us/j/888999000', '2025-12-10 14:00:00', '2025-12-10 15:25:00', '2025-12-10', 6),
 -- Meeting 9: Grace's booking with James Martinez (65 min)
-(9, 9, N'Scheduled', N'https://meet.google.com/ghi-jklm-nop', '2025-12-10 09:00:00', '2025-12-10 10:05:00', '2025-12-10', 7),
+(9, 9, N'Completed', N'https://meet.google.com/ghi-jklm-nop', '2025-12-10 09:00:00', '2025-12-10 10:05:00', '2025-12-10', 7),
 -- Meeting 10: Henry's booking with Anna Kowalski (55 min)
-(10, 10, N'Scheduled', N'https://zoom.us/j/444555666', '2025-12-10 10:00:00', '2025-12-10 10:55:00', '2025-12-10', 8),
+(10, 10, N'Completed', N'https://zoom.us/j/444555666', '2025-12-10 10:00:00', '2025-12-10 10:55:00', '2025-12-10', 8),
 -- Meeting 11: Iris's booking with Robert Thompson (70 min)
-(11, 11, N'Scheduled', N'https://meet.google.com/qrs-tuvw-xyz', '2025-12-10 11:00:00', '2025-12-10 12:10:00', '2025-12-10', 9),
+(11, 11, N'Completed', N'https://meet.google.com/qrs-tuvw-xyz', '2025-12-10 11:00:00', '2025-12-10 12:10:00', '2025-12-10', 9),
 -- Meeting 12: Jack's booking with Maria Garcia (80 min)
-(12, 12, N'Scheduled', N'https://zoom.us/j/777888999', '2025-12-10 13:00:00', '2025-12-10 14:20:00', '2025-12-10', 10),
+(12, 12, N'Completed', N'https://zoom.us/j/777888999', '2025-12-10 13:00:00', '2025-12-10 14:20:00', '2025-12-10', 10),
 -- Meeting 13: Kate's booking with Thomas Lee (90 min)
-(13, 13, N'Scheduled', N'https://meet.google.com/abc-123-def', '2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 11),
+(13, 13, N'Completed', N'https://meet.google.com/abc-123-def', '2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 11),
 -- Meeting 14: Liam's booking with Sophie Dubois (75 min)
-(14, 14, N'Scheduled', N'https://zoom.us/j/333444555', '2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 12),
+(14, 14, N'Completed', N'https://zoom.us/j/333444555', '2025-12-10 11:00:00', '2025-12-10 12:15:00', '2025-12-10', 12),
 -- Meeting 15: Mia's booking with Kevin Walsh (95 min)
-(15, 15, N'Scheduled', N'https://meet.google.com/mno-pqr-stu', '2025-12-10 10:00:00', '2025-12-10 11:35:00', '2025-12-10', 13),
+(15, 15, N'Completed', N'https://meet.google.com/mno-pqr-stu', '2025-12-10 10:00:00', '2025-12-10 11:35:00', '2025-12-10', 13),
 -- Meeting 16: Noah's booking with Laura Muller (65 min)
-(16, 16, N'Scheduled', N'https://zoom.us/j/666777888', '2025-12-10 13:00:00', '2025-12-10 14:05:00', '2025-12-10', 14),
+(16, 16, N'Completed', N'https://zoom.us/j/666777888', '2025-12-10 13:00:00', '2025-12-10 14:05:00', '2025-12-10', 14),
 -- Meeting 17: Olivia's booking with Daniel Santos (85 min)
-(17, 17, N'Scheduled', N'https://meet.google.com/vwx-yza-bcd', '2025-12-10 09:00:00', '2025-12-10 10:25:00', '2025-12-10', 15),
+(17, 17, N'Completed', N'https://meet.google.com/vwx-yza-bcd', '2025-12-10 09:00:00', '2025-12-10 10:25:00', '2025-12-10', 15),
 -- Meeting 18: Paul's booking with Emma Wilson (50 min)
-(18, 18, N'Scheduled', N'https://zoom.us/j/999000111', '2025-12-10 11:00:00', '2025-12-10 11:50:00', '2025-12-10', 16),
+(18, 18, N'Completed', N'https://zoom.us/j/999000111', '2025-12-10 11:00:00', '2025-12-10 11:50:00', '2025-12-10', 16),
 -- Meeting 19: Quinn's booking with Marco Rossi (60 min)
-(19, 19, N'Scheduled', N'https://meet.google.com/efg-hij-klm', '2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 17),
+(19, 19, N'Completed', N'https://meet.google.com/efg-hij-klm', '2025-12-10 10:00:00', '2025-12-10 11:00:00', '2025-12-10', 17),
 -- Meeting 20: Ryan's booking with Olivia Brown (55 min)
-(20, 20, N'Scheduled', N'https://zoom.us/j/222333444', '2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 18),
+(20, 20, N'Completed', N'https://zoom.us/j/222333444', '2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 18),
 -- Meeting 21: Stella's booking with Alex Petrov (70 min)
-(21, 21, N'Scheduled', N'https://meet.google.com/nop-qrs-tuv', '2025-12-10 09:00:00', '2025-12-10 10:10:00', '2025-12-10', 19),
+(21, 21, N'Completed', N'https://meet.google.com/nop-qrs-tuv', '2025-12-10 09:00:00', '2025-12-10 10:10:00', '2025-12-10', 19),
 -- Meeting 22: Tyler's booking with Nina Singh (60 min)
-(22, 22, N'Scheduled', N'https://zoom.us/j/555666777', '2025-12-10 11:00:00', '2025-12-10 12:00:00', '2025-12-10', 20),
+(22, 22, N'Completed', N'https://zoom.us/j/555666777', '2025-12-10 11:00:00', '2025-12-10 12:00:00', '2025-12-10', 20),
 -- Meeting 23: Alice's third booking with Patrick OBrien (75 min)
-(23, 23, N'Scheduled', N'https://meet.google.com/wxy-zab-cde', '2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 21),
+(23, 23, N'Completed', N'https://meet.google.com/wxy-zab-cde', '2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 21),
 -- Meeting 24: Bob's second booking with Isabella Lopez (50 min)
-(24, 24, N'Scheduled', N'https://zoom.us/j/888999000', '2025-12-10 13:00:00', '2025-12-10 13:50:00', '2025-12-10', 22),
+(24, 24, N'Completed', N'https://zoom.us/j/888999000', '2025-12-10 13:00:00', '2025-12-10 13:50:00', '2025-12-10', 22),
 -- Meeting 25: Carol's booking with Henrik Andersson (90 min)
-(25, 25, N'Scheduled', N'https://meet.google.com/fgh-ijk-lmn', '2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 23),
+(25, 25, N'Completed', N'https://meet.google.com/fgh-ijk-lmn', '2025-12-10 09:00:00', '2025-12-10 10:30:00', '2025-12-10', 23),
 -- Meeting 26: Daniel's booking with Rachel Cohen (65 min)
-(26, 26, N'Scheduled', N'https://zoom.us/j/111222333', '2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 24),
+(26, 26, N'Completed', N'https://zoom.us/j/111222333', '2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 24),
 -- Meeting 27: Emma's booking with Mohammed Ahmed (75 min)
-(27, 27, N'Scheduled', N'https://meet.google.com/opq-rst-uvw', '2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 25),
+(27, 27, N'Completed', N'https://meet.google.com/opq-rst-uvw', '2025-12-10 10:00:00', '2025-12-10 11:15:00', '2025-12-10', 25),
 -- Meeting 28: Frank's booking with Yuki Tanaka (55 min)
-(28, 28, N'Scheduled', N'https://zoom.us/j/444555666', '2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 26),
+(28, 28, N'Completed', N'https://zoom.us/j/444555666', '2025-12-10 13:00:00', '2025-12-10 13:55:00', '2025-12-10', 26),
 -- Meeting 29: Grace's booking with Lucas Silva (60 min)
-(29, 29, N'Scheduled', N'https://meet.google.com/xyz-abc-def', '2025-12-10 09:00:00', '2025-12-10 10:00:00', '2025-12-10', 27),
+(29, 29, N'Completed', N'https://meet.google.com/xyz-abc-def', '2025-12-10 09:00:00', '2025-12-10 10:00:00', '2025-12-10', 27),
 -- Meeting 30: Henry's booking with Chloe Martin (65 min)
-(30, 30, N'Scheduled', N'https://zoom.us/j/777888999', '2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 28),
+(30, 30, N'Completed', N'https://zoom.us/j/777888999', '2025-12-10 11:00:00', '2025-12-10 12:05:00', '2025-12-10', 28),
 -- Meeting 31: Iris's booking with Erik Hansen (80 min)
-(31, 31, N'Scheduled', N'https://meet.google.com/ghi-jkl-mno', '2025-12-10 10:00:00', '2025-12-10 11:20:00', '2025-12-10', 29);
+(31, 31, N'Completed', N'https://meet.google.com/ghi-jkl-mno', '2025-12-10 10:00:00', '2025-12-10 11:20:00', '2025-12-10', 29);
 
 -- Insert Feedbacks (only for mentees who have booked at least one session with mentors)
 INSERT INTO feedbacks (mentee_id, mentor_id, stars, content, sent_time)
@@ -1760,7 +1760,38 @@ VALUES
 (N'Emily, thank you for the marketing tips from last session!', '2024-12-05 16:00:00', 34, 4),
 (N'You''re welcome Daniel! Let me know how the implementation goes.', '2024-12-05 17:30:00', 4, 34),
 (N'David, I''ve updated my resume as you suggested.', '2024-12-04 11:00:00', 35, 5),
-(N'Great Emma! Send it over and I''ll review the changes.', '2024-12-04 14:15:00', 5, 35);
+(N'Great Emma! Send it over and I''ll review the changes.', '2024-12-04 14:15:00', 5, 35),
+(N'John, I need help with async/await in JavaScript', '2024-12-08 14:00:00', 31, 1),
+(N'Let me explain async/await with a practical example', '2024-12-08 14:45:00', 1, 31),
+(N'Sarah, can you review my new design mockups?', '2024-12-08 09:00:00', 32, 2),
+(N'Absolutely! Your mockups look great, here''s my feedback', '2024-12-08 11:00:00', 2, 32),
+(N'Michael, question about neural network architecture', '2024-12-07 09:00:00', 33, 3),
+(N'Great question! Let''s discuss the architecture patterns', '2024-12-07 17:00:00', 3, 33),
+(N'Emily, need advice on email marketing campaign', '2024-12-06 10:00:00', 34, 4),
+(N'I''ve reviewed your campaign, here are my suggestions', '2024-12-07 10:00:00', 4, 34),
+(N'David, can we discuss my career transition plan?', '2024-12-05 09:00:00', 35, 5),
+(N'Let''s set up a session to discuss your career path', '2024-12-06 15:00:00', 5, 35),
+(N'Lisa, I''m interested in learning AWS architecture', '2024-12-08 16:00:00', 31, 6),
+(N'James, need help with mobile app development', '2024-11-25 10:00:00', 32, 7),
+(N'Sorry for the delay, I was on vacation', '2024-12-03 10:00:00', 7, 32),
+(N'Anna, feedback on my UI design please?', '2024-12-07 10:00:00', 33, 8),
+(N'Your UI design is clean, here''s what I think', '2024-12-07 12:00:00', 8, 33),
+(N'Thanks! One more question about color scheme', '2024-12-07 15:00:00', 33, 8),
+(N'For color scheme, try using this palette', '2024-12-07 15:30:00', 8, 33),
+(N'Perfect! Can you review the final version?', '2024-12-08 08:00:00', 33, 8),
+(N'Final version looks excellent!', '2024-12-08 13:00:00', 8, 33),
+(N'Maria, advice on digital transformation strategy?', '2024-12-08 10:00:00', 36, 10),
+(N'Let''s discuss your digital transformation roadmap', '2024-12-08 14:00:00', 10, 36),
+(N'Question 1: How to use React hooks?', '2024-12-08 09:00:00', 31, 1),
+(N'Question 2: What about custom hooks?', '2024-12-08 10:00:00', 31, 1),
+(N'Question 3: Performance optimization?', '2024-12-08 12:00:00', 31, 1),
+(N'A1 part 1: useState explanation', '2024-12-08 09:30:00', 1, 31),
+(N'A1 part 2: useEffect example', '2024-12-08 09:45:00', 1, 31),
+(N'A2 part 1: Custom hooks intro', '2024-12-08 11:00:00', 1, 31),
+(N'A2 part 2: Complete example', '2024-12-08 11:15:00', 1, 31),
+(N'A3 part 1: Use React.memo', '2024-12-08 13:00:00', 1, 31),
+(N'A3 part 2: useMemo/useCallback', '2024-12-08 13:10:00', 1, 31),
+(N'A3 part 3: Avoid re-renders', '2024-12-08 13:20:00', 1, 31);
 
 -- Insert Complaints
 INSERT INTO complaints (meeting_id, mentee_id, mentor_id, content, status)

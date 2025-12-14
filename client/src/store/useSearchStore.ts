@@ -5,8 +5,11 @@ import type { SearchMentorState } from "@/types";
 import { getMentor } from "@/apis/mentor.api";
 import { getCompaniesList, getJobTitlesList, getSkillsList } from "@/apis/catalog.api";
 import { getFilteredMentors } from "@/apis/filter.api";
+import { getAvailableFilters } from "@/apis/available-filters.api";
 
-export const useSearchStore = create<SearchMentorState>()(
+type SearchStoreType = SearchMentorState;
+
+export const useSearchStore = create<SearchStoreType>()(
   persist(
     (set, get) => ({
       //initial state
@@ -32,6 +35,24 @@ export const useSearchStore = create<SearchMentorState>()(
 
       selectedMentor: null,
       isLoadingProfile: false,
+
+      // Additional filters
+      searchKeyword: "",
+      minPrice: undefined,
+      maxPrice: undefined,
+      minRating: undefined,
+      selectedCountries: [],
+      selectedLanguages: [],
+      status: undefined,
+      experienceLevel: undefined,
+      availability: undefined,
+      sortColumn: "user_id",
+      sortDirection: "ASC",
+
+      // Available filter options from database
+      availableCountries: [],
+      availableLanguages: [],
+      isLoadingFilters: false,
 
       //----------------ACTION SKILLS-------------------
       searchSkills: async (keywordInput, limit) => {
@@ -138,19 +159,69 @@ export const useSearchStore = create<SearchMentorState>()(
       //-----------------MENTOR------------------------------
       fetchMentors: async (page = 1, limit = 10) => {
         set({ isFetchingMentors: true });
-        const { selectedSkills, selectedJobTitles, selectedCompanies } = get();
+        const {
+          selectedSkills,
+          selectedJobTitles,
+          selectedCompanies,
+          searchKeyword,
+          minPrice,
+          maxPrice,
+          minRating,
+          selectedCountries,
+          selectedLanguages,
+          status,
+          sortColumn,
+          sortDirection,
+        } = get();
 
-        const skillIds = selectedSkills.map((s) => s.id).join(",");
-        const jobTitleIds = selectedJobTitles.map((j) => j.id).join(",");
-        const companyIds = selectedCompanies.map((c) => c.id).join(",");
+        const skillIds: string | undefined =
+          selectedSkills.length > 0 ? selectedSkills.map((s: { id: number }) => s.id).join(",") : undefined;
+        const jobTitleIds: string | undefined =
+          selectedJobTitles.length > 0 ? selectedJobTitles.map((j: { id: number }) => j.id).join(",") : undefined;
+        const companyIds: string | undefined =
+          selectedCompanies.length > 0 ? selectedCompanies.map((c: { id: number }) => c.id).join(",") : undefined;
+        const countries: string | undefined = selectedCountries.length > 0 ? selectedCountries.join(",") : undefined;
+        const languages: string | undefined = selectedLanguages.length > 0 ? selectedLanguages.join(",") : undefined;
 
         try {
+          // Parse searchKeyword to support searching by first name, last name, or full name
+          const trimmedSearch = searchKeyword.trim();
+          let firstNameParam: string | undefined = undefined;
+          let lastNameParam: string | undefined = undefined;
+          let searchNameParam: string | undefined = undefined;
+
+          if (trimmedSearch) {
+            const parts = trimmedSearch.split(/\s+/);
+            if (parts.length === 1) {
+              // Single word - use SearchName so SP will match either first or last name
+              searchNameParam = trimmedSearch;
+            } else {
+              // Multiple words - assume first token is first name and the rest is last name
+              firstNameParam = parts[0] ?? "";
+              lastNameParam = parts.slice(1).join(" ");
+              // also provide full search string to SearchName for full-name matching
+              searchNameParam = trimmedSearch;
+            }
+          }
+
           const res = await getFilteredMentors(
             page,
             limit,
-            skillIds.length > 0 ? skillIds : undefined,
-            jobTitleIds.length > 0 ? jobTitleIds : undefined,
-            companyIds.length > 0 ? companyIds : undefined
+            skillIds,
+            jobTitleIds,
+            companyIds,
+            countries,
+            languages,
+            minPrice !== undefined ? String(minPrice) : undefined,
+            maxPrice !== undefined ? String(maxPrice) : undefined,
+            minRating !== undefined ? String(minRating) : undefined,
+            searchNameParam,
+            firstNameParam,
+            lastNameParam,
+            undefined, // categoryName
+            status, // status
+            sortColumn,
+            sortDirection
           );
 
           if (res.success) {
@@ -183,6 +254,33 @@ export const useSearchStore = create<SearchMentorState>()(
           set({ isLoadingProfile: false });
         }
       },
+      fetchAvailableFilters: async () => {
+        const { availableCountries, availableLanguages } = get();
+        if (
+          Array.isArray(availableCountries) &&
+          availableCountries.length > 0 &&
+          Array.isArray(availableLanguages) &&
+          availableLanguages.length > 0
+        ) {
+          return; // Already fetched
+        }
+
+        set({ isLoadingFilters: true });
+        try {
+          const res = await getAvailableFilters();
+
+          if (res.success && res.data) {
+            set({
+              availableCountries: res.data.countries,
+              availableLanguages: res.data.languages,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching available filters:", error);
+        } finally {
+          set({ isLoadingFilters: false });
+        }
+      },
 
       fetchInitialFilterData: async () => {
         const { defaultSkills, defaultJobTitles, defaultCompanies } = get();
@@ -197,39 +295,55 @@ export const useSearchStore = create<SearchMentorState>()(
           const resCompanies = await getCompaniesList(1, 5);
 
           const rawSkills = resSkills.success ? (resSkills.data?.skills ?? []) : [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mappedSkills = rawSkills.map((item: any) => ({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            id: item.skill_id ?? item.id,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            name: item.skill_name ?? item.name,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            mentor_count: item.mentor_count,
-            type: "skill",
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            super_category_id: item.super_category_id,
+          interface SkillItem {
+            skill_id?: number;
+            id?: number;
+            skill_name?: string;
+            name?: string;
+            mentor_count?: number;
+            super_category_id?: number;
+          }
+          const mappedSkills = (rawSkills as SkillItem[]).map((item) => ({
+            id: item.skill_id ?? item.id ?? 0,
+
+            name: item.skill_name ?? item.name ?? "",
+
+            mentor_count: item.mentor_count ?? 0,
+            type: "skill" as const,
+
+            super_category_id: item.super_category_id ?? null,
           }));
 
           const rawJobTitles = resJobTitles.success ? (resJobTitles.data?.jobTitles ?? []) : [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mappedJobTitles = rawJobTitles.map((item: any) => ({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            id: item.job_title_id ?? item.id,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            name: item.job_title_name ?? item.name,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            mentor_count: item.mentor_count,
+          interface JobTitleItem {
+            job_title_id?: number;
+            id?: number;
+            job_title_name?: string;
+            name?: string;
+            mentor_count?: number;
+          }
+          const mappedJobTitles = (rawJobTitles as JobTitleItem[]).map((item) => ({
+            id: item.job_title_id ?? item.id ?? 0,
+
+            name: item.job_title_name ?? item.name ?? "",
+
+            mentor_count: item.mentor_count ?? 0,
           }));
 
           const rawCompanies = resCompanies.success ? (resCompanies.data?.companies ?? []) : [];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const mappedCompanies = rawCompanies.map((item: any) => ({
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            id: item.company_id ?? item.id,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            name: item.company_name ?? item.name,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-            mentor_count: item.mentor_count,
+          interface CompanyItem {
+            company_id?: number;
+            id?: number;
+            company_name?: string;
+            name?: string;
+            mentor_count?: number;
+          }
+          const mappedCompanies = (rawCompanies as CompanyItem[]).map((item) => ({
+            id: item.company_id ?? item.id ?? 0,
+
+            name: item.company_name ?? item.name ?? "",
+
+            mentor_count: item.mentor_count ?? 0,
           }));
 
           set({
@@ -247,10 +361,47 @@ export const useSearchStore = create<SearchMentorState>()(
           set({ isLoading: false });
         }
       },
+
+      //----------------ADDITIONAL FILTER ACTIONS-------------------
+      setPriceRange: (min: number | undefined, max: number | undefined) => set({ minPrice: min, maxPrice: max }),
+
+      setMinRating: (rating: number | undefined) => set({ minRating: rating }),
+
+      setSorting: (column: string, direction: "ASC" | "DESC") => set({ sortColumn: column, sortDirection: direction }),
+
+      setSearchKeyword: (keyword: string) => set({ searchKeyword: keyword }),
+
+      setSelectedCountries: (countries: string[]) => set({ selectedCountries: countries }),
+
+      setSelectedLanguages: (languages: string[]) => set({ selectedLanguages: languages }),
+
+      setStatus: (status: string | undefined) => set({ status }),
+
+      resetAllFilters: () =>
+        set({
+          searchKeyword: "",
+          selectedSkills: [],
+          selectedJobTitles: [],
+          selectedCompanies: [],
+          selectedCountries: [],
+          selectedLanguages: [],
+          status: undefined,
+          minPrice: undefined,
+          maxPrice: undefined,
+          minRating: undefined,
+          experienceLevel: undefined,
+          availability: undefined,
+          sortColumn: "user_id",
+          sortDirection: "ASC",
+        }),
+
+      setExperienceLevel: (level: string | undefined) => set({ experienceLevel: level }),
+
+      setAvailability: (availability: string | undefined) => set({ availability }),
     }),
     {
       name: "search-storage",
-      partialize: (state) => ({
+      partialize: (state): Partial<SearchMentorState> => ({
         skills: state.skills,
         selectedSkills: state.selectedSkills,
         keywordSkills: state.keywordSkills,

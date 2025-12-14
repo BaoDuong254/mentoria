@@ -53,6 +53,36 @@ export interface SearchMentorState {
   fetchMentorById: (id: number | string) => Promise<void>;
 
   fetchInitialFilterData: () => Promise<void>;
+  fetchAvailableFilters: () => Promise<void>;
+
+  //-------------------ADDITIONAL FILTERS------------------------
+  searchKeyword: string;
+  minPrice: number | undefined;
+  maxPrice: number | undefined;
+  minRating: number | undefined;
+  selectedCountries: string[];
+  selectedLanguages: string[];
+  status: string | undefined;
+  experienceLevel: string | undefined;
+  availability: string | undefined;
+  sortColumn: string;
+  sortDirection: "ASC" | "DESC";
+
+  availableCountries: string[];
+  availableLanguages: string[];
+  isLoadingFilters: boolean;
+
+  //actions
+  setPriceRange: (min: number | undefined, max: number | undefined) => void;
+  setMinRating: (rating: number | undefined) => void;
+  setSorting: (column: string, direction: "ASC" | "DESC") => void;
+  setSearchKeyword: (keyword: string) => void;
+  setSelectedCountries: (countries: string[]) => void;
+  setSelectedLanguages: (languages: string[]) => void;
+  setStatus: (status: string | undefined) => void;
+  setExperienceLevel: (level: string | undefined) => void;
+  setAvailability: (availability: string | undefined) => void;
+  resetAllFilters: () => void;
 }
 
 export interface searchInfo {

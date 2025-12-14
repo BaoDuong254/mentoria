@@ -130,14 +130,21 @@ export interface MentorStatsResponse {
 }
 
 export interface FilterMentorsQuery extends GetMentorsQuery {
+  firstName?: string;
+  lastName?: string;
+  searchName?: string;
   skillIds?: number[];
   companyIds?: number[];
   jobTitleIds?: number[];
+  categoryName?: string;
   countries?: string[];
   languages?: string[];
+  status?: string;
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
+  sortColumn?: string;
+  sortDirection?: "ASC" | "DESC";
 }
 
 // Nếu muốn, có thể thêm type response:

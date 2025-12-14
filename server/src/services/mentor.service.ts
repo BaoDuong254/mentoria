@@ -172,11 +172,18 @@ const getMentorProfileService = async (
       })
     );
 
-    // Get mentor stats using utility functions
-    const totalMentees = await getTotalUniqueMenteesService(mentorId);
-    const totalFeedbacks = await getTotalFeedbackCountService(mentorId);
-    const totalStars = await getTotalStarsService(mentorId);
-    const averageRating = await getAverageRatingService(mentorId);
+    // Get mentor stats from derived attributes
+    const statsResult = await pool.request().input("mentorId", mentorId).query(`
+      SELECT total_mentee, total_reviews, total_stars, rating
+      FROM mentors
+      WHERE user_id = @mentorId
+    `);
+
+    const stats = statsResult.recordset[0];
+    const totalMentees = stats.total_mentee || 0;
+    const totalFeedbacks = stats.total_reviews || 0;
+    const totalStars = stats.total_stars || 0;
+    const averageRating = stats.rating || null;
 
     // Construct the complete mentor profile
     const mentorProfile: MentorProfile = {
@@ -580,9 +587,16 @@ const getMentorsListService = async (
           WHERE ss.mentor_id = @mentorId
         `);
 
-          // Get feedback stats for this mentor
-          const totalFeedbacks = await getTotalFeedbackCountService(mentor.user_id);
-          const averageRating = await getAverageRatingService(mentor.user_id);
+          // Get feedback stats from derived attributes
+          const statsResult = await pool.request().input("mentorId", mentor.user_id).query(`
+            SELECT total_reviews, rating
+            FROM mentors
+            WHERE user_id = @mentorId
+          `);
+
+          const stats = statsResult.recordset[0];
+          const totalFeedbacks = stats.total_reviews || 0;
+          const averageRating = stats.rating || null;
 
           return {
             user_id: mentor.user_id,
@@ -637,108 +651,6 @@ const getMentorsListService = async (
   }
 };
 
-/**
- * Get the total number of unique mentees for a mentor
- * @param mentorId - The mentor's user ID
- * @returns The count of unique mentees
- */
-const getTotalUniqueMenteesService = async (mentorId: number): Promise<number> => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-
-  try {
-    const result = await pool.request().input("mentorId", mentorId).query(`
-        SELECT COUNT(DISTINCT b.mentee_id) as total_unique_mentees
-        FROM bookings b
-        INNER JOIN plans p ON b.plan_id = p.plan_id
-        WHERE p.mentor_id = @mentorId
-      `);
-
-    return result.recordset[0].total_unique_mentees || 0;
-  } catch (error) {
-    console.error("Error in getTotalUniqueMenteesService:", error);
-    throw error;
-  }
-};
-
-/**
- * Get the total number of feedback entries for a mentor
- * @param mentorId - The mentor's user ID
- * @returns The count of feedback records
- */
-const getTotalFeedbackCountService = async (mentorId: number): Promise<number> => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-
-  try {
-    const result = await pool.request().input("mentorId", mentorId).query(`
-        SELECT COUNT(*) as total_feedbacks
-        FROM feedbacks
-        WHERE mentor_id = @mentorId
-      `);
-
-    return result.recordset[0].total_feedbacks || 0;
-  } catch (error) {
-    console.error("Error in getTotalFeedbackCountService:", error);
-    throw error;
-  }
-};
-
-/**
- * Get the total sum of all rating stars for a mentor
- * @param mentorId - The mentor's user ID
- * @returns The total sum of stars
- */
-const getTotalStarsService = async (mentorId: number): Promise<number> => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-
-  try {
-    const result = await pool.request().input("mentorId", mentorId).query(`
-        SELECT ISNULL(SUM(stars), 0) as total_stars
-        FROM feedbacks
-        WHERE mentor_id = @mentorId
-      `);
-
-    return result.recordset[0].total_stars || 0;
-  } catch (error) {
-    console.error("Error in getTotalStarsService:", error);
-    throw error;
-  }
-};
-
-/**
- * Get the average rating for a mentor
- * @param mentorId - The mentor's user ID
- * @returns The average rating (or null if no feedbacks)
- */
-const getAverageRatingService = async (mentorId: number): Promise<number | null> => {
-  const pool = await poolPromise;
-  if (!pool) throw new Error("Database connection not established");
-
-  try {
-    const result = await pool.request().input("mentorId", mentorId).query(`
-        SELECT
-          CASE
-            WHEN COUNT(*) > 0 THEN CAST(SUM(stars) AS FLOAT) / COUNT(*)
-            ELSE NULL
-          END as average_rating
-        FROM feedbacks
-        WHERE mentor_id = @mentorId
-      `);
-
-    return result.recordset[0].average_rating;
-  } catch (error) {
-    console.error("Error in getAverageRatingService:", error);
-    throw error;
-  }
-};
-
-/**
- * Get all mentor statistics/metrics
- * @param mentorId - The mentor's user ID
- * @returns All mentor stats in a single response
- */
 const getMentorStatsService = async (
   mentorId: number
 ): Promise<{
@@ -755,33 +667,35 @@ const getMentorStatsService = async (
   if (!pool) throw new Error("Database connection not established");
 
   try {
-    // Verify mentor exists
-    const mentorCheck = await pool
-      .request()
-      .input("mentorId", mentorId)
-      .query("SELECT user_id FROM users WHERE user_id = @mentorId AND role = N'Mentor'");
+    // Get all stats from derived attributes in mentors table
+    const result = await pool.request().input("mentorId", mentorId).query(`
+        SELECT
+          m.total_mentee,
+          m.total_reviews,
+          m.total_stars,
+          m.rating
+        FROM mentors m
+        INNER JOIN users u ON u.user_id = m.user_id
+        WHERE m.user_id = @mentorId AND u.role = N'Mentor'
+      `);
 
-    if (mentorCheck.recordset.length === 0) {
+    if (result.recordset.length === 0) {
       return {
         success: false,
         message: "Mentor not found",
       };
     }
 
-    // Get all stats
-    const totalMentees = await getTotalUniqueMenteesService(mentorId);
-    const totalFeedbacks = await getTotalFeedbackCountService(mentorId);
-    const totalStars = await getTotalStarsService(mentorId);
-    const averageRating = await getAverageRatingService(mentorId);
+    const stats = result.recordset[0];
 
     return {
       success: true,
       message: "Mentor stats retrieved successfully",
       stats: {
-        total_mentees: totalMentees,
-        total_feedbacks: totalFeedbacks,
-        total_stars: totalStars,
-        average_rating: averageRating,
+        total_mentees: stats.total_mentee || 0,
+        total_feedbacks: stats.total_reviews || 0,
+        total_stars: stats.total_stars || 0,
+        average_rating: stats.rating || null,
       },
     };
   } catch (error) {
@@ -1327,10 +1241,6 @@ export {
   updateMentorProfileService,
   getMentorsListService,
   getMentorStatsService,
-  getTotalUniqueMenteesService,
-  getTotalFeedbackCountService,
-  getTotalStarsService,
-  getAverageRatingService,
   getAllPlansService,
   getPlanDetailsService,
   createPlanService,

@@ -13,7 +13,6 @@ import {
   SearchJobTitlesResponse,
   JobTitleItem,
 } from "@/types/search.type";
-import { getTotalFeedbackCountService, getAverageRatingService } from "@/services/mentor.service";
 import poolPromise from "@/config/database";
 
 export const searchMentorsService = async (query: SearchMentorsQuery): Promise<SearchMentorsResponse> => {
@@ -95,6 +94,8 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
         m.bio,
         m.headline,
         m.response_time,
+        m.total_reviews,
+        m.rating,
         (SELECT MIN(plan_charge) FROM plans WHERE mentor_id = u.user_id) as lowest_plan_price
       FROM users u
       INNER JOIN mentors m ON u.user_id = m.user_id
@@ -134,6 +135,8 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
           bio: string | null;
           headline: string | null;
           response_time: string;
+          total_reviews: number;
+          rating: number;
           lowest_plan_price: number | null;
         }) => {
           // Get skills for this mentor
@@ -169,10 +172,6 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
             WHERE ss.mentor_id = @mentorId
           `);
 
-          // Get feedback stats
-          const totalFeedbacks = await getTotalFeedbackCountService(mentor.user_id);
-          const averageRating = await getAverageRatingService(mentor.user_id);
-
           return {
             user_id: mentor.user_id,
             first_name: mentor.first_name,
@@ -182,8 +181,8 @@ export const searchMentorsService = async (query: SearchMentorsQuery): Promise<S
             bio: mentor.bio,
             headline: mentor.headline,
             response_time: mentor.response_time,
-            total_feedbacks: totalFeedbacks,
-            average_rating: averageRating,
+            total_feedbacks: mentor.total_reviews,
+            average_rating: mentor.rating,
             lowest_plan_price: mentor.lowest_plan_price,
             skills: skillsResult.recordset.map((s) => ({
               skill_id: s.skill_id,

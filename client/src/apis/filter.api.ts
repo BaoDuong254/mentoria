@@ -15,7 +15,14 @@ export async function getFilteredMentors(
   languages?: string,
   minPrice?: string,
   maxPrice?: string,
-  minRating?: string
+  minRating?: string,
+  searchName?: string,
+  firstName?: string,
+  lastName?: string,
+  categoryName?: string,
+  status?: string,
+  sortColumn?: string,
+  sortDirection?: string
 ): Promise<MentorListResponse> {
   const res = await axios.get<MentorListResponse>(`${BASE_URL}/mentors`, {
     params: {
@@ -29,6 +36,13 @@ export async function getFilteredMentors(
       minPrice,
       maxPrice,
       minRating,
+      searchName,
+      firstName,
+      lastName,
+      categoryName,
+      status,
+      sortColumn,
+      sortDirection,
     },
     withCredentials: true,
   });
