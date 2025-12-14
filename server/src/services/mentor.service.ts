@@ -35,7 +35,7 @@ const getMentorProfileService = async (
           u.timezone,
           m.bio,
           m.headline,
-          m.response_time,
+          dbo.CalculateMentorResponseTime(u.user_id) AS response_time,
           m.cv_url,
           m.bank_name,
           m.account_number,
