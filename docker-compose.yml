@@ -93,6 +93,24 @@ services:
     networks:
       - mentoria-network
 
+  mssql-exporter:
+    image: awaragi/prometheus-mssql-exporter:latest
+    container_name: mentoria-mssql-exporter
+    restart: unless-stopped
+    ports:
+      - "4004:4000"
+    environment:
+      - SERVER=db
+      - PORT=1433
+      - USERNAME=${DB_USER}
+      - PASSWORD=${DB_PASS}
+      - DEBUG=app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mentoria-network
+
   adminer:
     image: adminer:latest
     container_name: mentoria-adminer
