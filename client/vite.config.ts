@@ -9,9 +9,16 @@ export default defineConfig({
   css: {
     devSourcemap: true,
   },
+  // Uncomment the below section to enable proxying API requests to the backend server
   // server: {
-  //     allowedHosts: [
-  //         "f4a4-2001-ee0-519a-62e0-d9db-7627-d09-c524.ngrok-free.app",
-  //     ],
+  //   proxy: {
+  //     "/api": {
+  //       target: "https://06377cb048ad.ngrok-free.app",
+  //       changeOrigin: true,
+  //       secure: false,
+  //       rewrite: (path) => path,
+  //     },
+  //   },
+  //   allowedHosts: ["56dc833b8f48.ngrok-free.app"],
   // },
 });

@@ -79,8 +79,8 @@ export const protectRoute = async (req: Request, res: Response, next: NextFuncti
       // Clear the invalid cookie
       res.clearCookie("token", {
         httpOnly: true,
-        secure: envConfig.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: envConfig.NODE_ENV === "production" ? "strict" : "none",
       });
 
       return res.status(401).json({ message: "Token expired or invalid - Please login again" });
