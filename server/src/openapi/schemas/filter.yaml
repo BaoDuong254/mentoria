@@ -30,3 +30,39 @@ FilterMentorsResponse:
     - success
     - message
     - data
+
+AvailableFiltersData:
+  type: object
+  description: Available filter options data
+  properties:
+    countries:
+      type: array
+      description: List of countries where mentors are available
+      items:
+        type: string
+      example: ["United States", "Viet Nam", "United Kingdom", "Canada"]
+    languages:
+      type: array
+      description: List of languages that mentors speak
+      items:
+        type: string
+      example: ["English", "Vietnamese", "Spanish", "French"]
+  required:
+    - countries
+    - languages
+
+AvailableFiltersResponse:
+  type: object
+  description: Response object for available filters API
+  properties:
+    success:
+      type: boolean
+      example: true
+    data:
+      $ref: "#/AvailableFiltersData"
+    message:
+      type: string
+      nullable: true
+      example: null
+  required:
+    - success

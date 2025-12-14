@@ -1,19 +1,117 @@
 # Mentoria
 
-Mentoria is a full-stack application built with React + TypeScript (client) and Node.js + Express + TypeScript + SQL Server (server).
+A comprehensive mentorship platform connecting mentors and mentees through scheduled meetings, integrated payments, and real-time communication. Built as a full-stack monorepo application with modern technologies.
+
+## ✨ Features
+
+- 🔐 **Authentication & Authorization** - JWT-based auth with Google OAuth integration
+- 👥 **User Roles** - Distinct interfaces for mentees, mentors, and administrators
+- 📅 **Meeting Scheduling** - Calendar-based booking system with timezone support
+- 💳 **Payment Integration** - Stripe checkout and subscription management
+- 💬 **Real-time Communication** - Socket.io for live notifications and updates
+- 🖼️ **Media Management** - Cloudinary integration for profile images and assets
+- 📧 **Email Notifications** - Automated email system with Mailtrap
+- 🔍 **Advanced Search** - Filter mentors by language, expertise, and availability
+- 📊 **Admin Dashboard** - Comprehensive management tools for platform oversight
+- 🐳 **Docker Support** - Containerized deployment with Docker Compose
+- 📝 **API Documentation** - OpenAPI/Swagger specification
+
+## 🛠 Tech Stack
+
+### Frontend
+
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Routing**: React Router v7
+- **State Management**: Zustand
+- **Styling**: Tailwind CSS 4
+- **HTTP Client**: Axios
+- **UI Components**: Lucide Icons, Framer Motion
+- **Form Validation**: Zod
+
+### Backend
+
+- **Runtime**: Node.js 24.11.1
+- **Framework**: Express.js + TypeScript
+- **Database**: Microsoft SQL Server 2022
+- **ORM**: Native MSSQL driver
+- **Authentication**: JWT + Passport.js
+- **Payment**: Stripe
+- **Email**: Nodemailer + Mailtrap
+- **File Storage**: Cloudinary
+- **Real-time**: Socket.io
+- **API Docs**: Swagger/OpenAPI
+
+### DevOps & Tools
+
+- **Package Manager**: pnpm 10.25.0
+- **Monorepo**: Turbo
+- **Containerization**: Docker + Docker Compose
+- **Database UI**: Adminer
+- **Linting**: ESLint 9
+- **Formatting**: Prettier
+- **Git Hooks**: Husky + lint-staged
+- **Commit Convention**: Commitlint
 
 ## 📋 Table of Contents
 
-- [System Requirements](#-system-requirements)
-- [Project Installation](#-project-installation)
-- [Running the Project](#️-running-the-project)
-- [Git Workflow](#-git-workflow)
-- [Available Scripts](#-available-scripts)
+- [Mentoria](#mentoria)
+  - [✨ Features](#-features)
+  - [🛠 Tech Stack](#-tech-stack)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+    - [DevOps \& Tools](#devops--tools)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [🛠 System Requirements](#-system-requirements)
+    - [Install pnpm](#install-pnpm)
+  - [🚀 Project Installation](#-project-installation)
+    - [1. Clone repository](#1-clone-repository)
+    - [2. Install dependencies](#2-install-dependencies)
+  - [⚙️ Environment Variables](#️-environment-variables)
+    - [Server Environment (Required)](#server-environment-required)
+    - [Client Environment (Required)](#client-environment-required)
+    - [Root Environment (For Docker)](#root-environment-for-docker)
+    - [Getting API Keys](#getting-api-keys)
+  - [📦 Managing Packages](#-managing-packages)
+    - [Installing packages](#installing-packages)
+    - [Removing packages](#removing-packages)
+    - [Update packages](#update-packages)
+  - [🏃‍♂️ Running the Project](#️-running-the-project)
+    - [Development mode](#development-mode)
+    - [First-time setup](#first-time-setup)
+    - [Production build](#production-build)
+  - [🐋 Docker Deployment](#-docker-deployment)
+    - [Services](#services)
+    - [Quick Start with Docker](#quick-start-with-docker)
+    - [Docker Commands](#docker-commands)
+    - [Building for Production](#building-for-production)
+    - [Health Checks](#health-checks)
+  - [📊 Database Management with Adminer](#-database-management-with-adminer)
+    - [Manual Database Seeding](#manual-database-seeding)
+  - [📚 API Documentation](#-api-documentation)
+    - [Accessing API Docs](#accessing-api-docs)
+    - [Updating API Documentation](#updating-api-documentation)
+  - [📮 Testing with Postman](#-testing-with-postman)
+    - [Setup](#setup)
+    - [Features](#features)
+  - [🔧 Testing Stripe Webhooks on Localhost](#-testing-stripe-webhooks-on-localhost)
+    - [Install Stripe CLI](#install-stripe-cli)
+    - [Start Listening for Webhooks](#start-listening-for-webhooks)
+    - [Test Checkout using Stripe Test Card](#test-checkout-using-stripe-test-card)
+  - [🔄 Git Workflow](#-git-workflow)
+    - [Commit Message Convention](#commit-message-convention)
+    - [Hooks](#hooks)
+    - [Branch Naming](#branch-naming)
+    - [Standard Workflow](#standard-workflow)
+  - [📜 Available Scripts](#-available-scripts)
+    - [Root level](#root-level)
+    - [Client](#client)
+    - [Server](#server)
 
 ## 🛠 System Requirements
 
 - Node.js >= 24.11.1
-- pnpm >= 10.20.0
+- pnpm >= 10.25.0
 - Git
 
 ### Install pnpm
@@ -46,6 +144,130 @@ pnpm install
 ```
 
 This will install all dependencies for root, client, and server automatically.
+
+## ⚙️ Environment Variables
+
+The project requires environment configuration for both client and server. Copy the example files and configure them:
+
+### Server Environment (Required)
+
+```bash
+cd server
+cp .env.example .env
+```
+
+**Configuration:**
+
+```env
+# Environment
+NODE_ENV=development
+PORT=3000
+
+# Database
+DB_USER=sa
+DB_PASS=YourStrong@Password
+DB_SERVER=localhost
+DB_NAME=mentoria
+DB_INIT=true  # Set to true on first run to initialize database
+
+# JWT
+JWT_SECRET=your_super_secret_jwt_key_here_min_32_chars
+
+# Email
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
+MAIL_SEND=true  # Set false to disable email verification during development
+
+# URLs
+CLIENT_URL=http://localhost:5173
+PUBLIC_URL=http://localhost:5173  # Use domain URL in production
+
+# Google OAuth (Get from Google Cloud Console)
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Cloudinary (Get from Cloudinary Dashboard)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Stripe (Get from Stripe Dashboard)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...  # Get from Stripe CLI or Dashboard
+```
+
+### Client Environment (Required)
+
+```bash
+cd client
+cp .env.example .env
+```
+
+**Configuration:**
+
+```env
+VITE_API_ENDPOINT=http://localhost:3000
+```
+
+### Root Environment (For Docker)
+
+Create a `.env` file in the root directory for Docker Compose:
+
+```env
+# Docker Hub (optional - for pushing images)
+DOCKERHUB_USERNAME=your_dockerhub_username
+
+# Database credentials (must match server .env)
+DB_USER=sa
+DB_PASS=YourStrong@Password
+DB_NAME=mentoria
+```
+
+### Getting API Keys
+
+<details>
+<summary><b>Google OAuth Setup</b></summary>
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable Google+ API
+4. Go to **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**
+5. Set authorized redirect URIs:
+   - `http://localhost:3000/api/auth/google/callback` (development)
+   - `https://your-domain.com/api/auth/google/callback` (production)
+6. Copy **Client ID** and **Client Secret** to your `.env`
+
+</details>
+
+<details>
+<summary><b>Cloudinary Setup</b></summary>
+
+1. Sign up at [Cloudinary](https://cloudinary.com/)
+2. Go to **Dashboard**
+3. Copy **Cloud Name**, **API Key**, and **API Secret** to your `.env`
+
+</details>
+
+<details>
+<summary><b>Stripe Setup</b></summary>
+
+1. Sign up at [Stripe](https://stripe.com/)
+2. Go to **Developers** → **API Keys**
+3. Copy **Publishable Key** (starts with `pk_`) and **Secret Key** (starts with `sk_`)
+4. For webhooks, see [Testing Stripe Webhooks](#-testing-stripe-webhooks-on-localhost)
+
+</details>
+
+<details>
+<summary><b>Email Setup (Gmail)</b></summary>
+
+1. Enable 2-Factor Authentication on your Gmail account
+2. Go to **Google Account** → **Security** → **App Passwords**
+3. Generate a new app password for "Mail"
+4. Use your Gmail address and the generated password in `.env`
+
+</details>
 
 ## 📦 Managing Packages
 
@@ -145,6 +367,14 @@ pnpm dev
 Server will run on `http://localhost:3000`
 Client will run on `http://localhost:5173`
 
+### First-time setup
+
+On your first run, the database will be automatically initialized if `DB_INIT=true` is set in your server `.env` file. This will:
+
+- Create all necessary tables
+- Set up relationships and constraints
+- Seed initial data (optional)
+
 ### Production build
 
 ```bash
@@ -161,7 +391,107 @@ pnpm build
 pnpm start       # Start production server
 ```
 
-## 🗄️ Database Management with Adminer
+## 🐋 Docker Deployment
+
+The project includes full Docker support with Docker Compose for easy deployment.
+
+### Services
+
+The `docker-compose.yml` defines the following services:
+
+- **db** - Microsoft SQL Server 2022
+- **server** - Node.js Express API (port 4002)
+- **client** - React frontend with Nginx (port 4003)
+- **adminer** - Database management UI (port 8083)
+- **nginx-exporter** - Prometheus metrics for monitoring (port 9114)
+
+### Quick Start with Docker
+
+1. **Set up environment variables**
+
+   Create a `.env` file in the root directory:
+
+   ```bash
+   DOCKERHUB_USERNAME=your_username
+   DB_USER=sa
+   DB_PASS=YourStrong@Password123
+   DB_NAME=mentoria
+   ```
+
+   Also ensure `server/.env` and `client/.env` are configured.
+
+2. **Build and start all services**
+
+   ```bash
+   docker-compose up --build
+   ```
+
+   Or run in detached mode:
+
+   ```bash
+   docker-compose up -d --build
+   ```
+
+3. **Access the application**
+
+   - Frontend: `http://localhost:4003`
+   - API: `http://localhost:4002`
+   - Adminer: `http://localhost:8083`
+   - Nginx Metrics: `http://localhost:9114`
+
+### Docker Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# Stop and remove volumes (⚠️ deletes database data)
+docker-compose down -v
+
+# View logs
+docker-compose logs -f
+
+# View logs for specific service
+docker-compose logs -f server
+
+# Rebuild specific service
+docker-compose up -d --build server
+
+# Check service health
+docker-compose ps
+```
+
+### Building for Production
+
+Build and push images to Docker Hub:
+
+```bash
+# Build images
+docker-compose build
+
+# Tag images
+docker tag your_username/mentoria-server:latest your_username/mentoria-server:1.0.0
+docker tag your_username/mentoria-client:latest your_username/mentoria-client:1.0.0
+
+# Push to Docker Hub
+docker push your_username/mentoria-server:latest
+docker push your_username/mentoria-client:latest
+```
+
+### Health Checks
+
+All services include health checks:
+
+- **Database**: Queries for `users` table
+- **Server**: HTTP check on port 4002
+- **Client**: HTTP check on Nginx
+
+Services will wait for dependencies to be healthy before starting.
+
+## 📊 Database Management with Adminer
 
 The project includes **Adminer** for easy database management through a web interface.
 
@@ -185,6 +515,74 @@ The project includes **Adminer** for easy database management through a web inte
 - Export/import database (SQL, CSV)
 - Edit records inline
 - View database schema and relationships
+
+### Manual Database Seeding
+
+You can seed the database with test data using:
+
+```bash
+cd server
+pnpm seed:slot     # Seed mentor availability slots
+```
+
+## 📚 API Documentation
+
+The server includes comprehensive API documentation using OpenAPI/Swagger.
+
+### Accessing API Docs
+
+1. **Start the server** (development or production)
+2. **Open your browser** to: `http://localhost:3000/api-docs`
+
+The interactive Swagger UI allows you to:
+
+- Browse all available endpoints
+- View request/response schemas
+- Test API calls directly in the browser
+- Download the OpenAPI specification
+
+### Updating API Documentation
+
+If you modify API endpoints, update the OpenAPI specification:
+
+```bash
+cd server
+pnpm bundle:swagger
+```
+
+This bundles all YAML files in `src/openapi/` into a single specification.
+
+## 📮 Testing with Postman
+
+The project includes a Postman collection with pre-configured requests.
+
+### Setup
+
+1. **Import Collection**
+
+   - Open Postman
+   - Click **Import**
+   - Select `postman/collections/Mentoria.postman_collection.json`
+
+2. **Import Environment**
+
+   - Click **Import**
+   - Select `postman/environments/Mentoria.postman_environment.json`
+
+3. **Configure Environment**
+   - Select "Mentoria" environment in Postman
+   - Update variables if needed:
+     - `host`: `http://localhost:3000`
+
+### Features
+
+The collection includes:
+
+- All API endpoints organized by category
+- Pre-configured authentication headers
+- Example request bodies
+- Environment variables for tokens
+- Test scripts for automated assertions
 
 ## 🔧 Testing Stripe Webhooks on Localhost
 

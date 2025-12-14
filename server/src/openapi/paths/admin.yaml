@@ -637,3 +637,114 @@ systemStats:
           application/json:
             schema:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
+
+dashboardStats:
+  get:
+    tags:
+      - admin
+    summary: Get dashboard statistics
+    description: |-
+      Retrieve flexible dashboard statistics that can be grouped by mentor, month, or category.
+      Supports filtering by date range, company, category, and minimum thresholds.
+      Results can be sorted by various metrics like revenue, booking count, or average session price.
+      Requires admin authentication.
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: groupBy
+        in: query
+        description: Group results by mentor, month, or category (default is mentor)
+        required: false
+        schema:
+          type: string
+          enum: [mentor, month, category]
+          default: mentor
+          example: mentor
+      - name: startDate
+        in: query
+        description: Start date for filtering (ISO 8601 format)
+        required: false
+        schema:
+          type: string
+          format: date
+          example: "2024-01-01"
+      - name: endDate
+        in: query
+        description: End date for filtering (ISO 8601 format)
+        required: false
+        schema:
+          type: string
+          format: date
+          example: "2024-12-31"
+      - name: companyId
+        in: query
+        description: Filter by company ID
+        required: false
+        schema:
+          type: integer
+          example: 1
+      - name: categoryId
+        in: query
+        description: Filter by category ID
+        required: false
+        schema:
+          type: integer
+          example: 5
+      - name: minRevenue
+        in: query
+        description: Minimum revenue threshold for filtering results
+        required: false
+        schema:
+          type: number
+          format: float
+          example: 1000
+      - name: minBookingCount
+        in: query
+        description: Minimum number of bookings for filtering results
+        required: false
+        schema:
+          type: integer
+          example: 10
+      - name: sortBy
+        in: query
+        description: Field to sort by (default is total_revenue)
+        required: false
+        schema:
+          type: string
+          enum: [total_revenue, booking_count, average_session_price, mentor_id, category_id, month]
+          default: total_revenue
+          example: total_revenue
+      - name: sortOrder
+        in: query
+        description: Sort order (default is DESC)
+        required: false
+        schema:
+          type: string
+          enum: [ASC, DESC]
+          default: DESC
+          example: DESC
+    responses:
+      "200":
+        description: Dashboard statistics retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/admin.yaml#/DashboardStatsResponse"
+      "400":
+        description: Invalid parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - Invalid or missing authentication
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"

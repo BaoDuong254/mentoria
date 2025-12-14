@@ -1,0 +1,181 @@
+getBestDiscount:
+  get:
+    tags:
+      - discount
+    summary: Get best discount for a plan
+    description: |-
+      Find the best applicable discount for a specific mentee and plan combination.
+      Returns the discount with the highest discount value that the mentee is eligible for.
+      Requires authentication.
+    operationId: getBestDiscount
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: mentee_id
+        in: query
+        description: The ID of the mentee
+        required: true
+        schema:
+          type: integer
+          example: 1
+      - name: plan_id
+        in: query
+        description: The ID of the plan
+        required: true
+        schema:
+          type: integer
+          example: 10
+    responses:
+      "200":
+        description: Best discount found successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: object
+                  properties:
+                    best_discount:
+                      type: object
+                      nullable: true
+                      properties:
+                        discount_id:
+                          type: integer
+                          example: 5
+                        discount_code:
+                          type: string
+                          example: "SUMMER2024"
+                        discount_type:
+                          type: string
+                          enum: [percentage, fixed]
+                          example: "percentage"
+                        discount_value:
+                          type: number
+                          format: float
+                          example: 20
+                        valid_from:
+                          type: string
+                          format: date-time
+                          example: "2024-06-01T00:00:00Z"
+                        valid_until:
+                          type: string
+                          format: date-time
+                          example: "2024-08-31T23:59:59Z"
+                        description:
+                          type: string
+                          example: "Summer special discount"
+      "400":
+        description: Missing or invalid parameters
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - Invalid or missing authentication
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "500":
+        description: Server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+
+getAllDiscounts:
+  get:
+    tags:
+      - discount
+    summary: Get all discounts for a plan
+    description: |-
+      Retrieve all available discounts for a specific plan.
+      Returns a list of all discounts that can be applied to the plan.
+      Requires authentication.
+    operationId: getAllDiscounts
+    security:
+      - cookieAuth: []
+    parameters:
+      - name: plan_id
+        in: query
+        description: The ID of the plan
+        required: true
+        schema:
+          type: integer
+          example: 10
+    responses:
+      "200":
+        description: Discounts retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: object
+                  properties:
+                    plan_id:
+                      type: integer
+                      example: 10
+                    discounts:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          discount_id:
+                            type: integer
+                            example: 5
+                          discount_code:
+                            type: string
+                            example: "SUMMER2024"
+                          discount_type:
+                            type: string
+                            enum: [percentage, fixed]
+                            example: "percentage"
+                          discount_value:
+                            type: number
+                            format: float
+                            example: 20
+                          valid_from:
+                            type: string
+                            format: date-time
+                            example: "2024-06-01T00:00:00Z"
+                          valid_until:
+                            type: string
+                            format: date-time
+                            example: "2024-08-31T23:59:59Z"
+                          description:
+                            type: string
+                            example: "Summer special discount"
+                          max_uses:
+                            type: integer
+                            nullable: true
+                            example: 100
+                          current_uses:
+                            type: integer
+                            example: 45
+      "400":
+        description: Missing or invalid plan_id
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "401":
+        description: Unauthorized - Invalid or missing authentication
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"
+      "500":
+        description: Server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"

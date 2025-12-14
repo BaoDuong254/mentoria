@@ -142,3 +142,28 @@ filterMentors:
           application/json:
             schema:
               $ref: "../schemas/auth.yaml#/ErrorResponse"
+
+getAvailableFilters:
+  get:
+    tags:
+      - filter
+    summary: Get available filter options
+    description: |-
+      Retrieve all available filter options for mentor browsing.
+      Returns lists of skills, companies, job titles, countries, languages,
+      and price range information that can be used to filter mentors.
+      This endpoint helps populate filter UI components with available options.
+    operationId: getAvailableFilters
+    responses:
+      "200":
+        description: Available filter options retrieved successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/filter.yaml#/AvailableFiltersResponse"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/auth.yaml#/ErrorResponse"

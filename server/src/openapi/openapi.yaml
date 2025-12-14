@@ -41,6 +41,8 @@ tags:
     description: Meeting management for mentors and mentees
   - name: complaint
     description: Complaint management for mentees to report issues with meetings
+  - name: discount
+    description: Discount and promotion management for plans
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
 paths:
@@ -117,6 +119,8 @@ paths:
   # Filter Endpoints
   /api/filter/mentors:
     $ref: "./paths/filter.yaml#/filterMentors"
+  /api/filter/available:
+    $ref: "./paths/filter.yaml#/getAvailableFilters"
   # Slot Endpoints
   /api/slots/plans/{planId}:
     $ref: "./paths/slot.yaml#/slotsList"
@@ -153,6 +157,11 @@ paths:
     $ref: "./paths/meeting.yaml#/cancelMeeting"
   /api/meetings/{meetingId}/permanent:
     $ref: "./paths/meeting.yaml#/deleteMeetingPermanently"
+  # Discount Endpoints
+  /api/discount/best:
+    $ref: "./paths/discount.yaml#/getBestDiscount"
+  /api/discount/all:
+    $ref: "./paths/discount.yaml#/getAllDiscounts"
   # Complaint Endpoints
   /api/complaints:
     $ref: "./paths/complaint.yaml#/createComplaint"
@@ -187,6 +196,8 @@ paths:
     $ref: "./paths/admin.yaml#/invoiceStats"
   /api/admin/stats:
     $ref: "./paths/admin.yaml#/systemStats"
+  /api/admin/dashboard-stats:
+    $ref: "./paths/admin.yaml#/dashboardStats"
 components:
   schemas:
     $ref: "./schemas/_index.yaml"

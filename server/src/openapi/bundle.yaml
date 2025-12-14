@@ -39,6 +39,8 @@ tags:
     description: Meeting management for mentors and mentees
   - name: complaint
     description: Complaint management for mentees to report issues with meetings
+  - name: discount
+    description: Discount and promotion management for plans
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
 paths:
@@ -3313,6 +3315,68 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/filter/available:
+    get:
+      tags:
+        - filter
+      summary: Get available filter options
+      description: |-
+        Retrieve all available filter options for mentor browsing.
+        Returns lists of skills, companies, job titles, countries, languages,
+        and price range information that can be used to filter mentors.
+        This endpoint helps populate filter UI components with available options.
+      operationId: getAvailableFilters
+      responses:
+        "200":
+          description: Available filter options retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Response object for available filters API
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    description: Available filter options data
+                    properties:
+                      countries:
+                        type: array
+                        description: List of countries where mentors are available
+                        items:
+                          type: string
+                        example:
+                          - United States
+                          - Viet Nam
+                          - United Kingdom
+                          - Canada
+                      languages:
+                        type: array
+                        description: List of languages that mentors speak
+                        items:
+                          type: string
+                        example:
+                          - English
+                          - Vietnamese
+                          - Spanish
+                          - French
+                    required:
+                      - countries
+                      - languages
+                  message:
+                    type: string
+                    nullable: true
+                    example: null
+                required:
+                  - success
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   "/api/slots/plans/{planId}":
     get:
       tags:
@@ -4858,6 +4922,190 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/discount/best:
+    get:
+      tags:
+        - discount
+      summary: Get best discount for a plan
+      description: |-
+        Find the best applicable discount for a specific mentee and plan combination.
+        Returns the discount with the highest discount value that the mentee is eligible for.
+        Requires authentication.
+      operationId: getBestDiscount
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: mentee_id
+          in: query
+          description: The ID of the mentee
+          required: true
+          schema:
+            type: integer
+            example: 1
+        - name: plan_id
+          in: query
+          description: The ID of the plan
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        "200":
+          description: Best discount found successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      best_discount:
+                        type: object
+                        nullable: true
+                        properties:
+                          discount_id:
+                            type: integer
+                            example: 5
+                          discount_code:
+                            type: string
+                            example: SUMMER2024
+                          discount_type:
+                            type: string
+                            enum:
+                              - percentage
+                              - fixed
+                            example: percentage
+                          discount_value:
+                            type: number
+                            format: float
+                            example: 20
+                          valid_from:
+                            type: string
+                            format: date-time
+                            example: "2024-06-01T00:00:00Z"
+                          valid_until:
+                            type: string
+                            format: date-time
+                            example: "2024-08-31T23:59:59Z"
+                          description:
+                            type: string
+                            example: Summer special discount
+        "400":
+          description: Missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/discount/all:
+    get:
+      tags:
+        - discount
+      summary: Get all discounts for a plan
+      description: |-
+        Retrieve all available discounts for a specific plan.
+        Returns a list of all discounts that can be applied to the plan.
+        Requires authentication.
+      operationId: getAllDiscounts
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: plan_id
+          in: query
+          description: The ID of the plan
+          required: true
+          schema:
+            type: integer
+            example: 10
+      responses:
+        "200":
+          description: Discounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      plan_id:
+                        type: integer
+                        example: 10
+                      discounts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            discount_id:
+                              type: integer
+                              example: 5
+                            discount_code:
+                              type: string
+                              example: SUMMER2024
+                            discount_type:
+                              type: string
+                              enum:
+                                - percentage
+                                - fixed
+                              example: percentage
+                            discount_value:
+                              type: number
+                              format: float
+                              example: 20
+                            valid_from:
+                              type: string
+                              format: date-time
+                              example: "2024-06-01T00:00:00Z"
+                            valid_until:
+                              type: string
+                              format: date-time
+                              example: "2024-08-31T23:59:59Z"
+                            description:
+                              type: string
+                              example: Summer special discount
+                            max_uses:
+                              type: integer
+                              nullable: true
+                              example: 100
+                            current_uses:
+                              type: integer
+                              example: 45
+        "400":
+          description: Missing or invalid plan_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/complaints:
     post:
       tags:
@@ -6163,6 +6411,273 @@ paths:
                           cancelled:
                             type: integer
                             example: 10
+        "401":
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/dashboard-stats:
+    get:
+      tags:
+        - admin
+      summary: Get dashboard statistics
+      description: |-
+        Retrieve flexible dashboard statistics that can be grouped by mentor, month, or category.
+        Supports filtering by date range, company, category, and minimum thresholds.
+        Results can be sorted by various metrics like revenue, booking count, or average session price.
+        Requires admin authentication.
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: groupBy
+          in: query
+          description: "Group results by mentor, month, or category (default is mentor)"
+          required: false
+          schema:
+            type: string
+            enum:
+              - mentor
+              - month
+              - category
+            default: mentor
+            example: mentor
+        - name: startDate
+          in: query
+          description: Start date for filtering (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: endDate
+          in: query
+          description: End date for filtering (ISO 8601 format)
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+        - name: companyId
+          in: query
+          description: Filter by company ID
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: categoryId
+          in: query
+          description: Filter by category ID
+          required: false
+          schema:
+            type: integer
+            example: 5
+        - name: minRevenue
+          in: query
+          description: Minimum revenue threshold for filtering results
+          required: false
+          schema:
+            type: number
+            format: float
+            example: 1000
+        - name: minBookingCount
+          in: query
+          description: Minimum number of bookings for filtering results
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: sortBy
+          in: query
+          description: Field to sort by (default is total_revenue)
+          required: false
+          schema:
+            type: string
+            enum:
+              - total_revenue
+              - booking_count
+              - average_session_price
+              - mentor_id
+              - category_id
+              - month
+            default: total_revenue
+            example: total_revenue
+        - name: sortOrder
+          in: query
+          description: Sort order (default is DESC)
+          required: false
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+            default: DESC
+            example: DESC
+      responses:
+        "200":
+          description: Dashboard statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard statistics retrieved successfully
+                  data:
+                    type: object
+                    properties:
+                      groupBy:
+                        type: string
+                        enum:
+                          - mentor
+                          - month
+                          - category
+                        example: mentor
+                      mentorStats:
+                        type: array
+                        nullable: true
+                        items:
+                          type: object
+                          properties:
+                            mentor_id:
+                              type: integer
+                              example: 5
+                            mentor_name:
+                              type: string
+                              example: John Doe
+                            mentor_email:
+                              type: string
+                              example: john.doe@example.com
+                            mentor_avatar_url:
+                              type: string
+                              nullable: true
+                              example: "https://example.com/avatar.jpg"
+                            mentor_country:
+                              type: string
+                              nullable: true
+                              example: United States
+                            mentor_status:
+                              type: string
+                              example: Active
+                            mentor_headline:
+                              type: string
+                              nullable: true
+                              example: Senior Software Engineer
+                            company_names:
+                              type: string
+                              example: "Google, Microsoft"
+                            job_titles:
+                              type: string
+                              example: "Software Engineer, Tech Lead"
+                            skills:
+                              type: string
+                              example: "Python, JavaScript, React"
+                            total_bookings:
+                              type: integer
+                              example: 25
+                            total_invoices:
+                              type: integer
+                              example: 25
+                            total_revenue:
+                              type: number
+                              format: decimal
+                              example: 2500
+                            average_invoice_amount:
+                              type: number
+                              format: decimal
+                              example: 100
+                            completed_meetings:
+                              type: integer
+                              example: 20
+                            cancelled_meetings:
+                              type: integer
+                              example: 2
+                            upcoming_meetings:
+                              type: integer
+                              example: 3
+                            average_rating:
+                              type: number
+                              format: decimal
+                              example: 4.5
+                            total_reviews:
+                              type: integer
+                              example: 15
+                            total_plans:
+                              type: integer
+                              example: 5
+                      monthlyStats:
+                        type: array
+                        nullable: true
+                        items:
+                          type: object
+                          properties:
+                            year:
+                              type: integer
+                              example: 2024
+                            month:
+                              type: integer
+                              example: 6
+                            month_name:
+                              type: string
+                              example: June
+                            total_invoices:
+                              type: integer
+                              example: 45
+                            total_mentees:
+                              type: integer
+                              example: 30
+                            total_mentors:
+                              type: integer
+                              example: 15
+                            total_revenue:
+                              type: number
+                              format: decimal
+                              example: 4500
+                            average_invoice_amount:
+                              type: number
+                              format: decimal
+                              example: 100
+                            total_bookings:
+                              type: integer
+                              example: 45
+                      categoryStats:
+                        type: array
+                        nullable: true
+                        items:
+                          type: object
+                          properties:
+                            category_id:
+                              type: integer
+                              example: 3
+                            category_name:
+                              type: string
+                              example: Web Development
+                            total_mentors_with_skill:
+                              type: integer
+                              example: 12
+                            total_bookings:
+                              type: integer
+                              example: 85
+                            total_revenue:
+                              type: number
+                              format: decimal
+                              example: 8500
+        "400":
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "401":
           description: Unauthorized - Invalid or missing authentication
           content:

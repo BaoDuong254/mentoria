@@ -1094,7 +1094,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/filter/mentors?page=1&limit=5",
+							"raw": "{{host}}/api/filter/mentors?page=1&limit=5&skillIds=1",
 							"host": [
 								"{{host}}"
 							],
@@ -1114,8 +1114,7 @@
 								},
 								{
 									"key": "skillIds",
-									"value": "116",
-									"disabled": true
+									"value": "1"
 								},
 								{
 									"key": "companyIds",
@@ -1152,6 +1151,25 @@
 									"value": "5",
 									"disabled": true
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get available filter options",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/filter/available",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"filter",
+								"available"
 							]
 						}
 					},
@@ -1910,6 +1928,72 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get dashboard statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/admin/dashboard-stats",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"admin",
+								"dashboard-stats"
+							],
+							"query": [
+								{
+									"key": "groupBy",
+									"value": "mentor",
+									"disabled": true
+								},
+								{
+									"key": "startDate",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "endDate",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "companyId",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "categoryId",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "minRevenue",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "minBookingCount",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -2419,6 +2503,65 @@
 								"api",
 								"auth",
 								"google"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "module discount",
+			"item": [
+				{
+					"name": "Get best discount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/discount/best?mentee_id=1&plan_id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"discount",
+								"best"
+							],
+							"query": [
+								{
+									"key": "mentee_id",
+									"value": "1"
+								},
+								{
+									"key": "plan_id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all discounts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/discount/all?plan_id=1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"discount",
+								"all"
+							],
+							"query": [
+								{
+									"key": "plan_id",
+									"value": "1"
+								}
 							]
 						}
 					},

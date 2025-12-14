@@ -534,6 +534,165 @@ SystemStatsResponse:
               type: integer
               example: 10
 
+# Dashboard Statistics Schemas
+MentorDashboardStats:
+  type: object
+  properties:
+    mentor_id:
+      type: integer
+      example: 5
+    mentor_name:
+      type: string
+      example: "John Doe"
+    mentor_email:
+      type: string
+      example: "john.doe@example.com"
+    mentor_avatar_url:
+      type: string
+      nullable: true
+      example: "https://example.com/avatar.jpg"
+    mentor_country:
+      type: string
+      nullable: true
+      example: "United States"
+    mentor_status:
+      type: string
+      example: "Active"
+    mentor_headline:
+      type: string
+      nullable: true
+      example: "Senior Software Engineer"
+    company_names:
+      type: string
+      example: "Google, Microsoft"
+    job_titles:
+      type: string
+      example: "Software Engineer, Tech Lead"
+    skills:
+      type: string
+      example: "Python, JavaScript, React"
+    total_bookings:
+      type: integer
+      example: 25
+    total_invoices:
+      type: integer
+      example: 25
+    total_revenue:
+      type: number
+      format: decimal
+      example: 2500.00
+    average_invoice_amount:
+      type: number
+      format: decimal
+      example: 100.00
+    completed_meetings:
+      type: integer
+      example: 20
+    cancelled_meetings:
+      type: integer
+      example: 2
+    upcoming_meetings:
+      type: integer
+      example: 3
+    average_rating:
+      type: number
+      format: decimal
+      example: 4.5
+    total_reviews:
+      type: integer
+      example: 15
+    total_plans:
+      type: integer
+      example: 5
+
+MonthlyDashboardStats:
+  type: object
+  properties:
+    year:
+      type: integer
+      example: 2024
+    month:
+      type: integer
+      example: 6
+    month_name:
+      type: string
+      example: "June"
+    total_invoices:
+      type: integer
+      example: 45
+    total_mentees:
+      type: integer
+      example: 30
+    total_mentors:
+      type: integer
+      example: 15
+    total_revenue:
+      type: number
+      format: decimal
+      example: 4500.00
+    average_invoice_amount:
+      type: number
+      format: decimal
+      example: 100.00
+    total_bookings:
+      type: integer
+      example: 45
+
+CategoryDashboardStats:
+  type: object
+  properties:
+    category_id:
+      type: integer
+      example: 3
+    category_name:
+      type: string
+      example: "Web Development"
+    total_mentors_with_skill:
+      type: integer
+      example: 12
+    total_bookings:
+      type: integer
+      example: 85
+    total_revenue:
+      type: number
+      format: decimal
+      example: 8500.00
+
+DashboardStatsData:
+  type: object
+  properties:
+    groupBy:
+      type: string
+      enum: [mentor, month, category]
+      example: "mentor"
+    mentorStats:
+      type: array
+      nullable: true
+      items:
+        $ref: "#/MentorDashboardStats"
+    monthlyStats:
+      type: array
+      nullable: true
+      items:
+        $ref: "#/MonthlyDashboardStats"
+    categoryStats:
+      type: array
+      nullable: true
+      items:
+        $ref: "#/CategoryDashboardStats"
+
+DashboardStatsResponse:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Dashboard statistics retrieved successfully"
+    data:
+      $ref: "#/DashboardStatsData"
+
 # Common response schemas
 AdminSuccessResponse:
   type: object
