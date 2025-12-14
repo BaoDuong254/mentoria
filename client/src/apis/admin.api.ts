@@ -9,6 +9,8 @@ import type {
   SystemStats,
   UpdateAdminMenteeRequest,
   UpdateAdminMentorRequest,
+  DashboardStatsParams,
+  DashboardStatsData,
 } from "@/types/admin.type";
 
 const BASE_URL = envConfig.VITE_API_ENDPOINT + "/api/admin";
@@ -128,5 +130,14 @@ export const getAdminInvoices = async (params: {
 // --- Stats ---
 export const getSystemStats = async () => {
   const res = await axios.get<AdminResponse<SystemStats>>(`${BASE_URL}/stats`, { withCredentials: true });
+  return res.data;
+};
+
+// --- Goi sp_DashboardStatistics ---
+export const getDashboardStats = async (params: DashboardStatsParams = {}) => {
+  const res = await axios.get<AdminResponse<DashboardStatsData>>(`${BASE_URL}/dashboard-stats`, {
+    params,
+    withCredentials: true,
+  });
   return res.data;
 };

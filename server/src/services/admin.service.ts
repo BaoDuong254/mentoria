@@ -9,6 +9,13 @@ import {
   UpdateAdminMentorRequest,
   ReviewAction,
   SystemStats,
+  DashboardGroupBy,
+  DashboardSortBy,
+  DashboardSortOrder,
+  DashboardStatsResponse,
+  MentorDashboardStats,
+  MonthlyDashboardStats,
+  CategoryDashboardStats,
 } from "@/types/admin.type";
 
 const listMenteesService = async (
@@ -1012,6 +1019,61 @@ const getSystemStatsService = async (): Promise<AdminServiceResponse<SystemStats
   }
 };
 
+// Goi sp_DashboardStatistics
+const getDashboardStatsService = async (
+  groupBy: DashboardGroupBy = "mentor",
+  startDate?: string,
+  endDate?: string,
+  companyId?: number,
+  categoryId?: number,
+  minRevenue?: number,
+  minBookingCount?: number,
+  sortBy: DashboardSortBy = "total_revenue",
+  sortOrder: DashboardSortOrder = "DESC"
+): Promise<DashboardStatsResponse> => {
+  const pool = await poolPromise;
+  if (!pool) throw new Error("Database connection not established");
+
+  try {
+    const request = pool.request();
+
+    // Set parameters
+    request.input("GroupBy", groupBy);
+    request.input("SortBy", sortBy);
+    request.input("SortOrder", sortOrder);
+
+    if (startDate) request.input("StartDate", new Date(startDate));
+    if (endDate) request.input("EndDate", new Date(endDate));
+    if (companyId) request.input("CompanyId", companyId);
+    if (categoryId) request.input("CategoryId", categoryId);
+    if (minRevenue !== undefined) request.input("MinRevenue", minRevenue);
+    if (minBookingCount !== undefined) request.input("MinBookingCount", minBookingCount);
+
+    const result = await request.execute("dbo.sp_DashboardStatistics");
+
+    const responseData: DashboardStatsResponse["data"] = {
+      groupBy,
+    };
+
+    if (groupBy === "mentor") {
+      responseData.mentorStats = result.recordset as MentorDashboardStats[];
+    } else if (groupBy === "month") {
+      responseData.monthlyStats = result.recordset as MonthlyDashboardStats[];
+    } else if (groupBy === "category") {
+      responseData.categoryStats = result.recordset as CategoryDashboardStats[];
+    }
+
+    return {
+      success: true,
+      message: "Dashboard statistics retrieved successfully",
+      data: responseData,
+    };
+  } catch (error) {
+    console.error("Error in getDashboardStatsService:", error);
+    throw error;
+  }
+};
+
 export {
   listMenteesService,
   getMenteeService,
@@ -1025,4 +1087,5 @@ export {
   reviewMentorService,
   getInvoiceStatsService,
   getSystemStatsService,
+  getDashboardStatsService,
 };

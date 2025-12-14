@@ -157,3 +157,80 @@ export interface SystemStats {
     cancelled: number;
   };
 }
+
+// ==================== Dashboard Statistics Types ====================
+
+export type DashboardGroupBy = "mentor" | "month" | "category";
+export type DashboardSortBy =
+  | "total_revenue"
+  | "total_bookings"
+  | "average_rating"
+  | "completed_meetings"
+  | "mentor_name"
+  | "average_invoice_amount";
+export type DashboardSortOrder = "ASC" | "DESC";
+
+export interface DashboardStatsParams {
+  groupBy?: DashboardGroupBy;
+  startDate?: string;
+  endDate?: string;
+  companyId?: number;
+  categoryId?: number;
+  minRevenue?: number;
+  minBookingCount?: number;
+  sortBy?: DashboardSortBy;
+  sortOrder?: DashboardSortOrder;
+}
+
+// Mentor Statistics (GroupBy = 'mentor')
+export interface MentorDashboardStats {
+  mentor_id: number;
+  mentor_name: string;
+  mentor_email: string;
+  mentor_avatar_url: string | null;
+  mentor_country: string | null;
+  mentor_status: string;
+  mentor_headline: string | null;
+  company_names: string;
+  job_titles: string;
+  skills: string;
+  total_bookings: number;
+  total_invoices: number;
+  total_revenue: number;
+  average_invoice_amount: number;
+  completed_meetings: number;
+  cancelled_meetings: number;
+  upcoming_meetings: number;
+  average_rating: number;
+  total_reviews: number;
+  total_plans: number;
+}
+
+// Monthly Statistics (GroupBy = 'month')
+export interface MonthlyDashboardStats {
+  year: number;
+  month: number;
+  month_name: string;
+  total_invoices: number;
+  total_mentees: number;
+  total_mentors: number;
+  total_revenue: number;
+  average_invoice_amount: number;
+  total_bookings: number;
+}
+
+// Category Statistics (GroupBy = 'category')
+export interface CategoryDashboardStats {
+  category_id: number;
+  category_name: string;
+  total_mentors_with_skill: number;
+  total_bookings: number;
+  total_revenue: number;
+}
+
+export interface DashboardStatsData {
+  groupBy: DashboardGroupBy;
+  mentorStats?: MentorDashboardStats[];
+  monthlyStats?: MonthlyDashboardStats[];
+  categoryStats?: CategoryDashboardStats[];
+}

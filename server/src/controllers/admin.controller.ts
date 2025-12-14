@@ -13,10 +13,12 @@ import {
   reviewMentorService,
   getInvoiceStatsService,
   getSystemStatsService,
+  getDashboardStatsService,
 } from "@/services/admin.service";
 import { sendMentorApproved, sendMentorRejected } from "@/mailtrap/mailSend";
 import { ReviewAction } from "@/types/admin.type";
 import { UpdateMenteeSchema, UpdateMentorSchema, ReviewMentorSchema } from "@/validation/admin.schema";
+import type { DashboardGroupBy, DashboardSortBy, DashboardSortOrder } from "@/types/admin.type";
 
 // ==================== MENTEE CONTROLLERS ====================
 
@@ -356,6 +358,53 @@ const getSystemStats = async (req: Request, res: Response) => {
   }
 };
 
+const getDashboardStats = async (req: Request, res: Response) => {
+  try {
+    const groupBy = (req.query.groupBy as DashboardGroupBy) || "mentor";
+    const startDate = req.query.startDate as string | undefined;
+    const endDate = req.query.endDate as string | undefined;
+    const companyId = req.query.companyId ? parseInt(req.query.companyId as string) : undefined;
+    const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+    const minRevenue = req.query.minRevenue ? parseFloat(req.query.minRevenue as string) : undefined;
+    const minBookingCount = req.query.minBookingCount ? parseInt(req.query.minBookingCount as string) : undefined;
+    const sortBy = (req.query.sortBy as DashboardSortBy) || "total_revenue";
+    const sortOrder = (req.query.sortOrder as DashboardSortOrder) || "DESC";
+
+    // Validate groupBy
+    if (!["mentor", "month", "category"].includes(groupBy)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid groupBy parameter. Must be 'mentor', 'month', or 'category'",
+      });
+    }
+
+    // Validate sortOrder
+    if (!["ASC", "DESC"].includes(sortOrder)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid sortOrder parameter. Must be 'ASC' or 'DESC'",
+      });
+    }
+
+    const result = await getDashboardStatsService(
+      groupBy,
+      startDate,
+      endDate,
+      companyId,
+      categoryId,
+      minRevenue,
+      minBookingCount,
+      sortBy,
+      sortOrder
+    );
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("[Admin] getDashboardStats error:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 export {
   listMentees,
   getMentee,
@@ -369,4 +418,5 @@ export {
   reviewMentor,
   getInvoiceStats,
   getSystemStats,
+  getDashboardStats,
 };
