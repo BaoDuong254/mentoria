@@ -1,6 +1,5 @@
 import { useBookingStore } from "@/store/useBookingStore";
 import { Clock, Globe, Star, Users, Video } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { format, isSameDay, parseISO, addHours } from "date-fns";
 import type { Slot } from "@/types/booking.type";
@@ -9,6 +8,9 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useSearchStore } from "@/store/useSearchStore";
 import { createCheckoutSession } from "@/apis/payment.api";
 import { showToast } from "@/utils/toast";
+import { getBestDiscount, getAllDiscounts, type DiscountItem } from "@/apis/discount.api";
+import DiscountSelector from "@/components/DiscountSelector";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 // Helper function to convert UTC time to Vietnam timezone (UTC+7)
 const toVietnamTime = (isoString: string): Date => {
@@ -39,11 +41,39 @@ function Booking() {
   const [email, setEmail] = useState(user?.email);
   const [discuss, setDiscuss] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [discounts, setDiscounts] = useState<DiscountItem[]>([]);
+  const [bestDiscount, setBestDiscount] = useState<string | null>(null);
+  const [selectedDiscount, setSelectedDiscount] = useState<string | null>(null);
+
+  const fetchDiscountData = useCallback(async () => {
+    // ← Thêm useCallback
+    if (!user?.user_id || !planId) return;
+
+    try {
+      const [bestRes, allRes] = await Promise.all([
+        getBestDiscount(user.user_id, Number(planId)),
+        getAllDiscounts(Number(planId)),
+      ]);
+
+      if (bestRes.success) {
+        setBestDiscount(bestRes.data.best_discount);
+      }
+
+      if (allRes.success) {
+        setDiscounts(allRes.data.discounts);
+      }
+    } catch (error) {
+      console.error("Error fetching discounts:", error);
+    }
+  }, [user?.user_id, planId]);
+
   useEffect(() => {
     if (planId) {
       void fetchSlots(Number(planId));
+      void fetchDiscountData();
     }
-  }, [planId, fetchSlots]);
+  }, [planId, fetchSlots, fetchDiscountData]);
+
   const slotsForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
 
@@ -53,6 +83,17 @@ function Booking() {
       return isSameDay(slotDate, selectedDate);
     });
   }, [selectedDate, slots]);
+
+  const finalPrice = useMemo(() => {
+    const basePrice = selectedCharge ?? 0;
+
+    if (!selectedDiscount) return basePrice;
+
+    const discount = discounts.find((d) => d.discount_name === selectedDiscount);
+    if (!discount) return basePrice;
+
+    return basePrice - discount.estimated_savings;
+  }, [selectedCharge, selectedDiscount, discounts]);
 
   const handleBookSession = async () => {
     if (!user?.user_id) {
@@ -86,7 +127,7 @@ function Booking() {
         slotStartTime: currentSlot.start_time,
         slotEndTime: currentSlot.end_time,
         message: discuss,
-        discountCode: "",
+        discountCode: selectedDiscount ?? "",
       };
 
       const res = await createCheckoutSession(payload);
@@ -103,6 +144,7 @@ function Booking() {
       setIsProcessing(false);
     }
   };
+
   return (
     <>
       {!isLoadingSlots && (
@@ -153,14 +195,54 @@ function Booking() {
                       One-on-One
                     </span>
                   </div>
-                  <div className='flex items-center justify-between border-t border-gray-600 pt-6'>
-                    <span>Session Fee</span>
-                    <span>
-                      <strong className='text-xl text-white'>${selectedCharge}</strong>
-                    </span>
+                  <div className='flex flex-col gap-2 border-t border-gray-600 pt-4'>
+                    <div className='flex items-center justify-between'>
+                      <span>Original Price</span>
+                      <span className={selectedDiscount ? "text-gray-500 line-through" : "text-white"}>
+                        ${selectedCharge ?? 0}
+                      </span>
+                    </div>
+                    {selectedDiscount && (
+                      <>
+                        <div className='flex items-center justify-between text-gray-400'>
+                          <span>Discount</span>
+                          <span>
+                            -$
+                            {(
+                              discounts.find((d) => d.discount_name === selectedDiscount)?.estimated_savings ?? 0
+                            ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className='flex items-center justify-between border-t border-gray-600 pt-2'>
+                          <span className='font-semibold'>Final Price</span>
+                          <span>
+                            <strong className='text-xl text-white'>${finalPrice.toFixed(2)}</strong>
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {!selectedDiscount && (
+                      <div className='flex items-center justify-between border-t border-gray-600 pt-2'>
+                        <span>Session Fee</span>
+                        <span>
+                          <strong className='text-xl text-white'>${selectedCharge ?? 0}</strong>
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
+              {discounts.length > 0 && (
+                <div className='w-11/12 rounded-xl border border-gray-500 bg-gray-800 p-6'>
+                  <h3 className='mb-4 text-lg font-semibold text-white'>Discount</h3>
+                  <DiscountSelector
+                    discounts={discounts}
+                    bestDiscount={bestDiscount}
+                    selectedDiscount={selectedDiscount}
+                    onSelect={setSelectedDiscount}
+                  />
+                </div>
+              )}
               <div className='w-11/12 rounded-xl border border-gray-500 bg-gray-800 p-6'>
                 <Calendar
                   selectedDate={selectedDate ?? new Date()}
@@ -171,6 +253,7 @@ function Booking() {
                 />
               </div>
             </div>
+
             {/* Right side */}
             <div className='flex w-2/3 flex-col gap-5'>
               <div className='flex w-full items-center justify-center rounded-xl border border-gray-500 bg-gray-800 py-8'>

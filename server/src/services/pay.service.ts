@@ -385,7 +385,7 @@ const createMeetingService = async (
 
     const slotDate = slotResult.recordset[0].date;
 
-    const result = await pool
+    await pool
       .request()
       .input("invoiceId", invoiceId)
       .input("registrationId", registrationId)
@@ -395,9 +395,17 @@ const createMeetingService = async (
       .input("date", slotDate)
       .input("mentorId", data.mentorId).query(`
       INSERT INTO meetings (invoice_id, plan_registerations_id, location, start_time, end_time, date, mentor_id)
-      OUTPUT INSERTED.meeting_id
       VALUES (@invoiceId, @registrationId, @location, @startTime, @endTime, @date, @mentorId)
     `);
+
+    // Get the inserted meeting_id using SCOPE_IDENTITY()
+    const result = await pool.request().query<{ meeting_id: number }>(`
+      SELECT CAST(SCOPE_IDENTITY() AS INT) AS meeting_id
+    `);
+
+    if (result.recordset.length === 0 || !result.recordset[0]) {
+      throw new Error("Failed to retrieve meeting_id after insertion");
+    }
 
     return result.recordset[0].meeting_id;
   } catch (error) {
@@ -443,28 +451,38 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     // 1. Create plan registration first (required by invoice foreign key)
     const registrationId = await createPlanRegistrationService(message, discountId ? parseInt(discountId) : undefined);
 
-    // Calculate discount amount and original subtotal
-    let discountAmount = 0;
-    let originalSubtotal = (session.amount_total || 0) / 100; // Default: no discount applied
+    // Get original plan price from database
+    const planResult = await pool.request().input("planId", parseInt(planId)).query(`
+      SELECT plan_charge FROM plans WHERE plan_id = @planId
+    `);
 
-    if (discountId && discountId !== "null" && session.amount_total) {
+    if (planResult.recordset.length === 0) {
+      throw new Error("Plan not found");
+    }
+
+    const originalSubtotal = planResult.recordset[0].plan_charge;
+    const finalAmount = (session.amount_total || 0) / 100;
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discountId && discountId !== "null") {
       const discountResult = await pool.request().input("discountId", parseInt(discountId)).query(`
         SELECT discount_type, discount_value FROM discounts WHERE discount_id = @discountId
       `);
 
       if (discountResult.recordset.length > 0) {
         const discount = discountResult.recordset[0];
-        const finalAmount = (session.amount_total || 0) / 100; // This is the amount after discount
 
         if (discount.discount_type === "Percentage") {
-          // finalAmount = originalSubtotal * (1 - discount_value/100)
-          // originalSubtotal = finalAmount / (1 - discount_value/100)
-          originalSubtotal = finalAmount / (1 - discount.discount_value / 100);
-          discountAmount = originalSubtotal - finalAmount;
+          discountAmount = (originalSubtotal * discount.discount_value) / 100;
         } else {
           // Fixed discount
-          originalSubtotal = finalAmount + discount.discount_value;
           discountAmount = discount.discount_value;
+        }
+
+        // Ensure discount doesn't exceed original price (in case of over-discount)
+        if (discountAmount > originalSubtotal) {
+          discountAmount = originalSubtotal;
         }
       }
     }
