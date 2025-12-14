@@ -80,6 +80,9 @@ function MentorProfile() {
       void navigate(`/mentee/booking/${String(selectedPlanId)}`);
     }
   };
+
+  const rt = selectedMentor?.response_time.toLowerCase();
+
   return (
     <>
       <div className='flex w-full justify-center bg-(--secondary) py-15'>
@@ -124,7 +127,7 @@ function MentorProfile() {
                       <div className='flex gap-2'>
                         <Clock className='h-4 w-4 rounded-full bg-purple-400 stroke-black' />
                         <span className='text-gray-300'>
-                          Usually responds {String(selectedMentor?.response_time).toLowerCase()}
+                          {!rt || rt === "no responses yet" ? "No responses yet" : `Usually responds ${rt}`}
                         </span>
                       </div>
                     </div>

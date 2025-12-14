@@ -62,7 +62,11 @@ export default function Card({ mentor }: CardProps) {
               </div>
             ))}
           </div>
-          <div className='text-[16px] tracking-wide text-gray-400'>Response {mentor.response_time.toLowerCase()}</div>
+          <div className='text-[16px] tracking-wide text-gray-400'>
+            {!mentor.response_time || mentor.response_time.toLowerCase() === "no responses yet"
+              ? "No responses yet"
+              : `Usually responds ${mentor.response_time.toLowerCase()}`}
+          </div>
           {/* Available */}
           <div>
             <span>Available languages:</span>
