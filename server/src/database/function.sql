@@ -1,3 +1,6 @@
+SET QUOTED_IDENTIFIER ON;
+GO
+
 IF OBJECT_ID('dbo.FindBestDiscountForMentee', 'FN') IS NOT NULL
     DROP FUNCTION dbo.FindBestDiscountForMentee;
 GO
@@ -87,6 +90,9 @@ BEGIN
 
     RETURN @best_discount_name;
 END;
+GO
+
+SET QUOTED_IDENTIFIER ON;
 GO
 
 IF OBJECT_ID('dbo.CalculateMentorResponseTime', 'FN') IS NOT NULL

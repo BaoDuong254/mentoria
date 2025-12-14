@@ -1,3 +1,6 @@
+SET QUOTED_IDENTIFIER ON;
+GO
+
 IF OBJECT_ID('dbo.sp_SearchMentors', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_SearchMentors;
 GO
@@ -259,6 +262,9 @@ BEGIN
     OFFSET @Offset ROWS
     FETCH NEXT @Limit ROWS ONLY;
 END;
+GO
+
+SET QUOTED_IDENTIFIER ON;
 GO
 
 IF OBJECT_ID('dbo.sp_DashboardStatistics', 'P') IS NOT NULL
