@@ -6,32 +6,212 @@
 
 <url>
   <loc>https://mentoria.ticklab.site/</loc>
-  <lastmod>2025-12-15T10:42:19.176Z</lastmod>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
   <changefreq>daily</changefreq>
   <priority>1</priority>
 </url>
 <url>
   <loc>https://mentoria.ticklab.site/login</loc>
-  <lastmod>2025-12-15T10:42:19.176Z</lastmod>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
   <loc>https://mentoria.ticklab.site/mentee/register</loc>
-  <lastmod>2025-12-15T10:42:19.176Z</lastmod>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
   <loc>https://mentoria.ticklab.site/mentor/register</loc>
-  <lastmod>2025-12-15T10:42:19.176Z</lastmod>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.8</priority>
 </url>
 <url>
   <loc>https://mentoria.ticklab.site/mentor-browse</loc>
-  <lastmod>2025-12-15T10:42:19.176Z</lastmod>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
   <changefreq>daily</changefreq>
   <priority>0.9</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/30</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/29</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/28</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/27</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/26</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/25</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/24</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/23</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/22</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/21</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/20</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/19</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/18</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/17</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/16</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/15</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/14</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/13</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/12</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/11</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/10</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/9</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/8</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/7</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/6</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/5</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/4</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/3</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/2</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://mentoria.ticklab.site/mentor-profile/1</loc>
+  <lastmod>2025-12-15T11:46:05.192Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.7</priority>
 </url>
 </urlset>
