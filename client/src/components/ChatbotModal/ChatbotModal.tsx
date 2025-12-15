@@ -67,7 +67,15 @@ export default function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
       }
     } catch (err) {
       console.error("Error sending message:", err);
-      setError("An error occurred while communicating with the chatbot. Please try again.");
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred while communicating with the chatbot.";
+
+      // Check if it's a rate limit error
+      if (errorMessage.includes("Daily API limit reached") || errorMessage.includes("quota")) {
+        setError("⚠️ Daily chatbot limit reached. Please try again tomorrow or contact support.");
+      } else {
+        setError(errorMessage + " Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
