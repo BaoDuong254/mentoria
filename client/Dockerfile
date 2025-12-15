@@ -17,6 +17,7 @@ RUN pnpm install --no-frozen-lockfile
 # Copy source code
 COPY public ./public
 COPY src ./src
+COPY scripts ./scripts
 COPY index.html ./
 
 # Build the application
