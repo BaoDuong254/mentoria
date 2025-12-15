@@ -1,0 +1,154 @@
+chat:
+  post:
+    tags:
+      - chatbot
+    summary: Send a message to the AI chatbot
+    description: |
+      Send a message to the Gemini-powered AI chatbot assistant. The chatbot can help users find mentors,
+      view their meetings, and get information about the platform. It supports function calling to retrieve
+      real-time data from the platform services.
+
+      **Available Functions:**
+      - `search_mentors`: Search for mentors by keyword (skills, companies, job titles, etc.)
+      - `get_mentor_profile`: Get detailed information about a specific mentor
+      - `get_mentee_meetings`: Get meetings for a specific mentee (requires authentication)
+      - `get_mentor_meetings`: Get meetings for a specific mentor (requires authentication)
+
+      **Authentication:**
+      - Optional: If authenticated, the chatbot will use the authenticated user's context
+      - Without authentication, only public functions like mentor search are available
+    operationId: chatWithBot
+    security:
+      - cookieAuth: []
+      - {}
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "../schemas/chatbot.yaml#/ChatRequest"
+          examples:
+            simpleMessage:
+              summary: Simple message without history
+              value:
+                message: "Can you help me find mentors who specialize in React?"
+            messageWithHistory:
+              summary: Message with conversation history
+              value:
+                message: "Tell me more about the first mentor"
+                history:
+                  - role: "user"
+                    content: "Can you help me find mentors who specialize in React?"
+                  - role: "model"
+                    content: "I found several mentors specializing in React..."
+            authenticatedMessage:
+              summary: Authenticated user asking about their meetings
+              value:
+                message: "Show me my upcoming meetings"
+                userId: 123
+                userRole: "Mentee"
+    responses:
+      "200":
+        description: Chatbot response generated successfully
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/chatbot.yaml#/ChatResponse"
+            examples:
+              simpleResponse:
+                summary: Simple text response
+                value:
+                  success: true
+                  message: "Response generated successfully"
+                  response: "I'd be happy to help you find React mentors! Let me search for you."
+                  functionCalls: []
+              responseWithFunctionCalls:
+                summary: Response with function calls
+                value:
+                  success: true
+                  message: "Response generated successfully"
+                  response: "I found 5 mentors specializing in React. Here are the top results..."
+                  functionCalls:
+                    - name: "search_mentors"
+                      args:
+                        keyword: "React"
+                        page: 1
+                        limit: 10
+                      result:
+                        success: true
+                        data:
+                          mentors:
+                            - mentor_id: 1
+                              first_name: "John"
+                              last_name: "Doe"
+                              headline: "Senior React Developer"
+                          pagination:
+                            currentPage: 1
+                            totalPages: 1
+                            totalItems: 5
+      "400":
+        description: Bad request - Invalid input
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/chatbot.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Message is required and must be a non-empty string"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/chatbot.yaml#/ErrorResponse"
+            example:
+              success: false
+              message: "Chatbot error: Failed to generate response"
+
+health:
+  get:
+    tags:
+      - chatbot
+    summary: Check chatbot service health
+    description: |
+      Health check endpoint to verify the chatbot service is operational and properly configured.
+      Returns the configuration status of the Gemini API key.
+    operationId: chatbotHealthCheck
+    responses:
+      "200":
+        description: Chatbot service is operational
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - success
+                - message
+                - configured
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Chatbot service is operational"
+                configured:
+                  type: boolean
+                  description: Whether the Gemini API key is configured
+                  example: true
+      "500":
+        description: Service health check failed
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - success
+                - message
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Chatbot service health check failed"

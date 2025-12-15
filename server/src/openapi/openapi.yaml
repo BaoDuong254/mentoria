@@ -45,6 +45,8 @@ tags:
     description: Discount and promotion management for plans
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
+  - name: chatbot
+    description: AI-powered chatbot assistant using Google Gemini for finding mentors and managing meetings
 paths:
   # Authentication Endpoints
   /api/auth/register:
@@ -179,6 +181,11 @@ paths:
     $ref: "./paths/complaint.yaml#/getComplaintById"
   /api/complaints/{complaintId}/status:
     $ref: "./paths/complaint.yaml#/updateComplaintStatus"
+  # Chatbot Endpoints
+  /api/chatbot/chat:
+    $ref: "./paths/chatbot.yaml#/chat"
+  /api/chatbot/health:
+    $ref: "./paths/chatbot.yaml#/health"
   # Admin Endpoints
   /api/admin/mentees:
     $ref: "./paths/admin.yaml#/menteesList"

@@ -136,3 +136,17 @@ ReviewMentorResponse:
   $ref: "./admin.yaml#/ReviewMentorResponse"
 AdminSuccessResponse:
   $ref: "./admin.yaml#/AdminSuccessResponse"
+
+# Chatbot schemas
+ChatRequest:
+  $ref: "./chatbot.yaml#/ChatRequest"
+ChatMessage:
+  $ref: "./chatbot.yaml#/ChatMessage"
+ChatResponse:
+  $ref: "./chatbot.yaml#/ChatResponse"
+FunctionCall:
+  $ref: "./chatbot.yaml#/FunctionCall"
+ChatbotErrorResponse:
+  $ref: "./chatbot.yaml#/ErrorResponse"
+HealthCheckResponse:
+  $ref: "./chatbot.yaml#/HealthCheckResponse"

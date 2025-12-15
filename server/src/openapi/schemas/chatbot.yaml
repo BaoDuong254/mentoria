@@ -1,0 +1,148 @@
+# Request schemas
+ChatRequest:
+  type: object
+  required:
+    - message
+  properties:
+    message:
+      type: string
+      minLength: 1
+      description: The user's message to the chatbot
+      example: "Can you help me find mentors who specialize in React and Node.js?"
+    history:
+      type: array
+      description: Optional conversation history for context
+      items:
+        $ref: "#/ChatMessage"
+      example:
+        - role: "user"
+          content: "Hello, I'm looking for a mentor"
+        - role: "model"
+          content: "Hi! I'd be happy to help you find a mentor. What skills or expertise are you looking for?"
+    userId:
+      type: integer
+      description: Optional user ID (used if not authenticated via cookie)
+      example: 123
+    userRole:
+      type: string
+      enum: ["Mentee", "Mentor", "Admin"]
+      description: Optional user role (used if not authenticated via cookie)
+      example: "Mentee"
+
+ChatMessage:
+  type: object
+  required:
+    - role
+    - content
+  properties:
+    role:
+      type: string
+      enum: ["user", "model"]
+      description: The role of the message sender
+      example: "user"
+    content:
+      type: string
+      description: The message content
+      example: "Can you show me my upcoming meetings?"
+
+# Response schemas
+ChatResponse:
+  type: object
+  required:
+    - success
+    - message
+  properties:
+    success:
+      type: boolean
+      description: Whether the request was successful
+      example: true
+    message:
+      type: string
+      description: Status message
+      example: "Response generated successfully"
+    response:
+      type: string
+      description: The chatbot's text response
+      example: "I found 5 mentors who specialize in React and Node.js. Here are some great options for you..."
+    functionCalls:
+      type: array
+      description: List of function calls made by the chatbot to retrieve data
+      items:
+        $ref: "#/FunctionCall"
+      example:
+        - name: "search_mentors"
+          args:
+            keyword: "React Node.js"
+            page: 1
+            limit: 10
+          result:
+            success: true
+            data:
+              mentors: []
+              pagination: {}
+
+FunctionCall:
+  type: object
+  required:
+    - name
+    - args
+    - result
+  properties:
+    name:
+      type: string
+      description: The name of the function that was called
+      enum:
+        - "search_mentors"
+        - "get_mentor_profile"
+        - "get_mentee_meetings"
+        - "get_mentor_meetings"
+      example: "search_mentors"
+    args:
+      type: object
+      description: The arguments passed to the function
+      additionalProperties: true
+      example:
+        keyword: "JavaScript"
+        page: 1
+        limit: 10
+    result:
+      type: object
+      description: The result returned by the function
+      additionalProperties: true
+      example:
+        success: true
+        data:
+          mentors: []
+          pagination: {}
+
+ErrorResponse:
+  type: object
+  required:
+    - success
+    - message
+  properties:
+    success:
+      type: boolean
+      example: false
+    message:
+      type: string
+      example: "An error occurred while processing your request"
+
+# Health check response
+HealthCheckResponse:
+  type: object
+  required:
+    - success
+    - message
+    - configured
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      example: "Chatbot service is operational"
+    configured:
+      type: boolean
+      description: Whether the Gemini API key is properly configured
+      example: true

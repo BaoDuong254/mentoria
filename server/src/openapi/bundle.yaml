@@ -43,6 +43,8 @@ tags:
     description: Discount and promotion management for plans
   - name: admin
     description: Admin management for mentees and mentors (Admin only)
+  - name: chatbot
+    description: AI-powered chatbot assistant using Google Gemini for finding mentors and managing meetings
 paths:
   /api/auth/register:
     post:
@@ -5580,6 +5582,159 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/chatbot/chat:
+    post:
+      tags:
+        - chatbot
+      summary: Send a message to the AI chatbot
+      description: |
+        Send a message to the Gemini-powered AI chatbot assistant. The chatbot can help users find mentors,
+        view their meetings, and get information about the platform. It supports function calling to retrieve
+        real-time data from the platform services.
+
+        **Available Functions:**
+        - `search_mentors`: Search for mentors by keyword (skills, companies, job titles, etc.)
+        - `get_mentor_profile`: Get detailed information about a specific mentor
+        - `get_mentee_meetings`: Get meetings for a specific mentee (requires authentication)
+        - `get_mentor_meetings`: Get meetings for a specific mentor (requires authentication)
+
+        **Authentication:**
+        - Optional: If authenticated, the chatbot will use the authenticated user's context
+        - Without authentication, only public functions like mentor search are available
+      operationId: chatWithBot
+      security:
+        - cookieAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            examples:
+              simpleMessage:
+                summary: Simple message without history
+                value:
+                  message: Can you help me find mentors who specialize in React?
+              messageWithHistory:
+                summary: Message with conversation history
+                value:
+                  message: Tell me more about the first mentor
+                  history:
+                    - role: user
+                      content: Can you help me find mentors who specialize in React?
+                    - role: model
+                      content: I found several mentors specializing in React...
+              authenticatedMessage:
+                summary: Authenticated user asking about their meetings
+                value:
+                  message: Show me my upcoming meetings
+                  userId: 123
+                  userRole: Mentee
+      responses:
+        "200":
+          description: Chatbot response generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+              examples:
+                simpleResponse:
+                  summary: Simple text response
+                  value:
+                    success: true
+                    message: Response generated successfully
+                    response: I'd be happy to help you find React mentors! Let me search for you.
+                    functionCalls: []
+                responseWithFunctionCalls:
+                  summary: Response with function calls
+                  value:
+                    success: true
+                    message: Response generated successfully
+                    response: I found 5 mentors specializing in React. Here are the top results...
+                    functionCalls:
+                      - name: search_mentors
+                        args:
+                          keyword: React
+                          page: 1
+                          limit: 10
+                        result:
+                          success: true
+                          data:
+                            mentors:
+                              - mentor_id: 1
+                                first_name: John
+                                last_name: Doe
+                                headline: Senior React Developer
+                            pagination:
+                              currentPage: 1
+                              totalPages: 1
+                              totalItems: 5
+        "400":
+          description: Bad request - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatbotErrorResponse"
+              example:
+                success: false
+                message: Message is required and must be a non-empty string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatbotErrorResponse"
+              example:
+                success: false
+                message: "Chatbot error: Failed to generate response"
+  /api/chatbot/health:
+    get:
+      tags:
+        - chatbot
+      summary: Check chatbot service health
+      description: |
+        Health check endpoint to verify the chatbot service is operational and properly configured.
+        Returns the configuration status of the Gemini API key.
+      operationId: chatbotHealthCheck
+      responses:
+        "200":
+          description: Chatbot service is operational
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                  - configured
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Chatbot service is operational
+                  configured:
+                    type: boolean
+                    description: Whether the Gemini API key is configured
+                    example: true
+        "500":
+          description: Service health check failed
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - message
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Chatbot service health check failed
   /api/admin/mentees:
     get:
       tags:
@@ -8533,6 +8688,151 @@ components:
         message:
           type: string
           example: Operation successful
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          description: The user's message to the chatbot
+          example: Can you help me find mentors who specialize in React and Node.js?
+        history:
+          type: array
+          description: Optional conversation history for context
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+          example:
+            - role: user
+              content: "Hello, I'm looking for a mentor"
+            - role: model
+              content: Hi! I'd be happy to help you find a mentor. What skills or expertise are you looking for?
+        userId:
+          type: integer
+          description: Optional user ID (used if not authenticated via cookie)
+          example: 123
+        userRole:
+          type: string
+          enum:
+            - Mentee
+            - Mentor
+            - Admin
+          description: Optional user role (used if not authenticated via cookie)
+          example: Mentee
+    ChatMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum:
+            - user
+            - model
+          description: The role of the message sender
+          example: user
+        content:
+          type: string
+          description: The message content
+          example: Can you show me my upcoming meetings?
+    ChatResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful
+          example: true
+        message:
+          type: string
+          description: Status message
+          example: Response generated successfully
+        response:
+          type: string
+          description: The chatbot's text response
+          example: I found 5 mentors who specialize in React and Node.js. Here are some great options for you...
+        functionCalls:
+          type: array
+          description: List of function calls made by the chatbot to retrieve data
+          items:
+            $ref: "#/components/schemas/FunctionCall"
+          example:
+            - name: search_mentors
+              args:
+                keyword: React Node.js
+                page: 1
+                limit: 10
+              result:
+                success: true
+                data:
+                  mentors: []
+                  pagination: {}
+    FunctionCall:
+      type: object
+      required:
+        - name
+        - args
+        - result
+      properties:
+        name:
+          type: string
+          description: The name of the function that was called
+          enum:
+            - search_mentors
+            - get_mentor_profile
+            - get_mentee_meetings
+            - get_mentor_meetings
+          example: search_mentors
+        args:
+          type: object
+          description: The arguments passed to the function
+          additionalProperties: true
+          example:
+            keyword: JavaScript
+            page: 1
+            limit: 10
+        result:
+          type: object
+          description: The result returned by the function
+          additionalProperties: true
+          example:
+            success: true
+            data:
+              mentors: []
+              pagination: {}
+    ChatbotErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: An error occurred while processing your request
+    HealthCheckResponse:
+      type: object
+      required:
+        - success
+        - message
+        - configured
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Chatbot service is operational
+        configured:
+          type: boolean
+          description: Whether the Gemini API key is properly configured
+          example: true
   securitySchemes:
     cookieAuth:
       type: apiKey

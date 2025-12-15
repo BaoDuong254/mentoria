@@ -21,6 +21,7 @@ import discountRoutes from "@/routes/discount.route";
 import adminRoutes from "@/routes/admin.route";
 import complaintRoutes from "@/routes/complaint.route";
 import metricsRoute from "@/routes/metrics.route";
+import chatbotRoutes from "@/routes/chatbot.route";
 import cookieParser from "cookie-parser";
 import envConfig from "@/config/env";
 import { metricsMiddleware } from "@/middlewares/metrics.middleware";
@@ -94,6 +95,7 @@ app.use("/api/meetings", meetingRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/discounts", discountRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 app.use(metricsRoute);
 
 // Health check endpoint

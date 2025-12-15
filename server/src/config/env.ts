@@ -44,6 +44,7 @@ const configSchema = z.object({
   STRIPE_PUBLIC_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
   METRICS_ALLOWED_IPS: z.string().optional().default(""),
+  GEMINI_API_KEY: z.string().optional(),
 });
 
 const configServer = configSchema.safeParse(process.env);
