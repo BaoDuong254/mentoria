@@ -1,47 +1,17 @@
 name: Deploy Production
 
 on:
-  push:
-    branches: ["main"]
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
 
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24.11.1"
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.25.0
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Run lint
-        run: pnpm run lint
-      - name: Run format check
-        run: pnpm run format
-      - name: Run build
-        run: pnpm run build
-
   build-and-push:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    needs: ci
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -98,13 +68,13 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ✅ Build and push Docker images completed successfully.
-            👤 ${{ github.actor }} created commit:
-            🧑‍💻 Commit message: ${{ github.event.commits[0].message }}
+            👤 ${{ github.event.workflow_run.actor.login }} created commit:
+            🧑‍💻 Commit message: ${{ github.event.workflow_run.head_commit.message }}
             📦 Repository: ${{ github.repository }}
             🐳 Images:
             - ${{ secrets.DOCKERHUB_USERNAME }}/mentoria-server:latest
             - ${{ secrets.DOCKERHUB_USERNAME }}/mentoria-client:latest
-            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.event.workflow_run.head_sha}}
 
       - name: Send telegram message after build failure
         if: failure()
@@ -114,10 +84,10 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ❌ Build and push Docker images failed.
-            👤 ${{ github.actor }} created commit:
-            🧑‍💻 Commit message: ${{ github.event.commits[0].message }}
+            👤 ${{ github.event.workflow_run.actor.login }} created commit:
+            🧑‍💻 Commit message: ${{ github.event.workflow_run.head_commit.message }}
             📦 Repository: ${{ github.repository }}
-            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.event.workflow_run.head_sha}}
 
   deploy:
     runs-on: ubuntu-latest
@@ -165,8 +135,8 @@ jobs:
             # Set environment variables for docker-compose
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             export DB_PASS=${{ secrets.DB_PASS }}
-            export DB_USER=sa
-            export DB_NAME=mentoria
+            export DB_USER=${{ secrets.DB_USER }}
+            export DB_NAME=${{ secrets.DB_NAME }}
 
             # Stop and remove old containers first
             docker compose down
@@ -191,11 +161,11 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ✅ Deployment to LXC completed successfully.
-            👤 ${{ github.actor }} created commit:
-            🧑‍💻 Commit message: ${{ github.event.commits[0].message }}
+            👤 ${{ github.event.workflow_run.actor.login }} created commit:
+            🧑‍💻 Commit message: ${{ github.event.workflow_run.head_commit.message }}
             📦 Repository: ${{ github.repository }}
             🚀 Application is now running on LXC
-            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.event.workflow_run.head_sha}}
 
       - name: Send telegram message after deploy failure
         if: failure()
@@ -205,7 +175,7 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ❌ Deployment to LXC failed.
-            👤 ${{ github.actor }} created commit:
-            🧑‍💻 Commit message: ${{ github.event.commits[0].message }}
+            👤 ${{ github.event.workflow_run.actor.login }} created commit:
+            🧑‍💻 Commit message: ${{ github.event.workflow_run.head_commit.message }}
             📦 Repository: ${{ github.repository }}
-            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+            👀 See changes: https://github.com/${{ github.repository }}/commit/${{github.event.workflow_run.head_sha}}
