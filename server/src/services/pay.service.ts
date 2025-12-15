@@ -461,7 +461,6 @@ const handleCheckoutSessionCompletedService = async (session: Stripe.Checkout.Se
     }
 
     const originalSubtotal = planResult.recordset[0].plan_charge;
-    const finalAmount = (session.amount_total || 0) / 100;
 
     // Calculate discount amount
     let discountAmount = 0;
