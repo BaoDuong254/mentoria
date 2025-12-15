@@ -26,7 +26,7 @@ class GeminiChatbotService {
     this.genAI = new GoogleGenerativeAI(envConfig.GEMINI_API_KEY);
     this.tools = this.defineTools();
     this.model = this.genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       tools: this.tools,
     });
   }

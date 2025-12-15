@@ -3,6 +3,7 @@ import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ChatbotFloatingButton from "@/components/ChatbotFloatingButton";
 
 function App() {
   const routes = useRoutesConfig();
@@ -17,6 +18,7 @@ function App() {
   return (
     <>
       {routes}
+      <ChatbotFloatingButton />
       <ToastContainer
         position='top-right'
         autoClose={3000}
