@@ -9,7 +9,7 @@ import tsdoc from "eslint-plugin-tsdoc";
 
 export default [
   {
-    ignores: ["dist", "node_modules", "vite.config.ts", "eslint.config.js"],
+    ignores: ["dist", "node_modules", "vite.config.ts", "eslint.config.js", "scripts/**/*.js"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

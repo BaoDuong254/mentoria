@@ -499,7 +499,7 @@ const getMentorsListService = async (
     const offset = (page - 1) * limit;
 
     // Build WHERE clause conditions
-    const conditions: string[] = ["u.role = N'Mentor'", "u.status = N'Active'"];
+    const conditions: string[] = ["u.role = N'Mentor'", "u.status IN (N'Active', N'Inactive')"];
 
     const whereClause = `WHERE ${conditions.join(" AND ")}`;
 

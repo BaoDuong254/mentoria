@@ -1,0 +1,20 @@
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+Allow: /mentee/register
+Allow: /mentor/register
+
+# Disallow private areas
+Disallow: /mentee/
+Disallow: /mentor/
+Disallow: /admin/
+Disallow: /payment/
+
+# Disallow API endpoints (backend only, not for SEO)
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://mentoria.ticklab.site/sitemap.xml
+
+# Crawl delay (optional, 1 second)
+Crawl-delay: 1
