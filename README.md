@@ -44,7 +44,7 @@ A comprehensive mentorship platform connecting mentors and mentees through sched
 
 ### DevOps & Tools
 
-- **Package Manager**: pnpm 10.25.0
+- **Package Manager**: pnpm 10.26.2
 - **Monorepo**: Turbo
 - **Containerization**: Docker + Docker Compose
 - **Database UI**: Adminer
@@ -111,7 +111,7 @@ A comprehensive mentorship platform connecting mentors and mentees through sched
 ## 🛠 System Requirements
 
 - Node.js >= 24.11.1
-- pnpm >= 10.25.0
+- pnpm >= 10.26.2
 - Git
 
 ### Install pnpm

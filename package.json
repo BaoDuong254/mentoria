@@ -1,13 +1,13 @@
 {
   "name": "mentoria",
   "private": true,
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.2",
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "turbo": "^2.6.3"
+    "turbo": "^2.7.2"
   },
   "scripts": {
     "prepare": "husky",
@@ -23,9 +23,9 @@
   },
   "engines": {
     "node": "24.11.1",
-    "pnpm": "10.25.0"
+    "pnpm": "10.26.2"
   },
   "dependencies": {
-    "pnpm": "10.25.0"
+    "pnpm": "10.26.2"
   }
 }

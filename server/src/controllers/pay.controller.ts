@@ -5,7 +5,7 @@ import envConfig from "@/config/env";
 import Stripe from "stripe";
 
 const stripe = new Stripe(envConfig.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-11-17.clover",
+  apiVersion: "2025-12-15.clover",
 });
 
 const createCheckoutSession = async (req: Request, res: Response) => {

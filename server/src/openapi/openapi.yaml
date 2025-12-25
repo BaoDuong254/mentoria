@@ -14,7 +14,7 @@ info:
 servers:
   - url: http://localhost:3000
     description: Development server
-  - url: https://api.mentoria.com
+  - url: https://mentoria.ticklab.site
     description: Production server
 tags:
   - name: authentication
