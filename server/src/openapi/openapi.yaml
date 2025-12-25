@@ -4,7 +4,7 @@ info:
   description: |-
     This is the API documentation for the Mentoria platform - a mentorship platform connecting mentors and mentees.
 
-  termsOfService: http://localhost:5173/terms/
+  termsOfService: https://mentoria.ticklab.site/terms/
   contact:
     email: duonggiabao254@gmail.com
   license:
