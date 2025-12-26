@@ -51,15 +51,9 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // enable CORS
-const allowedOrigins = [
-  "http://localhost:4173",
-  "https://abc123.ngrok.app",
-  "http://localhost:5173",
-  envConfig.CLIENT_URL,
-];
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: envConfig.CLIENT_URL,
     credentials: true,
   })
 );
