@@ -180,7 +180,6 @@ MAIL_SEND=true  # Set false to disable email verification during development
 
 # URLs
 CLIENT_URL=http://localhost:5173
-PUBLIC_URL=http://localhost:5173  # Use domain URL in production
 
 # Google OAuth (Get from Google Cloud Console)
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com

@@ -58,7 +58,7 @@ VALUES
 (N'Stella', N'Nelson', N'Female', N'stella.nelson@example.com', N'$2b$10$UJAn0gdXdvLWzjkVVPCcsuUvXRKE0.NdAGVfEudOvUTEyZaMlapH2', N'https://i.pravatar.cc/150?img=67', N'Turkey', N'Mentee', N'Europe/Istanbul', N'Active', 1, N'Local'),
 (N'Tyler', N'Carter', N'Male', N'tyler.carter@example.com', N'$2b$10$UJAn0gdXdvLWzjkVVPCcsuUvXRKE0.NdAGVfEudOvUTEyZaMlapH2', N'https://i.pravatar.cc/150?img=69', N'Greece', N'Mentee', N'Europe/Athens', N'Active', 1, N'Local'),
 -- Insert Admin
-(N'Admin', N'User', N'Male', N'admin@mentoria.com', N'$2b$10$UJAn0gdXdvLWzjkVVPCcsuUvXRKE0.NdAGVfEudOvUTEyZaMlapH2', N'https://i.pravatar.cc/150?img=68', N'United States', N'Admin', N'America/New_York', N'Active', 1, N'Local');
+(N'Admin', N'User', N'Male', N'admin@mentoria.com', N'$2b$10$q/xZCnlNdDNeyBZlmRQnyuoD5LDNXSQRhTJcpUwavpGEeKGaqfWqO', N'https://i.pravatar.cc/150?img=68', N'United States', N'Admin', N'America/New_York', N'Active', 1, N'Local');
 
 -- Insert User Social Links
 INSERT INTO user_social_links (user_id, link, platform)

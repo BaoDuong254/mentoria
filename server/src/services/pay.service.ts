@@ -224,8 +224,8 @@ const createCheckoutSessionService = async (
       ],
       mode: "payment",
       customer_creation: "always", // Always create a customer for payment tracking
-      success_url: `${envConfig.PUBLIC_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${envConfig.PUBLIC_URL}/payment/cancel`,
+      success_url: `${envConfig.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${envConfig.CLIENT_URL}/payment/cancel`,
       metadata,
     });
 
