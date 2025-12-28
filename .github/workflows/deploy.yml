@@ -108,6 +108,7 @@ jobs:
           echo "DB_PASS=${{ secrets.DB_PASS }}" > .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
           echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
 
       - name: Copy files to LXC
