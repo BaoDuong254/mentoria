@@ -35,10 +35,6 @@ services:
       - "4002:4002"
     env_file:
       - ./server/.env
-    environment:
-      - DB_SERVER=db
-    volumes:
-      - ./server/public:/app/public
     healthcheck:
       test:
         [
@@ -94,7 +90,7 @@ services:
     ports:
       - "4004:4000"
     environment:
-      - SERVER=db
+      - SERVER=${DB_SERVER}
       - PORT=1433
       - USERNAME=${DB_USER}
       - PASSWORD=${DB_PASS}
@@ -110,7 +106,7 @@ services:
     container_name: mentoria-adminer
     restart: unless-stopped
     environment:
-      - ADMINER_DEFAULT_SERVER=db
+      - ADMINER_DEFAULT_SERVER=${DB_SERVER}
       - ADMINER_DESIGN=nette
     ports:
       - "8083:8080"
