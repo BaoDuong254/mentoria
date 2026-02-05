@@ -31,7 +31,7 @@ A comprehensive mentorship platform connecting mentors and mentees through sched
 
 ### Backend
 
-- **Runtime**: Node.js 24.11.1
+- **Runtime**: Node.js 24.12.0
 - **Framework**: Express.js + TypeScript
 - **Database**: Microsoft SQL Server 2022
 - **ORM**: Native MSSQL driver
@@ -44,7 +44,7 @@ A comprehensive mentorship platform connecting mentors and mentees through sched
 
 ### DevOps & Tools
 
-- **Package Manager**: pnpm 10.26.2
+- **Package Manager**: pnpm 10.28.2
 - **Monorepo**: Turbo
 - **Containerization**: Docker + Docker Compose
 - **Database UI**: Adminer
@@ -110,8 +110,8 @@ A comprehensive mentorship platform connecting mentors and mentees through sched
 
 ## 🛠 System Requirements
 
-- Node.js >= 24.11.1
-- pnpm >= 10.26.2
+- Node.js >= 24.12.0
+- pnpm >= 10.28.2
 - Git
 
 ### Install pnpm
@@ -432,7 +432,6 @@ The `docker-compose.yml` defines the following services:
    ```
 
 3. **Access the application**
-
    - Frontend: `http://localhost:4003`
    - API: `http://localhost:4002`
    - Adminer: `http://localhost:8083`
@@ -558,13 +557,11 @@ The project includes a Postman collection with pre-configured requests.
 ### Setup
 
 1. **Import Collection**
-
    - Open Postman
    - Click **Import**
    - Select `postman/collections/Mentoria.postman_collection.json`
 
 2. **Import Environment**
-
    - Click **Import**
    - Select `postman/environments/Mentoria.postman_environment.json`
 
