@@ -96,7 +96,7 @@ function MentorPlans() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     e.preventDefault();
     if (!user?.user_id) {
       showToast.error("Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
