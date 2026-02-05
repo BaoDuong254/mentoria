@@ -13,7 +13,7 @@ const getMenteeProfile = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await getMenteeProfileService(parseInt(menteeId));
+    const result = await getMenteeProfileService(parseInt(menteeId as string));
 
     if (!result.success) {
       return res.status(404).json({
@@ -50,14 +50,14 @@ const updateMenteeProfile = async (req: Request, res: Response) => {
 
     // Check if user is authorized to update this profile
     const currentUserId = req.user?.user_id ? parseInt(req.user.user_id) : null;
-    if (currentUserId !== parseInt(menteeId)) {
+    if (currentUserId !== parseInt(menteeId as string)) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized to update this profile",
       });
     }
 
-    const result = await updateMenteeProfileService(parseInt(menteeId), updateData);
+    const result = await updateMenteeProfileService(parseInt(menteeId as string), updateData);
 
     if (!result.success) {
       return res.status(404).json({

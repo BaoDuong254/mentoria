@@ -19,7 +19,7 @@ const createSlot = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -78,7 +78,7 @@ const getSlots = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -155,7 +155,7 @@ const getSlot = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -198,7 +198,7 @@ const updateSlot = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -265,7 +265,7 @@ const deleteSlot = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,

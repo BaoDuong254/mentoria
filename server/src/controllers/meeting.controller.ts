@@ -96,7 +96,7 @@ export const getMeetingsForMentor = async (req: Request, res: Response) => {
 export const getMeetingById = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
 
     if (!userId) {
       return res.status(401).json({
@@ -145,7 +145,7 @@ export const getMeetingById = async (req: Request, res: Response) => {
 export const updateMeetingLocation = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
     const { location } = req.body;
 
     if (!mentorId) {
@@ -203,7 +203,7 @@ export const updateMeetingLocation = async (req: Request, res: Response) => {
 export const updateMeetingStatus = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
     const { status } = req.body;
 
     if (!mentorId) {
@@ -267,7 +267,7 @@ export const updateMeetingStatus = async (req: Request, res: Response) => {
 export const updateMeetingReviewLink = async (req: Request, res: Response) => {
   try {
     const mentorId = req.user?.user_id;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
     const { reviewLink } = req.body;
 
     if (!mentorId) {
@@ -330,7 +330,7 @@ export const cancelMeeting = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
     const userRole = req.user?.role;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
 
     if (!userId || !userRole) {
       return res.status(401).json({
@@ -386,7 +386,7 @@ export const deleteMeetingPermanently = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
     const userRole = req.user?.role;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
 
     if (!userId || !userRole) {
       return res.status(401).json({

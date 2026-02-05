@@ -270,7 +270,7 @@ const resetPassword = async (req: Request, res: Response) => {
     }
 
     // Call reset password service
-    const result = await resetPasswordService(token, newPassword);
+    const result = await resetPasswordService(token as string, newPassword);
 
     if (!result.success) {
       return res.status(400).json({

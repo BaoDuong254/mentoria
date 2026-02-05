@@ -36,7 +36,7 @@ export const getUsersForSidebar = async (req: Request, res: Response) => {
 export const getMessagesByUserId = async (req: Request, res: Response) => {
   try {
     const currentUserId = req.user?.user_id;
-    const otherUserId = req.params.userId ? parseInt(req.params.userId) : null;
+    const otherUserId = req.params.userId ? parseInt(req.params.userId as string) : null;
 
     if (!currentUserId) {
       return res.status(401).json({

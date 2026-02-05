@@ -24,7 +24,7 @@ const getMentorProfile = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -67,7 +67,7 @@ const updateMentorProfile = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -177,7 +177,7 @@ const getMentorStats = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -220,7 +220,7 @@ const getAllPlans = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -263,7 +263,7 @@ const getPlanDetails = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -306,7 +306,7 @@ const createPlan = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -421,7 +421,7 @@ const updatePlan = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -437,7 +437,7 @@ const updatePlan = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,
@@ -526,7 +526,7 @@ const deletePlan = async (req: Request, res: Response) => {
       });
     }
 
-    const mentorIdNum = parseInt(mentorId);
+    const mentorIdNum = parseInt(mentorId as string);
     if (isNaN(mentorIdNum)) {
       return res.status(400).json({
         success: false,
@@ -542,7 +542,7 @@ const deletePlan = async (req: Request, res: Response) => {
       });
     }
 
-    const planIdNum = parseInt(planId);
+    const planIdNum = parseInt(planId as string);
     if (isNaN(planIdNum)) {
       return res.status(400).json({
         success: false,

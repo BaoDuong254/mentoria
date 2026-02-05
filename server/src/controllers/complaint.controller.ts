@@ -176,7 +176,7 @@ export const getMyComplaints = async (req: Request, res: Response) => {
 export const getComplaintById = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
-    const complaintId = req.params.complaintId ? parseInt(req.params.complaintId) : null;
+    const complaintId = req.params.complaintId ? parseInt(req.params.complaintId as string) : null;
 
     if (!userId) {
       return res.status(401).json({
@@ -228,7 +228,7 @@ export const getComplaintById = async (req: Request, res: Response) => {
 export const updateComplaintStatus = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
-    const complaintId = req.params.complaintId ? parseInt(req.params.complaintId) : null;
+    const complaintId = req.params.complaintId ? parseInt(req.params.complaintId as string) : null;
     const { status, admin_response } = req.body;
 
     if (!userId) {
@@ -284,7 +284,7 @@ export const updateComplaintStatus = async (req: Request, res: Response) => {
 export const checkMeetingExpiredPending = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.user_id;
-    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId) : null;
+    const meetingId = req.params.meetingId ? parseInt(req.params.meetingId as string) : null;
 
     if (!userId) {
       return res.status(401).json({
@@ -380,14 +380,14 @@ export const getComplaintByMeetingId = async (req: Request, res: Response) => {
       });
     }
 
-    if (!meetingId || isNaN(parseInt(meetingId))) {
+    if (!meetingId || isNaN(parseInt(meetingId as string))) {
       return res.status(400).json({
         success: false,
         message: "Invalid meeting ID",
       });
     }
 
-    const result = await getComplaintByMeetingIdService(parseInt(meetingId));
+    const result = await getComplaintByMeetingIdService(parseInt(meetingId as string));
     return res.status(200).json(result);
   } catch (error) {
     console.error("Error in getComplaintByMeetingId:", error);
